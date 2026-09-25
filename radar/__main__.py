@@ -34,6 +34,10 @@ def main(argv=None) -> int:
     sync_p = sub.add_parser("sync", help="GitHub sync")
     sync_p.add_argument("action", choices=["pull", "push", "config-push", "config-pull"])
     sub.add_parser("rescore", help="re-score all stored opportunities with the current profile")
+    em = sub.add_parser("render-email", help="write the compact HTML report + Excel for an external mailer")
+    em.add_argument("--out", default="data/reports")
+    em.add_argument("--excel-url", default="")
+    sub.add_parser("mark-reported", help="mark current unreported matches as reported (after mailing)")
     imp = sub.add_parser("import-json", help="import opportunities from a JSON list (e.g. collected by an assistant)")
     imp.add_argument("path")
     imp.add_argument("--source", default="Web search")
@@ -103,6 +107,34 @@ def main(argv=None) -> int:
                     dbm.record_discovery(con, item.url, item.title)
             con.commit()
         print(json.dumps(counts))
+        return 0
+    if args.cmd in ("render-email", "mark-reported"):
+        import re
+        from pathlib import Path
+
+        from .exporters import export_xlsx
+        from .profile import load_profile
+        from .report import _jinja, collect_report
+
+        with dbm.get_db() as con:
+            rep = collect_report(con, load_profile())
+            if args.cmd == "mark-reported":
+                con.executemany("UPDATE opportunities SET reported=1 WHERE id=?", [(o["id"],) for o in rep["items"]])
+                con.execute("INSERT INTO email_logs(sent_at, local_date, channel, recipients, subject, items, status) "
+                            "VALUES (datetime('now'), date('now'), 'email', 'gmail-connector', 'Daily Opportunity Radar Report', ?, 'sent')",
+                            (len(rep["items"]),))
+                con.commit()
+                print(f"marked {len(rep['items'])}")
+                return 0
+        out = Path(args.out)
+        out.mkdir(parents=True, exist_ok=True)
+        rep["excel_url"] = args.excel_url
+        html_text = re.sub(r">\s+<", "><", _jinja.get_template("email_compact.html").render(rep=rep)).strip()
+        html_text = html_text.replace("</b><a ", "</b> <a ")
+        (out / "email.html").write_text(html_text, encoding="utf-8")
+        export_xlsx(out / "opportunity_report.xlsx", {"Top matches": rep["items"]})
+        print(json.dumps({"matches": len(rep["items"]), "iran": len(rep["iran_items"]), "scanned": rep["scanned"],
+                          "html": str(out / "email.html"), "xlsx": str(out / "opportunity_report.xlsx")}))
         return 0
     if args.cmd == "rescore":
         from .scanner import rescore_all
