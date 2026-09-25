@@ -13,4 +13,5 @@ fi
 .venv/bin/python -m pip install -q --upgrade pip >/dev/null 2>&1
 .venv/bin/python -m pip install -q -r requirements.txt || { echo "نصب پکیج‌ها ناموفق بود (اینترنت را چک کنید)."; read -r _; exit 1; }
 [ -f .env ] || cp .env.example .env
+export FLASK_SKIP_DOTENV=1 PYTHONWARNINGS=ignore
 exec .venv/bin/python -m radar serve

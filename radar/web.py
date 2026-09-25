@@ -6,6 +6,7 @@ import io
 import secrets
 import threading
 import webbrowser
+from pathlib import Path
 from datetime import datetime, timedelta, timezone
 
 import yaml
@@ -582,6 +583,12 @@ def export(fmt):
     else:
         abort(404)
     return send_file(path, as_attachment=True, download_name=path.name)
+
+
+@app.route("/favicon.ico")
+@app.route("/icon.svg")
+def favicon():
+    return send_file(Path(app.static_folder) / "icon.svg", mimetype="image/svg+xml", max_age=86400)
 
 
 def main(host: str = "127.0.0.1", port: int = 3000, open_browser: bool = True) -> None:
