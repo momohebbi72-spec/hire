@@ -319,6 +319,15 @@ textarea.inp{min-height:190px;resize:vertical;line-height:1.9}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .lbl2{display:block;font-weight:700;font-size:13px;margin:12px 0 6px}
 .lbl2 small{color:var(--muted);font-weight:500}
+.crow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.7fr) 112px 44px 36px;gap:8px;align-items:center;margin-bottom:8px}
+.crow .sw{padding:0;justify-content:center}
+.crow input.inp{height:38px}
+.fgp{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--card2);margin-bottom:10px}
+.fgp .ph{margin-bottom:8px}
+.fgp input.inp{max-width:280px;height:38px;font-weight:700}
+.fgp textarea.inp{min-height:110px}
+.hint2{color:var(--muted);font-size:12px;margin-top:6px}
+@media (max-width:760px){.crow{grid-template-columns:1fr 1fr;padding:10px;border:1px solid var(--line);border-radius:12px}.crow input[data-cf="url"]{grid-column:1/-1;order:-1}}
 .savebar{position:sticky;bottom:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;box-shadow:var(--shadow2);z-index:5}
 .savebar .grow{flex:1}
 .resume{display:flex;align-items:center;gap:12px;border:1px dashed var(--line2);border-radius:12px;padding:14px}
@@ -453,9 +462,11 @@ details.panel summary{cursor:pointer;font-weight:800}
     linkedinKeywords: ["SEO Specialist", "SEO Manager", "SEO Expert", "Head of SEO", "SEO Lead", "SEO Consultant", "Generative Engine Optimization", "GEO Specialist", "AI SEO", "AEO", "AI Search Optimization"],
     linkedinLocations: ["Remote", "Iran"],
     google: ["استخدام کارشناس سئو دورکاری", "استخدام متخصص سئو دورکاری", "استخدام سئوکار دورکاری", "استخدام متخصص جئو GEO", "پروژه سئو فریلنسری"],
-    sites: [],
+    sites: [], custom: [], linkedinOn: true,
     foreign: { remoteok: false, remotive: false, jobicy: false, himalayas: false, wwr: false, freelancer: false, reddit: false, wellfound: false, indeed: false }
   };
+  var DEFAULT_FIELDS = { hidden: [], custom: [] };
+  var BUILTIN_FACETS = [["work", "نوع همکاری"], ["role", "نقش"], ["lvl", "سطح"], ["when", "زمان انتشار"], ["src", "منبع / کانال / کشور"], ["st", "وضعیت من"]];
   var DEFAULT_REPORT = { includeReview: true, onlyNew: true };
   var DEFAULT_TEMPLATES = {
     fa: "سلام، وقت بخیر\n\nآگهی «{title}» در {company} را دیدم و علاقه‌مند به همکاری هستم.\nبیش از ۵ سال است که به‌صورت تخصصی سئو کار می‌کنم: استراتژی و مدیریت سئو، سئو داخلی و تکنیکال، تحقیق کلمات کلیدی، سرچ کنسول و GA4، و بهینه‌سازی برای نتایج هوش مصنوعی (GEO) تا برند و سایت در پاسخ‌های ChatGPT، Gemini و AI Overviews دیده شود.\n\nرزومه‌ام را پیوست کرده‌ام و خوشحال می‌شوم در یک گفتگوی کوتاه نمونه‌کارها و نتایج را نشان بدهم.\n\nبا احترام\n[نام و نام خانوادگی]\n[شماره تماس]",
@@ -578,7 +589,7 @@ details.panel summary{cursor:pointer;font-weight:800}
   // ------------------------------------------------------------ state
   var S = {
     items: {}, status: {}, cls: {}, rules: clone(DEFAULT_RULES), sources: clone(DEFAULT_SOURCES), report: clone(DEFAULT_REPORT),
-    templates: clone(DEFAULT_TEMPLATES), resume: null, meta: null, loaded: false, db: null,
+    templates: clone(DEFAULT_TEMPLATES), fields: clone(DEFAULT_FIELDS), fieldPats: {}, resume: null, meta: null, loaded: false, db: null,
     view: ls("view", "home"), openId: null, limit: PAGE, q: "", sort: ls("sort", "new"), fopen: false,
     f: lsJson("filters", {}), more: {}, fsearch: {}, setTab: ls("setTab", "rules"), seen: lsJson("seen", {})
   };
@@ -586,10 +597,24 @@ details.panel summary{cursor:pointer;font-weight:800}
   var C = compile(S.rules);
   var caps = { mcp: null, sample: null, assets: null };
 
+  function hostOf(u) { return String(u || "").toLowerCase().replace(/^https?:\/\/(www\.)?/, "").split("/")[0]; }
   function reclassify() {
     C = compile(S.rules); var out = {};
-    Object.keys(S.items).forEach(function (id) { out[id] = classify(S.items[id], C); });
+    var custom = (S.sources.custom || []).map(function (c) { return [hostOf(c.url), c.region || "iran", c.name]; }).filter(function (c) { return c[0]; });
+    Object.keys(S.items).forEach(function (id) {
+      var o = S.items[id]; if (o.ch0 == null) o.ch0 = o.ch;
+      var h = hostOf(o.url), m = custom.filter(function (c) { return h === c[0] || h.slice(-c[0].length - 1) === "." + c[0]; })[0];
+      o.ch = m ? m[1] : o.ch0; o.site = m ? m[2] : "";
+      out[id] = classify(o, C);
+    });
     S.cls = out;
+    S.fieldPats = {};
+    (S.fields.custom || []).forEach(function (g) { S.fieldPats[g.id] = (g.options || []).map(function (op) { return [op.label, pats(op.terms)]; }); });
+  }
+  function customVals(g, o) {
+    var t = normF(o.title + " \n " + (o.location || "") + " \n " + (o.desc || "")), outv = [];
+    (S.fieldPats[g.id] || []).forEach(function (p) { if (has(p[1], t)) outv.push(p[0]); });
+    return outv.length ? outv : ["سایر"];
   }
   function statusOf(id) { return (S.status[id] && S.status[id].status) || "New"; }
   function notesOf(id) { return (S.status[id] && S.status[id].notes) || ""; }
@@ -599,6 +624,7 @@ details.panel summary{cursor:pointer;font-weight:800}
   function srcKey(o) {
     if (o.ch === "social") return String(o.company || o.source || "").replace(/^تلگرام\s*/, "");
     if (o.ch === "linkedin") return "LinkedIn";
+    if (o.site) return o.site;
     var h = String(o.host || "").replace(/^www\./, "");
     var site = IRAN_SITES.filter(function (s) { return h && h.indexOf(s[2]) > -1; })[0];
     return site ? site[1] : (h || o.source || "دیگر");
@@ -639,8 +665,15 @@ details.panel summary{cursor:pointer;font-weight:800}
     if (view === "linkedin") d.push(["country", "کشور", country, null]);
     else d.push(["src", view === "social" ? "کانال" : "منبع", srcKey, null]);
     d.push(["st", "وضعیت من", function (o) { return statusOf(o.id); }, STATUS_FA]);
-    return d;
+    (S.fields.custom || []).forEach(function (g) {
+      if (!g.name || !(g.options || []).length) return;
+      var labels = {}; g.options.forEach(function (op) { labels[op.label] = op.label; }); labels["سایر"] = "سایر";
+      d.push(["c_" + g.id, g.name, function (o) { return customVals(g, o); }, labels]);
+    });
+    var hid = S.fields.hidden || [];
+    return d.filter(function (x) { return hid.indexOf(x[0] === "country" ? "src" : x[0]) === -1; });
   }
+  function vals(d, o) { var v = d[2](o); return Array.isArray(v) ? v : [v]; }
   function fstate(view) { return S.f[view] || (S.f[view] = {}); }
   function textMatch(o) {
     var q = low(S.q || "").trim(); if (!q) return true;
@@ -649,7 +682,7 @@ details.panel summary{cursor:pointer;font-weight:800}
   function passes(o, defs, f, skip) {
     for (var i = 0; i < defs.length; i++) {
       var k = defs[i][0]; if (k === skip) continue;
-      var sel = f[k]; if (sel && sel.length && sel.indexOf(defs[i][2](o)) === -1) return false;
+      var sel = f[k]; if (sel && sel.length && !vals(defs[i], o).some(function (v) { return sel.indexOf(v) > -1; })) return false;
     }
     return true;
   }
@@ -792,7 +825,7 @@ details.panel summary{cursor:pointer;font-weight:800}
     var rows = sorted(base.filter(function (o) { return passes(o, defs, f); }));
     var groups = defs.map(function (d) {
       var k = d[0], cnt = {};
-      base.forEach(function (o) { if (passes(o, defs, f, k)) { var v = d[2](o); cnt[v] = (cnt[v] || 0) + 1; } });
+      base.forEach(function (o) { if (passes(o, defs, f, k)) vals(d, o).forEach(function (v) { cnt[v] = (cnt[v] || 0) + 1; }); });
       var sel = f[k] || [];
       var keys = d[3] ? Object.keys(d[3]).filter(function (x) { return cnt[x] || sel.indexOf(x) > -1; })
         : Object.keys(cnt).concat(sel.filter(function (x) { return !cnt[x]; })).sort(function (a, b) { return (cnt[b] || 0) - (cnt[a] || 0); });
@@ -906,7 +939,7 @@ details.panel summary{cursor:pointer;font-weight:800}
       '<input type="checkbox" data-src="' + group + '" data-key="' + key + '"' + (on ? " checked" : "") + '><span class="tr"></span></label>';
   }
   function settingsHtml() {
-    var tabs = [["rules", "فیلتر هوشمند", "filter"], ["sources", "منابع", "layers"], ["texts", "متن‌ها و رزومه", "file"], ["report", "گزارش ایمیلی", "mail"]];
+    var tabs = [["rules", "فیلتر هوشمند", "filter"], ["sources", "منابع", "layers"], ["fields", "فیلدهای فیلتر", "settings"], ["texts", "متن‌ها و رزومه", "file"], ["report", "گزارش ایمیلی", "mail"]];
     var head = '<div class="tabs" role="tablist">' + tabs.map(function (t) { return '<button type="button" role="tab" data-tab="' + t[0] + '" class="' + (S.setTab === t[0] ? "on" : "") + '" aria-selected="' + (S.setTab === t[0]) + '">' + ic(t[2]) + t[1] + "</button>"; }).join("") + "</div>";
     var R = S.rules, body = "";
     if (S.setTab === "rules") {
@@ -945,18 +978,42 @@ details.panel summary{cursor:pointer;font-weight:800}
           '<section class="panel"><div class="ph"><h2>کانال‌های تلگرام</h2></div><p class="d">یوزرنیم کانال عمومی بدون @ (مثل doorkaari). یک هفته‌ی اخیر هر کانال خوانده می‌شود.</p>' + tagbox("telegram", X.telegram, "یوزرنیم کانال…") + "</section>" +
           '<section class="panel"><div class="ph"><h2>هشتگ‌های اینستاگرام</h2></div><p class="d">با جستجوی وب بررسی می‌شوند (اینستاگرام بدون ورود چیزی نشان نمی‌دهد).</p>' + tagbox("instagram", X.instagram, "#هشتگ…") + "</section>" +
         "</div>" +
+        '<section class="panel"><div class="ph"><h2>سایت‌های کاریابی که خودت اضافه می‌کنی</h2><span class="grow"></span><button type="button" class="btn sm" data-act="addSite">' + ic("plus") + "افزودن سایت</button></div>" +
+          '<p class="d">آدرس صفحه‌ی جستجوی سئو در آن سایت را بده (مثلا https://karboom.io/jobs?q=سئو). روی مک همان صفحه مستقیم خوانده می‌شود و در اسکن ابری با جستجوی site: گشته می‌شود. «ایرانی» یعنی آگهی‌هایش در صفحه‌ی سایت‌های ایرانی بیاید.</p>' +
+          ((X.custom || []).length ? (X.custom || []).map(function (c, i) {
+            return '<div class="crow" data-crow="' + i + '"><input class="inp" data-cf="name" placeholder="نام سایت" value="' + esc(c.name) + '" aria-label="نام سایت">' +
+              '<input class="inp" data-cf="url" dir="ltr" placeholder="https://…" value="' + esc(c.url) + '" aria-label="آدرس صفحه‌ی جستجو">' +
+              '<select class="sel" data-cf="region" aria-label="صفحه"><option value="iran"' + (c.region !== "intl" ? " selected" : "") + '>ایرانی</option><option value="intl"' + (c.region === "intl" ? " selected" : "") + ">خارجی</option></select>" +
+              '<label class="sw" data-tip="روشن / خاموش"><input type="checkbox" data-cf="enabled"' + (c.enabled !== false ? " checked" : "") + ' aria-label="فعال"><span class="tr"></span></label>' +
+              '<button type="button" class="ibtn" data-act="delSite" data-i="' + i + '" aria-label="حذف سایت" data-tip="حذف">' + ic("x") + "</button></div>";
+          }).join("") : '<div style="color:var(--muted);font-size:13px;padding:6px 0">هنوز سایتی اضافه نکرده‌ای.</div>') +
+        "</section>" +
         '<section class="panel"><div class="ph"><h2>لینکدین</h2></div><p class="d">عنوان‌های جستجو و موقعیت‌ها. «Remote» یعنی فقط دورکاری در سراسر دنیا.</p>' +
+          sw("liOn", X.linkedinOn !== false, "جستجوی لینکدین روشن باشد", "") +
           '<span class="lbl2">عنوان‌های جستجو</span>' + tagbox("linkedinKeywords", X.linkedinKeywords) +
           '<span class="lbl2">موقعیت‌ها</span>' + tagbox("linkedinLocations", X.linkedinLocations) + "</section>" +
-        '<div class="two">' +
-          '<section class="panel"><div class="ph"><h2>جستجوهای گوگل</h2></div><p class="d">ده نتیجه‌ی اول هر عبارت، در سایت‌های کاریابی ایرانی.</p>' + tagbox("google", X.google, "عبارت جستجو…") + "</section>" +
-          '<section class="panel"><div class="ph"><h2>سایت‌های دلخواه</h2></div><p class="d">دامنه‌ی هر سایتی که می‌خواهی اضافه شود (مثل karboom.io)؛ با جستجوی site: بررسی می‌شود.</p>' + tagbox("sites", X.sites, "دامنه‌ی سایت…") + "</section>" +
-        "</div>" +
+        '<section class="panel"><div class="ph"><h2>جستجوهای گوگل</h2></div><p class="d">ده نتیجه‌ی اول هر عبارت، در سایت‌های کاریابی ایرانی.</p>' + tagbox("google", X.google, "عبارت جستجو…") + "</section>" +
         '<section class="panel"><div class="ph"><h2>سایت‌های کاریابی خارجی</h2><span class="grow"></span><span class="sub">به درخواست خودت خاموش</span></div>' +
           '<div class="banner warn" style="box-shadow:none"><div class="bi">' + ic("alert") + "</div><div><b>بیشتر این سایت‌ها احراز هویت، مدرک یا پرداخت بین‌المللی می‌خواهند.</b><p>فقط اگر راهی برای درخواست دادن داری روشنشان کن. آگهی‌هایشان در صفحه‌ی «خارجی» می‌آید.</p></div></div>" +
           '<div class="srcgrid">' + FOREIGN_SITES.map(function (s) { return srcToggle("foreign", s[0], s[1], s[2], "", !!(X.foreign || {})[s[0]]); }).join("") + "</div></section>" +
         '<div class="savebar"><span style="font-size:13px;color:var(--muted)">تغییرات از اسکن بعدی اعمال می‌شوند.</span><span class="grow"></span><span class="msg" id="sMsg" style="margin:0"></span>' +
           '<button type="button" class="btn ghost" data-act="resetSources">پیش‌فرض</button><button type="button" class="btn primary" data-act="saveSources">' + ic("check") + "ذخیره‌ی منابع</button></div>" +
+        "</div>";
+    } else if (S.setTab === "fields") {
+      var F = S.fields, hid = F.hidden || [];
+      body = '<div class="set">' +
+        '<section class="panel"><div class="ph"><h2>فیلترهای کنار صفحه</h2></div><p class="d">هر گروهی را که لازم نداری خاموش کن تا از ستون فیلترها حذف شود.</p>' +
+          BUILTIN_FACETS.map(function (b) { return sw("fh_" + b[0], hid.indexOf(b[0]) === -1, b[1], ""); }).join("") + "</section>" +
+        '<section class="panel"><div class="ph"><h2>فیلدهای دلخواه</h2><span class="grow"></span><button type="button" class="btn sm" data-act="addField">' + ic("plus") + "افزودن فیلد</button></div>" +
+          '<p class="d">هر فیلد یک گروه چک‌باکس تازه در ستون فیلترها می‌سازد. هر خط یک گزینه است: اول اسم گزینه، بعد دونقطه، بعد کلمه‌هایی که اگر در عنوان یا متن آگهی بود، آن گزینه تیک می‌خورد. آگهی‌هایی که به هیچ گزینه‌ای نخورند زیر «سایر» می‌آیند.</p>' +
+          ((F.custom || []).length ? F.custom.map(function (g, i) {
+            var txt = (g.options || []).map(function (op) { return op.label + ": " + (op.terms || []).join("، "); }).join("\n");
+            return '<div class="fgp" data-fg="' + i + '"><div class="ph"><input class="inp" data-ff="name" value="' + esc(g.name) + '" placeholder="اسم فیلد (مثلا حوزه‌ی کسب‌وکار)" aria-label="اسم فیلد"><span class="grow"></span>' +
+              '<button type="button" class="btn sm ghost" data-act="delField" data-i="' + i + '">' + ic("x") + "حذف فیلد</button></div>" +
+              '<textarea class="inp" data-ff="opts" dir="rtl" placeholder="فروشگاهی: فروشگاه، ووکامرس، ecommerce\nپزشکی: پزشکی، کلینیک، دارو" aria-label="گزینه‌ها">' + esc(txt) + "</textarea></div>";
+          }).join("") : '<div style="color:var(--muted);font-size:13px;padding:6px 0">هنوز فیلدی نساخته‌ای. مثلا فیلد «حوزه» با گزینه‌های فروشگاهی، پزشکی، آموزشی؛ یا «ابزار» با Ahrefs و Semrush.</div>') +
+        "</section>" +
+        '<div class="savebar"><span class="grow"></span><span class="msg" id="fMsg" style="margin:0"></span><button type="button" class="btn primary" data-act="saveFields">' + ic("check") + "ذخیره‌ی فیلدها</button></div>" +
         "</div>";
     } else if (S.setTab === "texts") {
       var r = S.resume;
@@ -1143,10 +1200,43 @@ details.panel summary{cursor:pointer;font-weight:800}
     R.hybridReview = $("rHybrid").checked; R.undatedReview = $("rUndated").checked; R.seniorOnly = $("rSenior").checked;
     return R;
   }
+  function readCustomSites() {
+    var rows = document.querySelectorAll("[data-crow]");
+    if (!rows.length) return (S.sources.custom || []).slice();
+    return Array.prototype.map.call(rows, function (r, i) {
+      var g = function (k) { return r.querySelector('[data-cf="' + k + '"]'); };
+      var url = g("url").value.trim(); if (url && !/^https?:\/\//i.test(url)) url = "https://" + url;
+      var prev = (S.sources.custom || [])[i] || {};
+      return { id: prev.id || ("s" + Date.now().toString(36) + i), name: g("name").value.trim() || hostOf(url), url: url, region: g("region").value, enabled: g("enabled").checked };
+    });
+  }
+  function readFields() {
+    var F = { hidden: [], custom: [] };
+    BUILTIN_FACETS.forEach(function (b) { var el = $("fh_" + b[0]); if (el && !el.checked) F.hidden.push(b[0]); });
+    document.querySelectorAll("[data-fg]").forEach(function (box, i) {
+      var name = box.querySelector('[data-ff="name"]').value.trim();
+      var options = box.querySelector('[data-ff="opts"]').value.split("\n").map(function (line) {
+        line = line.trim(); if (!line) return null;
+        var k = line.search(/[:：]/), label = (k > -1 ? line.slice(0, k) : line).trim();
+        var terms = (k > -1 ? line.slice(k + 1) : label).split(/[,،]/).map(function (x) { return x.trim(); }).filter(Boolean);
+        return label ? { label: label, terms: terms.length ? terms : [label] } : null;
+      }).filter(Boolean);
+      var prev = (S.fields.custom || [])[i] || {};
+      F.custom.push({ id: prev.id || ("f" + Date.now().toString(36) + i), name: name, options: options });
+    });
+    return F;
+  }
+  function keepTags() {
+    ["telegram", "instagram", "linkedinKeywords", "linkedinLocations", "google"].forEach(function (k) { if (tagState[k]) S.sources[k] = tagState[k].slice(); });
+    document.querySelectorAll("[data-src]").forEach(function (el) { (S.sources[el.dataset.src] = S.sources[el.dataset.src] || {})[el.dataset.key] = el.checked; });
+    if ($("liOn")) S.sources.linkedinOn = $("liOn").checked;
+  }
   function readSources() {
     commitAllTags();
     var X = clone(S.sources);
-    ["telegram", "instagram", "linkedinKeywords", "linkedinLocations", "google", "sites"].forEach(function (k) {
+    X.custom = readCustomSites().filter(function (c) { return c.url; });
+    if ($("liOn")) X.linkedinOn = $("liOn").checked;
+    ["telegram", "instagram", "linkedinKeywords", "linkedinLocations", "google"].forEach(function (k) {
       if (tagState[k]) X[k] = tagState[k].map(function (v) { return k === "telegram" ? v.replace(/^https?:\/\/t\.me\/(s\/)?|^@/g, "") : v; });
     });
     document.querySelectorAll("[data-src]").forEach(function (el) { (X[el.dataset.src] = X[el.dataset.src] || {})[el.dataset.key] = el.checked; });
@@ -1183,7 +1273,12 @@ details.panel summary{cursor:pointer;font-weight:800}
         saveDoc("config/rules", S.rules, "rMsg", "ذخیره شد و روی همه‌ی صفحه‌ها اعمال شد.").then(function (ok) { if (ok) { renderView(); toast("قوانین ذخیره و اعمال شد"); } });
       }
       else if (act === "resetRules") { S.rules = clone(DEFAULT_RULES); renderView(); toast("پیش‌فرض برگشت؛ برای اعمال «ذخیره» بزن."); }
-      else if (act === "saveSources") { S.sources = readSources(); saveDoc("config/sources", S.sources, "sMsg", "منابع ذخیره شد؛ از اسکن بعدی اعمال می‌شود."); }
+      else if (act === "saveSources") { S.sources = readSources(); reclassify(); renderNav(); saveDoc("config/sources", S.sources, "sMsg", "منابع ذخیره شد؛ از اسکن بعدی اعمال می‌شود."); }
+      else if (act === "addSite") { S.sources.custom = readCustomSites().concat([{ id: "s" + Date.now().toString(36), name: "", url: "", region: "iran", enabled: true }]); commitAllTags(); keepTags(); renderView(); var rs = document.querySelectorAll('[data-cf="url"]'); if (rs.length) rs[rs.length - 1].focus(); }
+      else if (act === "delSite") { var cs = readCustomSites(); cs.splice(Number(a.dataset.i), 1); S.sources.custom = cs; commitAllTags(); keepTags(); renderView(); toast("سایت حذف شد؛ برای اعمال «ذخیره‌ی منابع» را بزن."); }
+      else if (act === "addField") { S.fields = readFields(); S.fields.custom.push({ id: "f" + Date.now().toString(36), name: "", options: [] }); renderView(); var fi = document.querySelectorAll('[data-ff="name"]'); if (fi.length) fi[fi.length - 1].focus(); }
+      else if (act === "delField") { S.fields = readFields(); S.fields.custom.splice(Number(a.dataset.i), 1); renderView(); toast("فیلد حذف شد؛ برای اعمال «ذخیره» را بزن."); }
+      else if (act === "saveFields") { S.fields = readFields(); reclassify(); saveDoc("config/fields", S.fields, "fMsg", "فیلدها ذخیره شد؛ در ستون فیلترِ همه‌ی صفحه‌ها آمده‌اند."); }
       else if (act === "resetSources") { S.sources = clone(DEFAULT_SOURCES); renderView(); toast("پیش‌فرض برگشت؛ برای اعمال «ذخیره» بزن."); }
       else if (act === "saveTemplates") { S.templates = { fa: $("tplFa").value, en: $("tplEn").value }; saveDoc("config/templates", S.templates, "tMsg", "متن‌ها ذخیره شد."); }
       else if (act === "resetTemplates") { S.templates = clone(DEFAULT_TEMPLATES); renderView(); }
@@ -1293,6 +1388,13 @@ details.panel summary{cursor:pointer;font-weight:800}
       if (!d.exists) return;
       var x = d.data(); S.sources = Object.assign(clone(DEFAULT_SOURCES), x);
       S.sources.iran = Object.assign(clone(DEFAULT_SOURCES.iran), x.iran || {}); S.sources.foreign = Object.assign(clone(DEFAULT_SOURCES.foreign), x.foreign || {});
+      (x.sites || []).forEach(function (dmn, i) { if (!S.sources.custom.some(function (c) { return hostOf(c.url) === hostOf(dmn); })) S.sources.custom.push({ id: "m" + i, name: hostOf(dmn), url: "https://" + hostOf(dmn), region: "iran", enabled: true }); });
+      S.sources.sites = []; reclassify(); if (S.loaded && S.view !== "settings") refresh();
+    });
+    db.doc("config/fields").onSnapshot(function (d) {
+      if (!d.exists) return;
+      S.fields = Object.assign(clone(DEFAULT_FIELDS), d.data()); reclassify();
+      if (S.loaded && S.view !== "settings") refresh();
     });
     db.doc("config/report").onSnapshot(function (d) { if (d.exists) S.report = Object.assign(clone(DEFAULT_REPORT), d.data()); });
     db.doc("config/templates").onSnapshot(function (d) { if (d.exists) { var t = d.data(); S.templates = { fa: t.fa || DEFAULT_TEMPLATES.fa, en: t.en || DEFAULT_TEMPLATES.en }; } });

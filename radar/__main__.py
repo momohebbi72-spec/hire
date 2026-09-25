@@ -39,13 +39,16 @@ def main(argv=None) -> int:
     em.add_argument("--excel-url", default="")
     em.add_argument("--rules", default="", help="JSON file with the dashboard's config/rules document")
     em.add_argument("--report", default="", help="JSON file with the dashboard's config/report document")
+    em.add_argument("--sources", default="", help="JSON file with the dashboard's config/sources document")
     mr = sub.add_parser("mark-reported", help="mark current unreported matches as reported (after mailing)")
     mr.add_argument("--rules", default="")
     mr.add_argument("--report", default="")
+    mr.add_argument("--sources", default="")
     fx = sub.add_parser("export-feed", help="write chunk JSON files for the artifact dashboard")
     fx.add_argument("--out", default="data/feed")
     fx.add_argument("--since", default="", help="ISO time; only items found after it")
     fx.add_argument("--rules", default="", help="JSON file with the dashboard's config/rules document")
+    fx.add_argument("--sources", default="", help="JSON file with the dashboard's config/sources document")
     ac = sub.add_parser("apply-config", help="apply the dashboard's config/sources document to config/sources.yaml")
     ac.add_argument("--sources", required=True, help="JSON file with the config/sources document")
     imp = sub.add_parser("import-json", help="import opportunities from a JSON list (e.g. collected by an assistant)")
@@ -56,6 +59,10 @@ def main(argv=None) -> int:
     if args.cmd is None:
         args = parser.parse_args(["serve"])
     dbm.init_db()
+    if getattr(args, "sources", ""):
+        from .tiers import register_custom_hosts
+
+        register_custom_hosts(_load_json(args.sources))
 
     if args.cmd == "serve":
         from .web import main as serve_main

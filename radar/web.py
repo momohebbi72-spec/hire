@@ -605,5 +605,5 @@ def main(host: str = "127.0.0.1", port: int = 3000, open_browser: bool = True) -
     url = f"http://{'localhost' if host in ('127.0.0.1', '0.0.0.0') else host}:{port}"
     print(f"Personal Opportunity Radar → {url}")
     if open_browser:
-        threading.Timer(1.2, lambda: webbrowser.open(url)).start()
+        threading.Timer(1.2, lambda: webbrowser.open(url + "/app")).start()
     app.run(host=host, port=port, debug=False, use_reloader=False, threaded=True)

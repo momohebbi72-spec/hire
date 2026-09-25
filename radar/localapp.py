@@ -73,7 +73,9 @@ def _rules(con):
 @bp.route("/app")
 def app_page():
     html = PAGE.read_text(encoding="utf-8")
-    return Response(html.replace("<script>", SHIM + "<script>", 1), mimetype="text/html")
+    resp = Response(html.replace("<script>", SHIM + "<script>", 1), mimetype="text/html")
+    resp.headers["Cache-Control"] = "no-store"
+    return resp
 
 
 @bp.route("/api/kv/col/<name>")
@@ -81,6 +83,9 @@ def kv_collection(name: str):
     with dbm.get_db() as con:
         if name == "feed":
             rules = _rules(con) or {}
+            from .tiers import register_custom_hosts
+
+            register_custom_hosts(_kv_get(con, "config/sources"))
             days = int(rules.get("days") or 7)
             floor = (datetime.now(timezone.utc) - timedelta(days=days + 1)).isoformat(timespec="seconds")
             clf = Classifier(rules)

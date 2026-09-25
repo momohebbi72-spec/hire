@@ -135,11 +135,24 @@ IRAN_HOSTS = ("jobinja.ir", "jobvision.ir", "ponisha.ir", "karlancer.com", "pars
               "iranestekhdam.ir", "karbord.io", "kardix.com", "karpishe.com", "divar.ir", "jobteam.ir", "lancerify.com")
 
 
+CUSTOM_HOSTS: Dict[str, str] = {}  # host → "iran" | "intl", from the dashboard's own sites
+
+
+def register_custom_hosts(sources_doc: Optional[Dict]) -> None:
+    for c in (sources_doc or {}).get("custom") or []:
+        host = re.sub(r"^https?://(www\.)?", "", str(c.get("url") or "").lower()).split("/", 1)[0]
+        if host:
+            CUSTOM_HOSTS[host] = "intl" if c.get("region") == "intl" else "iran"
+
+
 def channel_of(source_type: str, url: str) -> str:
     """Which dashboard page an item belongs to: the posting's own site wins over where it was found."""
     st = (source_type or "").lower()
     u = (url or "").lower()
     host = re.sub(r"^https?://(www\.)?", "", u).split("/", 1)[0]
+    for h, page in CUSTOM_HOSTS.items():
+        if host == h or host.endswith("." + h):
+            return page
     if st == "linkedin" or "linkedin.com" in host:
         return "linkedin"
     if any(h in host for h in IRAN_HOSTS) or host.endswith(".ir"):

@@ -54,3 +54,23 @@ def test_digest_post_and_promo():
     items = parse_post("eestekhdam_com", "eestekhdam_com/9", html, text, _ago(0))
     assert [i.url[-1] for i in items] == ["1", "2"] and items[0].location == "تهران"
     assert parse_post("doorkaari", "doorkaari/1", "", "قالب نواتم با تخفیف", _ago(0)) == []
+
+
+def test_custom_site_goes_to_iran_page(tmp_path, monkeypatch):
+    import shutil
+
+    import radar.config_store as cs
+    from radar.remote_config import apply_sources
+
+    tmp = tmp_path / "sources.yaml"
+    shutil.copy(cs.SOURCES_PATH, tmp)
+    monkeypatch.setattr(cs, "SOURCES_PATH", tmp)
+    doc = {"custom": [{"id": "kb", "name": "کاربوم", "url": "https://karboom.io/jobs?q=seo", "region": "iran"}],
+           "linkedinOn": False}
+    apply_sources(doc)
+    by_id = {s.id: s for s in cs.load_sources()}
+    assert by_id["custom-kb"].type == "webpage" and by_id["custom-kb"].target.startswith("https://karboom.io")
+    assert by_id["linkedin-jobs"].enabled is False
+    assert channel_of("websearch", "https://www.karboom.io/job/1") == "iran"
+    apply_sources({"custom": []})
+    assert "custom-kb" not in {s.id for s in cs.load_sources()}
