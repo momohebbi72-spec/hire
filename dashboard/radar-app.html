@@ -1,130 +1,253 @@
 <title>رادار فرصت</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap">
 <style>
+/* Single light theme by design (the owner asked for a white dashboard). */
 :root{
-  --bg:#ffffff; --surface:#f7f7fc; --raised:#ffffff; --ink:#15162b; --ink2:#3b3d5c; --muted:#6a6d89;
-  --line:#e6e6f1; --accent:#4338ca; --accent-soft:#eef0ff; --accent-ink:#ffffff;
-  --good:#15803d; --good-soft:#e3f6ea; --warn:#a35a04; --warn-soft:#fdf1dc; --bad:#b42318; --bad-soft:#fde8e6;
-  --shadow:0 1px 2px rgba(21,22,43,.05),0 6px 20px rgba(21,22,43,.05);
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    color-scheme:dark;
-    --bg:#0e0f1d; --surface:#151731; --raised:#1a1c3a; --ink:#ecedf8; --ink2:#c9cae3; --muted:#9a9cba;
-    --line:#2a2c4d; --accent:#8e90ff; --accent-soft:#23265a; --accent-ink:#0e0f1d;
-    --good:#4ade80; --good-soft:#12301f; --warn:#f5b454; --warn-soft:#3a2a10; --bad:#f87171; --bad-soft:#3a1616;
-    --shadow:none;
-  }
-}
-:root[data-theme="dark"]{
-  color-scheme:dark;
-  --bg:#0e0f1d; --surface:#151731; --raised:#1a1c3a; --ink:#ecedf8; --ink2:#c9cae3; --muted:#9a9cba;
-  --line:#2a2c4d; --accent:#8e90ff; --accent-soft:#23265a; --accent-ink:#0e0f1d;
-  --good:#4ade80; --good-soft:#12301f; --warn:#f5b454; --warn-soft:#3a2a10; --bad:#f87171; --bad-soft:#3a1616;
-  --shadow:none;
+  color-scheme:light;
+  --bg:#ffffff; --plane:#f6f7fb; --plane2:#eef0f7; --card:#ffffff;
+  --ink:#0f1222; --ink2:#3d4260; --muted:#737897; --faint:#a3a7c0;
+  --line:#e8e9f2; --line2:#dfe1ee;
+  --accent:#4f46e5; --accent-2:#4338ca; --accent-soft:#eef0ff; --accent-line:#d9dcff;
+  --good:#12803a; --good-soft:#e5f6ec; --warn:#a15c07; --warn-soft:#fdf2df; --bad:#c2352b; --bad-soft:#fdeceb;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
+  --o1:#86b6ef; --o2:#3987e5; --o3:#256abf; --o4:#104281;
+  --radius:16px; --radius-s:10px;
+  --shadow-s:0 1px 2px rgba(15,18,34,.04);
+  --shadow:0 1px 2px rgba(15,18,34,.04),0 8px 24px -12px rgba(15,18,34,.10);
 }
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:Vazirmatn,Tahoma,"Segoe UI",sans-serif;font-size:15px;line-height:1.75;direction:rtl}
-.wrap{max-width:1080px;margin:0 auto;padding-inline:16px;padding-block:18px 60px}
-a{color:var(--accent)}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Vazirmatn,Tahoma,"Segoe UI",sans-serif;font-size:14.5px;line-height:1.7;direction:rtl;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:14px}
-.brand{display:flex;align-items:center;gap:10px}
-.mark{width:36px;height:36px;border-radius:10px;background:var(--accent);display:grid;place-items:center}
-.mark svg{width:22px;height:22px}
-h1{font-size:21px;font-weight:800;margin:0;text-wrap:balance}
-.sub{color:var(--muted);font-size:13px}
-.btn{border:1px solid var(--line);background:var(--raised);border-radius:10px;padding:7px 14px;font-size:14px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
-.btn:hover{border-color:var(--accent)}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
-.btn.small{padding:3px 10px;font-size:13px;border-radius:8px}
-.btn.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:700}
-.btn.ghost{background:transparent}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ---------- shell ---------- */
+.shell{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100%}
+.side{background:var(--plane);border-inline-start:0;border-inline-end:1px solid var(--line);padding:22px 14px;position:sticky;top:env(safe-area-inset-top,0px);height:100vh;display:flex;flex-direction:column;gap:18px}
+.brand{display:flex;align-items:center;gap:10px;padding:0 8px}
+.brand .mark{width:38px;height:38px;border-radius:12px;background:linear-gradient(145deg,#5b52f0,#3f36c9);display:grid;place-items:center;box-shadow:0 6px 16px -6px rgba(79,70,229,.6)}
+.brand b{font-size:17px;font-weight:800;display:block;line-height:1.3}
+.brand span{font-size:12px;color:var(--muted)}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav .grp{font-size:11px;color:var(--faint);letter-spacing:.04em;padding:12px 12px 4px}
+.nav button{display:flex;align-items:center;gap:10px;border:0;background:none;border-radius:10px;padding:9px 12px;color:var(--ink2);font-weight:500;text-align:start;width:100%}
+.nav button svg{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav button:hover{background:var(--plane2)}
+.nav button.on{background:var(--card);color:var(--accent);font-weight:700;box-shadow:var(--shadow-s),inset 0 0 0 1px var(--line)}
+.nav .cnt{margin-inline-start:auto;font-size:11.5px;font-weight:600;color:var(--muted);background:var(--plane2);border-radius:99px;padding:0 8px;font-variant-numeric:tabular-nums}
+.nav button.on .cnt{background:var(--accent-soft);color:var(--accent)}
+.side-foot{margin-top:auto;font-size:12px;color:var(--muted);padding:0 10px;display:flex;flex-direction:column;gap:6px}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--good);margin-inline-end:6px;vertical-align:middle}
+
+.main{min-width:0;padding-inline:32px;padding-block:22px 64px}
+.topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+.topbar h1{font-size:22px;font-weight:800;margin:0;letter-spacing:-.01em;text-wrap:balance}
+.topbar .crumb{font-size:12.5px;color:var(--muted)}
+.topbar .grow{flex:1}
+.search{display:flex;align-items:center;gap:8px;background:var(--plane);border:1px solid var(--line);border-radius:12px;padding:6px 12px;min-width:0;flex:0 1 320px}
+.search svg{width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:2}
+.search input{border:0;background:none;outline:none;min-width:0;width:100%;font-size:14px}
+.btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line2);background:var(--card);border-radius:10px;padding:7px 14px;font-size:13.5px;font-weight:600;color:var(--ink2);white-space:nowrap;transition:border-color .15s,background .15s}
+.btn:hover{border-color:var(--accent-line);color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--accent-2);color:#fff}
+.btn.soft{background:var(--accent-soft);border-color:var(--accent-soft);color:var(--accent)}
+.btn.sm{padding:4px 10px;font-size:12.5px;border-radius:8px}
 .btn[disabled]{opacity:.5;cursor:default}
-.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
-@media (max-width:640px){.summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.kpi{background:var(--surface);border-radius:12px;padding:10px 14px}
-.kpi b{display:block;font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
-.kpi span{font-size:12px;color:var(--muted)}
-.kpi.accent{background:var(--accent-soft)} .kpi.accent b{color:var(--accent)}
-.tabs{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line);margin-bottom:12px}
-.tab{border:0;background:none;padding:9px 14px;border-bottom:2px solid transparent;color:var(--muted);font-weight:700;white-space:nowrap}
-.tab.on{color:var(--accent);border-bottom-color:var(--accent)}
-.tab .n{font-size:12px;background:var(--surface);border-radius:99px;padding:0 7px;margin-inline-start:4px;font-variant-numeric:tabular-nums}
-.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--surface);border-radius:12px;padding:10px;margin-bottom:12px}
-.bar input[type=search]{flex:1 1 220px}
-.bar input,.bar select{border:1px solid var(--line);background:var(--raised);border-radius:9px;padding:6px 10px;font-size:14px}
-.bar label{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink2)}
-.note{font-size:13px;color:var(--ink2);background:var(--warn-soft);border-radius:10px;padding:8px 12px;margin-bottom:12px}
+.btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+@media (max-width:900px){
+  .shell{grid-template-columns:1fr}
+  .side{position:sticky;top:env(safe-area-inset-top,0px);height:auto;flex-direction:row;align-items:center;padding:10px 16px;gap:10px;z-index:5;border-inline-end:0;border-bottom:1px solid var(--line);overflow-x:auto}
+  .brand span,.nav .grp,.side-foot{display:none}
+  .nav{flex-direction:row}
+  .nav button{white-space:nowrap;padding:7px 10px}
+  .nav button .lbl-long{display:none}
+  .main{padding-inline:16px}
+}
+
+/* ---------- surfaces ---------- */
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow-s)}
+.panel h2{font-size:15px;font-weight:700;margin:0}
+.panel .sub{font-size:12.5px;color:var(--muted);margin:2px 0 14px}
+.phead{display:flex;align-items:flex-start;gap:10px;justify-content:space-between;margin-bottom:12px}
+.grid{display:grid;gap:16px}
+.g-hero{grid-template-columns:1.25fr 1fr}
+.g-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:1000px){.g-hero,.g-2,.g-3{grid-template-columns:1fr}}
+
+/* hero */
+.hero{background:linear-gradient(135deg,#f3f2ff 0%,#fbfbff 55%,#ffffff 100%);border:1px solid var(--accent-line);border-radius:20px;padding:24px 26px;display:flex;flex-direction:column;gap:14px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;inset-inline-start:-60px;bottom:-80px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(79,70,229,.10),rgba(79,70,229,0) 70%)}
+.hero .eyebrow{font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.03em}
+.hero .fig{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.hero .fig b{font-size:56px;font-weight:900;line-height:1;letter-spacing:-.02em;color:var(--ink)}
+.hero .fig span{font-size:16px;color:var(--ink2);font-weight:600}
+.hero p{margin:0;color:var(--ink2);max-width:52ch}
+.hero .row{display:flex;gap:8px;flex-wrap:wrap;position:relative;z-index:1}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+.tile .lbl{font-size:12.5px;color:var(--muted)}
+.tile .val{font-size:26px;font-weight:800;letter-spacing:-.01em}
+.tile .hint{font-size:12px;color:var(--muted)}
+.tile .hint.up{color:var(--good)}
+
+/* charts (HTML bars) */
+.hbars{display:flex;flex-direction:column;gap:9px}
+.hb{display:grid;grid-template-columns:minmax(90px,34%) minmax(0,1fr);align-items:center;gap:10px;font-size:13px}
+.hb .k{color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right}
+.hb .track{position:relative;height:22px;display:flex;align-items:center;gap:8px}
+.hb .bar{height:14px;border-radius:4px 0 0 4px;background:var(--s1);min-width:3px;transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.hb .v{font-size:12.5px;color:var(--ink2);font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.hb[data-tip]{cursor:default}
+.hb:hover .bar{filter:brightness(.92)}
+.stack{display:flex;gap:2px;height:16px;border-radius:5px;overflow:hidden;margin:6px 0 12px}
+.stack i{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--ink2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.legend b{font-weight:700;font-variant-numeric:tabular-nums}
+.funnel{display:flex;flex-direction:column;gap:8px}
+.fs{display:grid;grid-template-columns:96px minmax(0,1fr) 44px;align-items:center;gap:10px;font-size:13px}
+.fs .bar{height:18px;border-radius:4px 0 0 4px;min-width:4px}
+.fs .v{font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink)}
+.chart-empty{font-size:13px;color:var(--muted);padding:18px 0}
+.tip{position:fixed;z-index:30;pointer-events:none;background:#0f1222;color:#fff;font-size:12.5px;border-radius:8px;padding:6px 10px;box-shadow:0 6px 18px rgba(0,0,0,.2);max-width:260px}
+
+/* ---------- toolbar ---------- */
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.seg{display:inline-flex;background:var(--plane);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px}
+.seg button{border:0;background:none;border-radius:8px;padding:4px 12px;font-size:13px;color:var(--ink2);font-weight:600}
+.seg button.on{background:var(--card);color:var(--accent);box-shadow:var(--shadow-s),inset 0 0 0 1px var(--line)}
+.ctl{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--ink2);background:var(--plane);border:1px solid var(--line);border-radius:10px;padding:4px 10px}
+.ctl select,.ctl input[type=number]{border:0;background:none;outline:none;font-size:13px;font-weight:600;color:var(--ink)}
+.ctl input[type=range]{accent-color:var(--accent);width:110px}
+.ctl output{font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;min-width:2ch}
+.switch{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--ink2);cursor:pointer;user-select:none}
+.switch input{appearance:none;width:34px;height:20px;border-radius:99px;background:var(--line2);position:relative;cursor:pointer;transition:background .15s;margin:0}
+.switch input::after{content:"";position:absolute;top:2px;inset-inline-start:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:inset-inline-start .15s}
+.switch input:checked{background:var(--accent)}
+.switch input:checked::after{inset-inline-start:16px}
+.result{font-size:12.5px;color:var(--muted);margin-inline-start:auto}
+.banner{display:flex;gap:10px;align-items:flex-start;background:var(--warn-soft);color:#6f4205;border-radius:12px;padding:10px 14px;font-size:13px;margin-bottom:14px}
+.banner svg{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:2;margin-top:2px}
+
+/* ---------- opportunity rows ---------- */
 .list{display:flex;flex-direction:column;gap:10px}
-.card{display:grid;grid-template-columns:58px minmax(0,1fr);gap:12px;background:var(--raised);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow)}
-.card.dim{opacity:.55}
-.score{width:58px;height:58px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--surface);color:var(--muted);direction:ltr}
-.score b{font-size:20px;line-height:1;font-weight:800;font-variant-numeric:tabular-nums}
-.score small{font-size:10px;margin-top:3px}
-.score.hi{background:var(--good-soft);color:var(--good)} .score.mid{background:var(--warn-soft);color:var(--warn)}
-.ttl{font-size:16px;font-weight:700;margin:0;line-height:1.6;overflow-wrap:anywhere}
-.ttl a{color:var(--ink);text-decoration:none} .ttl a:hover{color:var(--accent)}
-.meta{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:13px;color:var(--muted);margin-top:2px}
-.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
-.tag{font-size:12px;border-radius:6px;padding:1px 8px;background:var(--surface);color:var(--ink2);white-space:nowrap}
-.tag.why{background:var(--good-soft);color:var(--good)} .tag.neg{background:var(--bad-soft);color:var(--bad)}
-.tag.acc{background:var(--accent-soft);color:var(--accent)}
-.desc{font-size:13px;color:var(--ink2);margin-top:6px}
-.acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;align-items:center}
-.spacer{flex:1}
-.pill{font-size:12px;border-radius:99px;padding:1px 10px;background:var(--surface);color:var(--ink2)}
-.pill.New{background:var(--accent-soft);color:var(--accent)} .pill.Won{background:var(--good-soft);color:var(--good)}
+.opp{display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.opp:hover{border-color:var(--accent-line);box-shadow:var(--shadow)}
+.opp.dim{opacity:.5}
+.ring{width:52px;height:52px;position:relative;flex:none}
+.ring svg{width:52px;height:52px;transform:rotate(-90deg)}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;direction:ltr}
+.opp h3{font-size:15px;font-weight:700;margin:0;line-height:1.6;overflow-wrap:anywhere}
+.meta{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:12.5px;color:var(--muted);margin-top:1px}
+.meta span{display:inline-flex;align-items:center;gap:4px}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.chip{font-size:11.5px;font-weight:600;border-radius:6px;padding:1px 8px;background:var(--plane);color:var(--ink2);white-space:nowrap}
+.chip.skill{background:var(--good-soft);color:var(--good)}
+.chip.neg{background:var(--bad-soft);color:var(--bad)}
+.chip.acc{background:var(--accent-soft);color:var(--accent)}
+.side-acts{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.pill{font-size:11.5px;font-weight:700;border-radius:99px;padding:2px 10px;background:var(--plane);color:var(--ink2);white-space:nowrap}
+.pill.New{background:var(--accent-soft);color:var(--accent)}
+.pill.Saved{background:#e6f0fc;color:#1f5fae}
 .pill.Contacted,.pill.Applied{background:var(--warn-soft);color:var(--warn)}
-.notes{margin-top:8px;display:flex;gap:6px}
-.notes textarea{flex:1;border:1px solid var(--line);border-radius:9px;background:var(--surface);padding:6px 10px;min-height:38px;resize:vertical}
-.empty{border:1px dashed var(--line);border-radius:14px;padding:36px;text-align:center;color:var(--muted)}
-.panel{background:var(--raised);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
-.panel h2{font-size:16px;margin:0 0 6px}
-.panel p{margin:0 0 10px;color:var(--ink2);font-size:14px}
-.field{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted);margin-bottom:10px}
-.field textarea,.field input,.field select{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:8px 10px;color:var(--ink);font-size:14px}
-.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-@media (max-width:720px){.grid2{grid-template-columns:1fr}}
-.cols{display:grid;grid-template-columns:repeat(5,minmax(180px,1fr));gap:10px;overflow-x:auto}
-.col{background:var(--surface);border-radius:12px;padding:10px;min-height:120px}
-.col h3{font-size:14px;margin:0 0 8px;display:flex;justify-content:space-between}
-.mini{background:var(--raised);border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-bottom:6px;font-size:13px}
-.mini a{color:var(--ink);text-decoration:none;font-weight:700}
-.overlay{position:fixed;inset:0;background:rgba(10,10,25,.45);display:flex;align-items:flex-start;justify-content:center;padding:max(24px,env(safe-area-inset-top,0px)) 16px 24px;z-index:10;overflow-y:auto}
-.modal{background:var(--raised);border-radius:16px;max-width:640px;width:100%;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
-.modal textarea{width:100%;min-height:220px}
-.msg{font-size:13px;margin-top:8px;color:var(--ink2)}
-.msg.err{color:var(--bad)} .msg.ok{color:var(--good)}
-.toast{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom,0px));inset-inline:16px;margin:auto;max-width:420px;background:var(--ink);color:var(--bg);border-radius:12px;padding:10px 14px;font-size:14px;z-index:20;text-align:center}
-@media (prefers-reduced-motion:no-preference){.card{transition:border-color .15s}}
-.card:hover{border-color:var(--accent-soft)}
+.pill.Won{background:var(--good-soft);color:var(--good)}
+.pill.Rejected,.pill.Ignored{background:var(--plane2);color:var(--muted)}
+.qa{display:flex;gap:4px}
+.icon-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;color:var(--muted)}
+.icon-btn:hover{color:var(--accent);border-color:var(--accent-line)}
+.icon-btn.on{color:var(--accent);background:var(--accent-soft);border-color:var(--accent-line)}
+.icon-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:640px){.opp{grid-template-columns:52px minmax(0,1fr)}.side-acts{grid-column:1/-1;flex-direction:row;justify-content:space-between;align-items:center}}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+table.t{width:100%;border-collapse:collapse;font-size:13px;min-width:720px}
+table.t th{background:var(--plane);color:var(--muted);font-weight:600;font-size:12px;text-align:start;padding:9px 12px;border-bottom:1px solid var(--line);position:sticky;top:0}
+table.t td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+table.t tr:last-child td{border-bottom:0}
+table.t tr{cursor:pointer}
+table.t tr:hover td{background:#fafaff}
+table.t .num{font-variant-numeric:tabular-nums;font-weight:700}
+.empty{border:1px dashed var(--line2);border-radius:14px;padding:44px 20px;text-align:center;color:var(--muted)}
+.more{display:flex;justify-content:center;margin-top:14px}
+
+/* ---------- kanban ---------- */
+.board{display:grid;grid-template-columns:repeat(5,minmax(200px,1fr));gap:12px;overflow-x:auto;padding-bottom:6px}
+.lane{background:var(--plane);border-radius:14px;padding:12px;min-height:180px;display:flex;flex-direction:column;gap:8px}
+.lane h3{margin:0 0 4px;font-size:13.5px;display:flex;align-items:center;gap:8px}
+.lane h3 i{width:8px;height:8px;border-radius:50%}
+.lane h3 span{margin-inline-start:auto;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.kcard{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:13px;cursor:pointer}
+.kcard:hover{border-color:var(--accent-line)}
+.kcard b{display:block;font-weight:700;line-height:1.5;overflow-wrap:anywhere}
+.kcard .m{font-size:12px;color:var(--muted)}
+.kcard .mv{display:flex;gap:4px;margin-top:6px}
+
+/* ---------- drawer ---------- */
+.scrim{position:fixed;inset:0;background:rgba(15,18,34,.32);z-index:20;opacity:0;pointer-events:none;transition:opacity .2s}
+.scrim.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;bottom:0;inset-inline-end:0;width:min(560px,100%);background:var(--card);z-index:21;box-shadow:0 0 40px rgba(15,18,34,.18);transform:translateX(-102%);transition:transform .25s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.drawer.open{transform:none}
+.dhead{display:flex;gap:14px;align-items:flex-start;padding:20px 22px 14px;border-bottom:1px solid var(--line)}
+.dhead h2{font-size:17px;margin:0;line-height:1.55;overflow-wrap:anywhere}
+.dbody{padding:16px 22px 28px;overflow-y:auto;display:flex;flex-direction:column;gap:18px}
+.sec h4{font-size:12.5px;color:var(--muted);font-weight:700;margin:0 0 8px;letter-spacing:.02em}
+.desc{font-size:13.5px;color:var(--ink2);white-space:pre-wrap;background:var(--plane);border-radius:12px;padding:12px 14px}
+.stgrid{display:flex;flex-wrap:wrap;gap:6px}
+textarea.in,input.in{width:100%;border:1px solid var(--line2);border-radius:10px;background:var(--card);padding:9px 12px;font-size:14px;resize:vertical;outline:none}
+textarea.in:focus,input.in:focus{border-color:var(--accent)}
+.msg{font-size:12.5px;color:var(--ink2);margin-top:6px}
+.msg.ok{color:var(--good)} .msg.err{color:var(--bad)}
+.breakdown{display:flex;flex-direction:column;gap:6px}
+
+/* ---------- forms ---------- */
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:760px){.form-grid{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--ink2);font-weight:600}
+.field small{font-weight:400;color:var(--muted);font-size:12px}
+.taginput{display:flex;flex-wrap:wrap;gap:6px;border:1px solid var(--line2);border-radius:10px;padding:6px 8px;min-height:42px;background:var(--card)}
+.taginput .t{display:inline-flex;align-items:center;gap:4px;background:var(--accent-soft);color:var(--accent);border-radius:7px;padding:1px 4px 1px 8px;font-size:12.5px;font-weight:600}
+.taginput .t button{border:0;background:none;color:inherit;padding:0 4px;font-size:14px;line-height:1}
+.taginput input{border:0;outline:none;flex:1;min-width:120px;font-size:13.5px;background:none}
+.upload{display:flex;align-items:center;gap:14px;border:1.5px dashed var(--accent-line);background:#fafaff;border-radius:14px;padding:16px}
+.upload .ic{width:44px;height:44px;border-radius:12px;background:var(--accent-soft);display:grid;place-items:center;flex:none}
+.upload .ic svg{width:22px;height:22px;stroke:var(--accent);fill:none;stroke-width:1.8}
+.toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));inset-inline:16px;margin:auto;max-width:420px;background:#0f1222;color:#fff;border-radius:12px;padding:10px 16px;font-size:13.5px;z-index:40;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+.skeleton{height:84px;border-radius:14px;background:linear-gradient(90deg,var(--plane) 0%,var(--plane2) 50%,var(--plane) 100%);background-size:200% 100%;animation:sk 1.2s infinite}
+@keyframes sk{to{background-position:-200% 0}}
 </style>
 
-<div class="wrap">
-  <header class="top">
+<div class="shell">
+  <aside class="side">
     <div class="brand">
-      <div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="9" opacity=".5"/><circle cx="12" cy="12" r="5" opacity=".8"/><path d="M12 12 L19 6" stroke-linecap="round"/><circle cx="12" cy="12" r="1.6" fill="#fff" stroke="none"/></svg></div>
-      <div><h1>رادار فرصت</h1><div class="sub" id="lastRun">در حال بارگذاری…</div></div>
+      <div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9" opacity=".45"/><circle cx="12" cy="12" r="5" opacity=".8"/><path d="M12 12 18.5 6.5"/><circle cx="12" cy="12" r="1.7" fill="#fff" stroke="none"/></svg></div>
+      <div><b>رادار فرصت</b><span>سئو · جئو · دیجیتال مارکتینگ</span></div>
     </div>
-    <div class="acts" style="margin:0">
-      <button class="btn" id="scanBtn" type="button" hidden>اسکن الان</button>
-      <span class="msg" id="scanMsg"></span>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot" id="sideFoot"></div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div><h1 id="title">نمای کلی</h1><div class="crumb" id="crumb">در حال بارگذاری…</div></div>
+      <div class="grow"></div>
+      <label class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="جستجو در همه‌ی فرصت‌ها…" aria-label="جستجو"></label>
+      <button class="btn" id="scanBtn" type="button" hidden><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg><span>اسکن الان</span></button>
     </div>
-  </header>
-
-  <section class="summary" id="summary"></section>
-
-  <nav class="tabs" id="tabs" role="tablist"></nav>
-
-  <main id="view"><div class="empty">در حال بارگذاری فرصت‌ها…</div></main>
+    <div id="view"><div class="list"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div></div>
+  </main>
 </div>
 
-<div id="modalRoot"></div>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" role="dialog" aria-label="جزئیات فرصت"></aside>
+<div class="tip" id="tip" hidden></div>
 <div class="toast" id="toast" hidden></div>
 
 <script>
@@ -133,40 +256,81 @@ h1{font-size:21px;font-weight:800;margin:0;text-wrap:balance}
   var TRIGGER_ID = "trig_01HhFw5wQq1oRaCsE3GEr7VZ";
   var STATUSES = ["New", "Saved", "Contacted", "Applied", "Won", "Rejected", "Ignored"];
   var STATUS_FA = { New: "جدید", Saved: "ذخیره‌شده", Contacted: "پیام دادم", Applied: "اپلای کردم", Won: "موفق", Rejected: "رد شد", Ignored: "نادیده" };
-  var QUICK = [["Saved", "ذخیره"], ["Contacted", "پیام دادم"], ["Applied", "اپلای کردم"], ["Ignored", "نادیده"]];
+  var LANES = [["Saved", "var(--o1)"], ["Contacted", "var(--o2)"], ["Applied", "var(--o3)"], ["Won", "var(--o4)"], ["Rejected", "var(--faint)"]];
+  var REMOTE_FA = { Remote: "دورکاری", "On-site": "حضوری", Hybrid: "هیبرید", Unknown: "نامشخص" };
   var DEFAULT_TEMPLATES = {
-    fa: "سلام، وقت بخیر\n\nآگهی «{title}» در {company} را دیدم و علاقه‌مند به همکاری هستم.\nتخصص من سئو و دیجیتال مارکتینگ است: سئو تکنیکال، تحقیق کلمات کلیدی، سرچ کنسول و GA4، وردپرس، تولید محتوای سئو‌محور و بهینه‌سازی برای موتورهای هوش مصنوعی (GEO).\n\nرزومه‌ام را پیوست کرده‌ام. اگر مایل باشید، خوشحال می‌شوم در یک گفتگوی کوتاه بیشتر توضیح بدهم.\n\nبا احترام\n[نام و نام خانوادگی]\n[شماره تماس]",
+    fa: "سلام، وقت بخیر\n\nآگهی «{title}» در {company} را دیدم و علاقه‌مند به همکاری هستم.\nتخصص من سئو و دیجیتال مارکتینگ است: سئو تکنیکال، تحقیق کلمات کلیدی، سرچ کنسول و GA4، وردپرس، تولید محتوای سئومحور و بهینه‌سازی برای موتورهای هوش مصنوعی (GEO).\n\nرزومه‌ام را پیوست کرده‌ام. اگر مایل باشید، خوشحال می‌شوم در یک گفتگوی کوتاه بیشتر توضیح بدهم.\n\nبا احترام\n[نام و نام خانوادگی]\n[شماره تماس]",
     en: "Hi,\n\nI came across the {title} role at {company} and would love to be considered.\nI work in SEO and digital marketing: technical SEO, keyword research, Google Search Console and GA4, WordPress, content strategy, and optimisation for AI search (GEO/AEO). I work remotely and am comfortable with async collaboration across time zones.\n\nMy CV is attached. I'd be glad to share examples of results on a short call.\n\nBest regards,\n[Your name]\n[LinkedIn profile]"
   };
   var DEFAULT_FILTERS = { mustAny: [], exclude: [], cities: [], remoteOnly: false, types: [], minScore: 0 };
+  var PAGE = 40;
+
+  var ICON = {
+    overview: '<path d="M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z"/>',
+    iran: '<path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+    intl: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
+    pipe: '<path d="M4 4h4v16H4zM10 4h4v10h-4zM16 4h4v6h-4z"/>',
+    insights: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+    texts: '<path d="M4 4h16v12H7l-3 3z"/><path d="M8 9h8M8 12h5"/>',
+    filters: '<path d="M4 5h16l-6 8v5l-4 2v-7z"/>',
+    save: '<path d="M6 3h12v18l-6-4-6 4z"/>',
+    send: '<path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/>',
+    check: '<path d="M20 6 9 17l-5-5"/>',
+    x: '<path d="M18 6 6 18M6 6l12 12"/>',
+    ext: '<path d="M14 3h7v7M21 3l-9 9M19 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5"/>',
+    copy: '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',
+    spark: '<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/>',
+    mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
+    left: '<path d="m15 18-6-6 6-6"/>', right: '<path d="m9 18 6-6-6-6"/>',
+    alert: '<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/>',
+    file: '<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/>'
+  };
+  function ic(name) { return '<svg viewBox="0 0 24 24">' + ICON[name] + "</svg>"; }
+
+  var VIEWS = [
+    ["overview", "نمای کلی", null], ["iran", "فرصت‌های ایران", "iran"], ["intl", "فرصت‌های خارجی", "intl"],
+    ["pipe", "پیگیری درخواست‌ها", "pipe"], ["insights", "تحلیل بازار و منابع", null],
+    ["texts", "متن‌ها و رزومه", null], ["filters", "فیلترهای من", null]
+  ];
 
   var S = {
-    items: {}, chunks: {}, status: {}, filters: clone(DEFAULT_FILTERS), templates: clone(DEFAULT_TEMPLATES),
-    resume: null, meta: null, loaded: false, db: null,
-    tab: ls("tab", "iran"),
-    ui: { q: "", minScore: 40, type: "all", mode: "all", days: "all", st: "active", sort: "score", mine: ls("mine", "1") === "1", friendly: ls("friendly", "0") === "1" }
+    items: {}, status: {}, filters: clone(DEFAULT_FILTERS), templates: clone(DEFAULT_TEMPLATES), resume: null, meta: null,
+    loaded: false, db: null, view: ls("view", "overview"), openId: null, limit: PAGE,
+    ui: { q: "", minScore: Number(ls("minScore", "40")), type: "all", mode: "all", days: "all", st: "active", sort: "score",
+          mine: ls("mine", "1") === "1", friendly: ls("friendly", "1") === "1", layout: ls("layout", "cards") }
   };
+  var caps = { db: null, mcp: null, sample: null, assets: null };
 
   function clone(o) { return JSON.parse(JSON.stringify(o)); }
-  function ls(k, d) { try { var v = localStorage.getItem("radar." + k); return v === null ? d : v; } catch (e) { return d; } }
-  function lsSet(k, v) { try { localStorage.setItem("radar." + k, v); } catch (e) {} }
+  function ls(k, d) { try { var v = localStorage.getItem("radar2." + k); return v === null ? d : v; } catch (e) { return d; } }
+  function lsSet(k, v) { try { localStorage.setItem("radar2." + k, v); } catch (e) {} }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function norm(s) { return String(s || "").toLowerCase().replace(/ي/g, "ی").replace(/ك/g, "ک").replace(/‌/g, " "); }
   function $(id) { return document.getElementById(id); }
   var faNum = new Intl.NumberFormat("fa-IR");
   var faDate = new Intl.DateTimeFormat("fa-IR", { month: "long", day: "numeric" });
-  var faDateTime = new Intl.DateTimeFormat("fa-IR", { month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  var faDT = new Intl.DateTimeFormat("fa-IR", { weekday: "long", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  function n(v) { return faNum.format(v || 0); }
   function toDate(s) { if (!s) return null; var d = new Date(/Z|[+-]\d\d:?\d\d$/.test(s) ? s : s + "Z"); return isNaN(d) ? null : d; }
   function fdate(s) { var d = toDate(s); return d ? faDate.format(d) : ""; }
+  function ago(s) {
+    var d = toDate(s); if (!d) return "";
+    var h = Math.floor((Date.now() - d.getTime()) / 36e5);
+    if (h < 1) return "همین حالا"; if (h < 24) return n(h) + " ساعت پیش"; return n(Math.floor(h / 24)) + " روز پیش";
+  }
+  function loc(s) { var m = { iran: "ایران", remote: "دورکاری", "remote (worldwide)": "دورکاری (جهانی)", worldwide: "جهانی", anywhere: "هر جا" }; return m[String(s || "").trim().toLowerCase()] || s; }
+  function toast(text) { var t = $("toast"); t.textContent = text; t.hidden = false; clearTimeout(toast._t); toast._t = setTimeout(function () { t.hidden = true; }, 3000); }
 
-  function toast(text) { var t = $("toast"); t.textContent = text; t.hidden = false; clearTimeout(toast._t); toast._t = setTimeout(function () { t.hidden = true; }, 3200); }
-
-  // ---------------------------------------------------------------- data
+  // ------------------------------------------------------------ data
   function statusOf(id) { return (S.status[id] && S.status[id].status) || "New"; }
   function notesOf(id) { return (S.status[id] && S.status[id].notes) || ""; }
   function all() { return Object.keys(S.items).map(function (k) { return S.items[k]; }); }
   function isFriendly(o) { return /linkedin|freelancer|reddit|upwork|wellfound/i.test(o.source + " " + o.url); }
   function iranLinked(o) { return /iran|persian|farsi|tehran/i.test(o.title + " " + o.desc + " " + o.company); }
+  function skillsOf(o) {
+    return (o.reasons || []).filter(function (r) { return r.charAt(0) === "✓" && !/^✓ (Role|Title|Remote|Fresh|Full-time|Freelance|Contract|Consulting|Iran|ایران|تهران|Canada|USA|United States|Europe|Worldwide|Anywhere)\b/.test(r) && !/(Technology|SaaS|Ecommerce|Marketing Agencies|Startups|Online Businesses)$/.test(r); })
+      .map(function (r) { return r.slice(2); });
+  }
 
   function matchesMine(o) {
     var f = S.filters, text = norm([o.title, o.desc, o.company, o.location, o.source].join(" "));
@@ -180,10 +344,9 @@ h1{font-size:21px;font-weight:800;margin:0;text-wrap:balance}
   }
 
   function visible(region) {
-    var u = S.ui, q = norm(u.q), now = Date.now();
-    var days = { "1": 1, "3": 3, "7": 7, "30": 30 }[u.days];
+    var u = S.ui, q = norm(u.q), now = Date.now(), days = { "1": 1, "3": 3, "7": 7, "30": 30 }[u.days];
     var rows = all().filter(function (o) {
-      if (o.region !== region) return false;
+      if (region && o.region !== region) return false;
       var st = statusOf(o.id);
       if (u.st === "active" && (st === "Ignored" || st === "Rejected")) return false;
       if (u.st !== "active" && u.st !== "all" && st !== u.st) return false;
@@ -194,7 +357,7 @@ h1{font-size:21px;font-weight:800;margin:0;text-wrap:balance}
       if (days) { var d = toDate(o.found); if (!d || now - d.getTime() > days * 864e5) return false; }
       if (region === "intl" && u.friendly && !isFriendly(o) && !iranLinked(o)) return false;
       if (u.mine && !matchesMine(o)) return false;
-      if (q && norm([o.title, o.company, o.desc, o.location, notesOf(o.id)].join(" ")).indexOf(q) === -1) return false;
+      if (q && norm([o.title, o.company, o.desc, o.location, o.source, notesOf(o.id)].join(" ")).indexOf(q) === -1) return false;
       return true;
     });
     rows.sort(u.sort === "new"
@@ -203,176 +366,353 @@ h1{font-size:21px;font-weight:800;margin:0;text-wrap:balance}
     return rows;
   }
 
-  // -------------------------------------------------------------- render
-  function renderAll() { renderHeader(); renderSummary(); renderTabs(); renderView(); }
-
-  function renderHeader() {
-    var m = S.meta;
-    $("lastRun").textContent = !S.loaded ? "در حال بارگذاری…" :
-      m && m.lastRun ? "آخرین به‌روزرسانی: " + faDateTime.format(toDate(m.lastRun)) + " · هر ۴۸ ساعت خودکار" : "هنوز داده‌ای ثبت نشده";
-  }
-
-  function renderSummary() {
-    var items = all(), iran = 0, strongIran = 0, intl = 0, active = 0;
-    items.forEach(function (o) {
-      var st = statusOf(o.id);
-      if (o.region === "iran") { iran++; if (o.score >= 55 && st === "New") strongIran++; } else intl++;
-      if (st === "Contacted" || st === "Applied") active++;
+  // ------------------------------------------------------------ chrome
+  function renderNav() {
+    var c = {
+      iran: all().filter(function (o) { return o.region === "iran" && statusOf(o.id) === "New"; }).length,
+      intl: all().filter(function (o) { return o.region === "intl" && statusOf(o.id) === "New"; }).length,
+      pipe: all().filter(function (o) { var s = statusOf(o.id); return s !== "New" && s !== "Ignored"; }).length
+    };
+    var html = "";
+    VIEWS.forEach(function (v, i) {
+      if (i === 1) html += '<div class="grp">فرصت‌ها</div>';
+      if (i === 3) html += '<div class="grp">کار من</div>';
+      if (i === 5) html += '<div class="grp">تنظیمات</div>';
+      html += '<button type="button" data-view="' + v[0] + '" class="' + (S.view === v[0] ? "on" : "") + '">' + ic(v[0]) +
+        '<span class="lbl">' + v[1] + "</span>" + (v[2] ? '<span class="cnt">' + n(c[v[2]]) + "</span>" : "") + "</button>";
     });
-    $("summary").innerHTML =
-      kpi(faNum.format(strongIran), "فرصت قوی ایرانی بررسی‌نشده", "accent") +
-      kpi(faNum.format(iran), "کل آگهی‌های ایرانی") +
-      kpi(faNum.format(intl), "آگهی‌های خارجی") +
-      kpi(faNum.format(active), "در جریان (پیام/اپلای)");
+    $("nav").innerHTML = html;
+    var m = S.meta;
+    $("sideFoot").innerHTML = m && m.lastRun
+      ? '<div><span class="dot"></span>به‌روزرسانی خودکار هر ۴۸ ساعت</div><div>آخرین اسکن: ' + esc(ago(m.lastRun)) + "</div>"
+      : "<div>منتظر اولین اسکن</div>";
   }
-  function kpi(v, l, cls) { return '<div class="kpi ' + (cls || "") + '"><b>' + v + "</b><span>" + l + "</span></div>"; }
 
-  function renderTabs() {
-    var counts = { iran: visibleCount("iran"), intl: visibleCount("intl") };
-    var pipe = all().filter(function (o) { var s = statusOf(o.id); return s !== "New" && s !== "Ignored"; }).length;
-    var tabs = [["iran", "ایران", counts.iran], ["intl", "خارجی", counts.intl], ["pipe", "پیگیری", pipe], ["texts", "متن‌ها و رزومه"], ["filters", "فیلترهای من"]];
-    $("tabs").innerHTML = tabs.map(function (t) {
-      return '<button class="tab ' + (S.tab === t[0] ? "on" : "") + '" role="tab" type="button" data-tab="' + t[0] + '">' + t[1] +
-        (t[2] != null ? '<span class="n">' + faNum.format(t[2]) + "</span>" : "") + "</button>";
-    }).join("");
+  function renderTop() {
+    var v = VIEWS.filter(function (x) { return x[0] === S.view; })[0] || VIEWS[0];
+    $("title").textContent = v[1];
+    var m = S.meta;
+    $("crumb").textContent = !S.loaded ? "در حال بارگذاری…" : m && m.lastRun ? "آخرین به‌روزرسانی: " + faDT.format(toDate(m.lastRun)) : "هنوز داده‌ای ثبت نشده";
   }
-  function visibleCount(r) { return visible(r).length; }
+
+  function render() { renderNav(); renderTop(); renderView(); }
 
   function renderView() {
     var v = $("view");
-    if (!S.loaded) { v.innerHTML = '<div class="empty">در حال بارگذاری فرصت‌ها…</div>'; return; }
-    if (S.tab === "iran" || S.tab === "intl") v.innerHTML = feedHtml(S.tab);
-    else if (S.tab === "pipe") v.innerHTML = pipeHtml();
-    else if (S.tab === "texts") v.innerHTML = textsHtml();
-    else v.innerHTML = filtersHtml();
+    if (!S.loaded) return;
+    var fn = { overview: overviewHtml, iran: function () { return feedHtml("iran"); }, intl: function () { return feedHtml("intl"); },
+      pipe: pipeHtml, insights: insightsHtml, texts: textsHtml, filters: filtersHtml }[S.view] || overviewHtml;
+    v.innerHTML = fn();
+    if (S.view === "filters") bindTagInputs();
+    requestAnimationFrame(function () { v.querySelectorAll("[data-w]").forEach(function (el) { el.style.width = el.dataset.w; }); });
   }
 
-  function sel(id, value, opts) {
-    return '<select id="' + id + '">' + opts.map(function (o) { return '<option value="' + o[0] + '"' + (o[0] === value ? " selected" : "") + ">" + o[1] + "</option>"; }).join("") + "</select>";
+  // ------------------------------------------------------------ charts
+  function hbars(rows, color, opts) {
+    opts = opts || {};
+    if (!rows.length) return '<div class="chart-empty">' + (opts.empty || "هنوز داده‌ای نیست.") + "</div>";
+    var max = Math.max.apply(null, rows.map(function (r) { return r[1]; })) || 1;
+    return '<div class="hbars">' + rows.map(function (r) {
+      var pct = Math.max(2, Math.round(r[1] / max * 100));
+      return '<div class="hb" data-tip="' + esc(r[0] + " — " + n(r[1]) + (opts.unit || "")) + '"><span class="k" dir="auto" title="' + esc(r[0]) + '">' + esc(r[0]) + "</span>" +
+        '<span class="track"><span class="bar" data-w="' + pct + '%" style="width:0;background:' + color + '"></span><span class="v">' + n(r[1]) + (opts.unit || "") + "</span></span></div>";
+    }).join("") + "</div>";
+  }
+
+  function stacked(parts) {
+    var total = parts.reduce(function (s, p) { return s + p[1]; }, 0);
+    if (!total) return '<div class="chart-empty">هنوز داده‌ای نیست.</div>';
+    return '<div class="stack" role="img" aria-label="' + esc(parts.map(function (p) { return p[0] + " " + p[1]; }).join("، ")) + '">' +
+      parts.filter(function (p) { return p[1]; }).map(function (p) {
+        return '<i data-tip="' + esc(p[0] + " — " + n(p[1]) + " (" + n(Math.round(p[1] / total * 100)) + "٪)") + '" style="width:' + (p[1] / total * 100) + "%;background:" + p[2] + '"></i>';
+      }).join("") + '</div><div class="legend">' + parts.map(function (p) {
+        return '<span><i style="background:' + p[2] + '"></i>' + esc(p[0]) + " <b>" + n(p[1]) + "</b></span>";
+      }).join("") + "</div>";
+  }
+
+  function ring(score) {
+    var c = 2 * Math.PI * 21, off = c * (1 - Math.max(0, Math.min(100, score)) / 100);
+    var col = score >= 70 ? "var(--good)" : score >= 55 ? "var(--accent)" : score >= 40 ? "#9aa0c8" : "var(--line2)";
+    return '<div class="ring" aria-label="امتیاز تطابق ' + score + '"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="21" fill="none" stroke="var(--plane2)" stroke-width="5"/>' +
+      '<circle cx="26" cy="26" r="21" fill="none" stroke="' + col + '" stroke-width="5" stroke-linecap="round" stroke-dasharray="' + c.toFixed(1) + '" stroke-dashoffset="' + off.toFixed(1) + '"/></svg><b>' + score + "</b></div>";
+  }
+
+  // ------------------------------------------------------------ overview
+  function overviewHtml() {
+    var items = all(), iran = items.filter(function (o) { return o.region === "iran"; });
+    var strongIran = iran.filter(function (o) { return o.score >= 55 && statusOf(o.id) === "New"; });
+    var since = Date.now() - 48 * 36e5;
+    var fresh = items.filter(function (o) { var d = toDate(o.found); return d && d.getTime() > since; }).length;
+    var active = items.filter(function (o) { var s = statusOf(o.id); return s === "Contacted" || s === "Applied"; }).length;
+    var won = items.filter(function (o) { return statusOf(o.id) === "Won"; }).length;
+    var top = iran.filter(function (o) { var s = statusOf(o.id); return s !== "Ignored" && s !== "Rejected"; })
+      .sort(function (a, b) { return b.score - a.score; }).slice(0, 5);
+
+    var modes = { Remote: 0, "On-site": 0, Hybrid: 0, Unknown: 0 };
+    iran.forEach(function (o) { modes[o.remote in modes ? o.remote : "Unknown"]++; });
+    var jobs = iran.filter(function (o) { return o.type !== "Freelance"; }).length;
+
+    var funnel = LANES.slice(0, 4).map(function (l) { return [STATUS_FA[l[0]], items.filter(function (o) { return statusOf(o.id) === l[0]; }).length, l[1]]; });
+    var fmax = Math.max(1, Math.max.apply(null, funnel.map(function (f) { return f[1]; })));
+
+    return '<div class="grid g-hero" style="margin-bottom:16px">' +
+      '<section class="hero"><div class="eyebrow">اولویت امروز</div>' +
+      '<div class="fig"><b>' + n(strongIran.length) + "</b><span>فرصت قوی ایرانی منتظر بررسی توست</span></div>" +
+      "<p>آگهی‌هایی از جابینجا، جاب‌ویژن، ای‌استخدام، پونیشا و کارلنسر که با مهارت‌هایت بیشترین تطابق را دارند. هر کدام را ذخیره یا نادیده بگیر تا لیست تمیز بماند.</p>" +
+      '<div class="row"><button type="button" class="btn primary" data-view="iran">بررسی فرصت‌های ایران</button><button type="button" class="btn" data-view="pipe">پیگیری درخواست‌ها</button></div></section>' +
+      '<div class="tiles">' +
+      tile("جدید در ۴۸ ساعت اخیر", n(fresh), "از همه‌ی منابع") +
+      tile("آگهی‌های ایرانی", n(iran.length), n(jobs) + " استخدام · " + n(iran.length - jobs) + " پروژه") +
+      tile("در جریان", n(active), "پیام داده یا اپلای کرده") +
+      tile("موفق", n(won), won ? "تبریک!" : "هنوز نه") +
+      "</div></div>" +
+
+      '<div class="grid g-2" style="margin-bottom:16px">' +
+      '<section class="panel"><div class="phead"><div><h2>بهترین فرصت‌های ایران</h2><div class="sub" style="margin:0">بالاترین امتیاز تطابق، بدون موارد نادیده</div></div><button type="button" class="btn sm" data-view="iran">همه</button></div>' +
+      (top.length ? '<div class="list">' + top.map(miniRow).join("") + "</div>" : '<div class="chart-empty">هنوز آگهی ایرانی نیست.</div>') + "</section>" +
+      '<section class="panel"><h2>نحوه‌ی همکاری در آگهی‌های ایران</h2><div class="sub">چند درصد دورکاری است؟</div>' +
+      stacked([["دورکاری", modes.Remote, "var(--s1)"], ["حضوری", modes["On-site"], "var(--s2)"], ["هیبرید", modes.Hybrid, "var(--s3)"], ["نامشخص", modes.Unknown, "var(--s4)"]]) +
+      '<div style="height:18px"></div><h2>قیف درخواست‌های من</h2><div class="sub">از ذخیره تا موفقیت</div>' +
+      '<div class="funnel">' + funnel.map(function (f) {
+        return '<div class="fs" data-tip="' + esc(f[0] + " — " + n(f[1])) + '"><span>' + f[0] + '</span><span><span class="bar" data-w="' + Math.max(2, f[1] / fmax * 100) + '%" style="width:0;display:block;background:' + f[2] + '"></span></span><span class="v">' + n(f[1]) + "</span></div>";
+      }).join("") + "</div>" +
+      (funnel.every(function (f) { return !f[1]; }) ? '<div class="sub" style="margin-top:8px">با دکمه‌ی «ذخیره» روی هر فرصت، قیف پر می‌شود.</div>' : "") +
+      "</section></div>" +
+
+      '<div class="grid g-2">' +
+      '<section class="panel"><h2>مهارت‌هایی که بیشتر خواسته می‌شوند</h2><div class="sub">در آگهی‌های با امتیاز ۵۵ به بالا · تعداد آگهی</div>' + hbars(skillCounts(items, 55).slice(0, 8), "var(--s1)") + "</section>" +
+      '<section class="panel"><h2>منابعی که فرصت قوی می‌دهند</h2><div class="sub">تعداد آگهی با امتیاز ۵۵ به بالا</div>' + hbars(sourceCounts(items, 55).slice(0, 8), "var(--s1)") + "</section>" +
+      "</div>";
+  }
+  function tile(l, v, h) { return '<div class="tile"><span class="lbl">' + l + '</span><span class="val">' + v + '</span><span class="hint">' + h + "</span></div>"; }
+  function miniRow(o) {
+    return '<div class="opp" data-open="' + esc(o.id) + '" style="grid-template-columns:52px minmax(0,1fr);padding:10px 12px">' + ring(o.score) +
+      '<div><h3 dir="auto" style="font-size:14px">' + esc(o.title) + '</h3><div class="meta"><span>' + esc(o.company) + "</span><span>" + esc(REMOTE_FA[o.remote] || "") + "</span></div></div></div>";
+  }
+  function skillCounts(items, min) {
+    var c = {};
+    items.forEach(function (o) { if (o.score >= min) skillsOf(o).forEach(function (s) { c[s] = (c[s] || 0) + 1; }); });
+    return Object.keys(c).map(function (k) { return [k, c[k]]; }).sort(function (a, b) { return b[1] - a[1]; });
+  }
+  function sourceCounts(items, min) {
+    var c = {};
+    items.forEach(function (o) { if (o.score >= min) { var k = o.source.replace(/ \(از جستجوی وب\)/, "").replace(/ — .*$/, ""); c[k] = (c[k] || 0) + 1; } });
+    return Object.keys(c).map(function (k) { return [k, c[k]]; }).sort(function (a, b) { return b[1] - a[1]; });
+  }
+
+  // ------------------------------------------------------------ feed
+  function segHtml(id, value, opts) {
+    return '<div class="seg" role="group">' + opts.map(function (o) { return '<button type="button" data-seg="' + id + '" data-val="' + o[0] + '" class="' + (value === o[0] ? "on" : "") + '">' + o[1] + "</button>"; }).join("") + "</div>";
+  }
+  function selHtml(id, value, label, opts) {
+    return '<label class="ctl">' + label + '<select id="' + id + '">' + opts.map(function (o) { return '<option value="' + o[0] + '"' + (o[0] === value ? " selected" : "") + ">" + o[1] + "</option>"; }).join("") + "</select></label>";
   }
 
   function feedHtml(region) {
-    var u = S.ui, rows = visible(region);
-    var bar = '<div class="bar">' +
-      '<input type="search" id="q" placeholder="جستجو در عنوان، شرکت، شهر، یادداشت…" value="' + esc(u.q) + '">' +
-      '<label>حداقل امتیاز <input type="number" id="minScore" min="0" max="100" step="5" value="' + u.minScore + '" style="width:72px"></label>' +
-      sel("type", u.type, [["all", "همه‌ی انواع"], ["job", "استخدام"], ["freelance", "پروژه فریلنس"]]) +
-      sel("mode", u.mode, [["all", "دورکاری و حضوری"], ["Remote", "فقط دورکاری"], ["On-site", "حضوری"], ["Hybrid", "هیبرید"]]) +
-      sel("days", u.days, [["all", "هر زمان"], ["1", "۲۴ ساعت اخیر"], ["3", "۳ روز اخیر"], ["7", "هفته‌ی اخیر"], ["30", "ماه اخیر"]]) +
-      sel("st", u.st, [["active", "فعال (بدون نادیده/رد)"], ["all", "همه‌ی وضعیت‌ها"]].concat(STATUSES.map(function (s) { return [s, STATUS_FA[s]]; }))) +
-      sel("sort", u.sort, [["score", "بیشترین تطابق"], ["new", "جدیدترین"]]) +
-      '<label><input type="checkbox" id="mine"' + (u.mine ? " checked" : "") + '> فیلترهای من</label>' +
-      (region === "intl" ? '<label><input type="checkbox" id="friendly"' + (u.friendly ? " checked" : "") + '> فقط مناسب ایرانی‌ها</label>' : "") +
+    var u = S.ui, rows = visible(region), shown = rows.slice(0, S.limit);
+    var bar = '<div class="toolbar">' +
+      segHtml("type", u.type, [["all", "همه"], ["job", "استخدام"], ["freelance", "پروژه"]]) +
+      segHtml("mode", u.mode, [["all", "همه"], ["Remote", "دورکاری"], ["On-site", "حضوری"], ["Hybrid", "هیبرید"]]) +
+      '<label class="ctl">حداقل امتیاز <input type="range" id="minScore" min="0" max="90" step="5" value="' + u.minScore + '"><output id="minOut">' + n(u.minScore) + "</output></label>" +
+      selHtml("days", u.days, "زمان", [["all", "هر زمان"], ["1", "۲۴ ساعت"], ["3", "۳ روز"], ["7", "هفته"], ["30", "ماه"]]) +
+      selHtml("st", u.st, "وضعیت", [["active", "فعال"], ["all", "همه"]].concat(STATUSES.map(function (s) { return [s, STATUS_FA[s]]; }))) +
+      selHtml("sort", u.sort, "مرتب‌سازی", [["score", "بیشترین تطابق"], ["new", "جدیدترین"]]) +
+      '<label class="switch"><input type="checkbox" id="mine"' + (u.mine ? " checked" : "") + ">فیلترهای من</label>" +
+      (region === "intl" ? '<label class="switch"><input type="checkbox" id="friendly"' + (u.friendly ? " checked" : "") + ">قابل اقدام از ایران</label>" : "") +
+      '<span class="result">' + n(rows.length) + " فرصت</span>" +
+      segHtml("layout", u.layout, [["cards", "کارت"], ["table", "جدول"]]) +
       "</div>";
     var note = region === "intl"
-      ? '<div class="note">بیشترِ سایت‌های کاریابی خارجی احراز هویت یا اقامت می‌خواهند. LinkedIn، پروژه‌های فریلنس و آگهی‌های مرتبط با ایران شانس بیشتری دارند؛ تیک «فقط مناسب ایرانی‌ها» همین‌ها را نشان می‌دهد.</div>'
-      : "";
-    var list = rows.length ? '<div class="list">' + rows.map(cardHtml).join("") + "</div>"
-      : '<div class="empty">فرصتی با این فیلترها نیست. حداقل امتیاز را کم کنید یا تیک «فیلترهای من» را بردارید.</div>';
-    return bar + note + list;
+      ? '<div class="banner">' + ic("alert") + "<div>بیشتر سایت‌های کاریابی خارجی احراز هویت یا اقامت می‌خواهند. کلید «قابل اقدام از ایران» فقط LinkedIn، پروژه‌های فریلنس و آگهی‌های مرتبط با ایران را نشان می‌دهد.</div></div>" : "";
+    if (!rows.length) return bar + note + '<div class="empty">فرصتی با این فیلترها نیست. حداقل امتیاز را کم کنید یا کلید «فیلترهای من» را خاموش کنید.</div>';
+    var body = u.layout === "table" ? tableHtml(shown) : '<div class="list">' + shown.map(oppHtml).join("") + "</div>";
+    var more = rows.length > shown.length ? '<div class="more"><button type="button" class="btn" data-act="more">نمایش ' + n(Math.min(PAGE, rows.length - shown.length)) + " مورد دیگر</button></div>" : "";
+    return bar + note + body + more;
   }
 
-  function scoreCls(s) { return s >= 55 ? "hi" : s >= 40 ? "mid" : ""; }
-
-  function cardHtml(o) {
-    var st = statusOf(o.id), n = notesOf(o.id);
-    var why = (o.reasons || []).slice(0, 6).map(function (r) {
-      var c = r.charAt(0) === "✗" ? "neg" : r.charAt(0) === "⚠" ? "" : "why";
-      return '<span class="tag ' + c + '" dir="ltr">' + esc(r) + "</span>";
-    }).join("");
-    var badges = '<span class="tag">' + esc(o.remote === "Remote" ? "دورکاری" : o.remote === "Hybrid" ? "هیبرید" : o.remote === "On-site" ? "حضوری" : "نامشخص") + "</span>" +
-      '<span class="tag">' + esc(o.type === "Freelance" ? "پروژه فریلنس" : o.type || "استخدام") + "</span>" +
-      (o.region === "intl" && iranLinked(o) ? '<span class="tag acc">مرتبط با ایران</span>' : "") +
-      (o.region === "intl" && isFriendly(o) ? '<span class="tag acc">قابل اقدام از ایران</span>' : "");
-    return '<article class="card ' + (st === "Ignored" ? "dim" : "") + '" data-id="' + esc(o.id) + '">' +
-      '<div class="score ' + scoreCls(o.score) + '"><b>' + o.score + "</b><small>MATCH</small></div>" +
+  function oppHtml(o) {
+    var st = statusOf(o.id), sk = skillsOf(o).slice(0, 4);
+    var neg = (o.reasons || []).filter(function (r) { return r.charAt(0) === "✗"; });
+    return '<article class="opp ' + (st === "Ignored" ? "dim" : "") + '" data-open="' + esc(o.id) + '">' + ring(o.score) +
       "<div>" +
-      '<div class="acts" style="margin:0"><h2 class="ttl" dir="auto"><a href="' + esc(o.url) + '" target="_blank" rel="noopener">' + esc(o.title) + "</a></h2>" +
-      '<span class="spacer"></span><span class="pill ' + st + '">' + STATUS_FA[st] + "</span></div>" +
-      '<div class="meta" dir="auto">' + (o.company ? "<span>" + esc(o.company) + "</span>" : "") + (o.location ? "<span>" + esc(o.location) + "</span>" : "") +
-      "<span>" + esc(o.source) + "</span>" + (o.salary ? "<span>" + esc(o.salary) + "</span>" : "") + (o.found ? "<span>" + fdate(o.found) + "</span>" : "") + "</div>" +
-      '<div class="tags">' + badges + why + "</div>" +
-      (o.desc ? '<div class="desc" dir="auto">' + esc(o.desc) + "</div>" : "") +
-      '<div class="acts">' + QUICK.map(function (q) {
-        return '<button type="button" class="btn small ' + (st === q[0] ? "on" : "") + '" data-act="status" data-st="' + q[0] + '">' + q[1] + "</button>";
-      }).join("") +
-      '<button type="button" class="btn small" data-act="notes">یادداشت</button>' +
-      '<span class="spacer"></span>' +
-      '<button type="button" class="btn small primary" data-act="compose">متن درخواست</button>' +
-      '<a class="btn small ghost" href="' + esc(o.url) + '" target="_blank" rel="noopener">باز کردن آگهی</a>' +
+      '<h3 dir="auto">' + esc(o.title) + "</h3>" +
+      '<div class="meta" dir="auto">' + (o.company ? "<span>" + esc(o.company) + "</span>" : "") +
+      (o.location ? "<span>" + esc(loc(o.location)) + "</span>" : "") + "<span>" + esc(o.source.replace(/ \(از جستجوی وب\)/, "")) + "</span>" +
+      (o.found ? "<span>" + esc(ago(o.found)) + "</span>" : "") + "</div>" +
+      '<div class="chips"><span class="chip">' + esc(REMOTE_FA[o.remote] || "نامشخص") + '</span><span class="chip">' + (o.type === "Freelance" ? "پروژه فریلنس" : "استخدام") + "</span>" +
+      (o.region === "intl" && (isFriendly(o) || iranLinked(o)) ? '<span class="chip acc">قابل اقدام از ایران</span>' : "") +
+      sk.map(function (s) { return '<span class="chip skill" dir="ltr">' + esc(s) + "</span>"; }).join("") +
+      neg.map(function (s) { return '<span class="chip neg" dir="ltr">' + esc(s.slice(2)) + "</span>"; }).join("") + "</div>" +
       "</div>" +
-      '<div class="notes" data-notes hidden><textarea id="n-' + esc(o.id) + '" dir="auto" placeholder="با چه کسی صحبت کردی، قدم بعدی، مبلغ پیشنهادی…">' + esc(n) + '</textarea><button type="button" class="btn small" data-act="saveNotes">ذخیره</button></div>' +
-      (n ? '<div class="desc" dir="auto">یادداشت: ' + esc(n) + "</div>" : "") +
-      "</div></article>";
+      '<div class="side-acts"><span class="pill ' + st + '">' + STATUS_FA[st] + "</span>" +
+      '<div class="qa">' +
+      '<button type="button" class="icon-btn ' + (st === "Saved" ? "on" : "") + '" data-act="st" data-st="Saved" title="ذخیره" aria-label="ذخیره">' + ic("save") + "</button>" +
+      '<button type="button" class="icon-btn ' + (st === "Applied" ? "on" : "") + '" data-act="st" data-st="Applied" title="اپلای کردم" aria-label="اپلای کردم">' + ic("check") + "</button>" +
+      '<button type="button" class="icon-btn ' + (st === "Ignored" ? "on" : "") + '" data-act="st" data-st="Ignored" title="نادیده" aria-label="نادیده">' + ic("x") + "</button>" +
+      '<a class="icon-btn" href="' + esc(o.url) + '" target="_blank" rel="noopener" title="باز کردن آگهی" aria-label="باز کردن آگهی" data-stop="1">' + ic("ext") + "</a>" +
+      "</div></div></article>";
   }
 
+  function tableHtml(rows) {
+    return '<div class="table-wrap"><table class="t"><thead><tr><th>امتیاز</th><th>عنوان</th><th>شرکت</th><th>محل</th><th>نوع</th><th>منبع</th><th>وضعیت</th></tr></thead><tbody>' +
+      rows.map(function (o) {
+        var st = statusOf(o.id);
+        return '<tr data-open="' + esc(o.id) + '"><td class="num">' + o.score + '</td><td dir="auto">' + esc(o.title) + '</td><td dir="auto">' + esc(o.company) + '</td><td dir="auto">' + esc(loc(o.location)) +
+          "</td><td>" + (o.type === "Freelance" ? "پروژه" : "استخدام") + " · " + esc(REMOTE_FA[o.remote] || "") + '</td><td dir="auto">' + esc(o.source.replace(/ \(از جستجوی وب\)/, "")) + '</td><td><span class="pill ' + st + '">' + STATUS_FA[st] + "</span></td></tr>";
+      }).join("") + "</tbody></table></div>";
+  }
+
+  // ------------------------------------------------------------ pipeline
   function pipeHtml() {
-    var cols = ["Saved", "Contacted", "Applied", "Won", "Rejected"];
-    var byStatus = {};
-    all().forEach(function (o) { var s = statusOf(o.id); (byStatus[s] = byStatus[s] || []).push(o); });
-    return '<div class="cols">' + cols.map(function (s) {
-      var rows = (byStatus[s] || []).sort(function (a, b) { return ((S.status[b.id] || {}).at || "").localeCompare((S.status[a.id] || {}).at || ""); });
-      return '<div class="col"><h3><span>' + STATUS_FA[s] + "</span><span>" + faNum.format(rows.length) + "</span></h3>" +
-        (rows.length ? rows.map(function (o) {
-          var at = (S.status[o.id] || {}).at;
-          return '<div class="mini"><a href="' + esc(o.url) + '" target="_blank" rel="noopener" dir="auto">' + esc(o.title) + "</a>" +
-            '<div class="sub" dir="auto">' + esc(o.company) + (at ? " · " + fdate(at) : "") + "</div>" +
-            (notesOf(o.id) ? '<div class="sub" dir="auto">' + esc(notesOf(o.id)) + "</div>" : "") + "</div>";
-        }).join("") : '<div class="sub">خالی</div>') + "</div>";
-    }).join("") + "</div>" +
-      '<p class="sub" style="margin-top:10px">وضعیت هر آگهی را با دکمه‌های روی کارت عوض کنید؛ این ستون‌ها خودکار به‌روز می‌شوند.</p>';
+    var by = {};
+    all().forEach(function (o) { var s = statusOf(o.id); (by[s] = by[s] || []).push(o); });
+    var total = LANES.reduce(function (s, l) { return s + (by[l[0]] || []).length; }, 0);
+    return (total ? "" : '<div class="banner">' + ic("alert") + "<div>هنوز چیزی در پیگیری نیست. روی هر فرصت دکمه‌ی ذخیره را بزنید تا اینجا بیاید؛ بعد با فلش‌ها بین مراحل جابه‌جایش کنید.</div></div>") +
+      '<div class="board">' + LANES.map(function (l, i) {
+        var rows = (by[l[0]] || []).sort(function (a, b) { return ((S.status[b.id] || {}).at || "").localeCompare((S.status[a.id] || {}).at || ""); });
+        return '<div class="lane"><h3><i style="background:' + l[1] + '"></i>' + STATUS_FA[l[0]] + "<span>" + n(rows.length) + "</span></h3>" +
+          rows.map(function (o) {
+            var at = (S.status[o.id] || {}).at;
+            return '<div class="kcard" data-open="' + esc(o.id) + '"><b dir="auto">' + esc(o.title) + '</b><div class="m" dir="auto">' + esc(o.company) + (at ? " · " + esc(ago(at)) : "") + "</div>" +
+              (notesOf(o.id) ? '<div class="m" dir="auto">' + esc(notesOf(o.id).slice(0, 90)) + "</div>" : "") +
+              '<div class="mv">' + (i > 0 ? '<button type="button" class="icon-btn" data-act="st" data-st="' + LANES[i - 1][0] + '" title="مرحله‌ی قبل" aria-label="مرحله‌ی قبل">' + ic("right") + "</button>" : "") +
+              (i < LANES.length - 1 ? '<button type="button" class="icon-btn" data-act="st" data-st="' + LANES[i + 1][0] + '" title="مرحله‌ی بعد" aria-label="مرحله‌ی بعد">' + ic("left") + "</button>" : "") + "</div></div>";
+          }).join("") + "</div>";
+      }).join("") + "</div>";
   }
 
+  // ------------------------------------------------------------ insights
+  function insightsHtml() {
+    var items = all(), iran = items.filter(function (o) { return o.region === "iran"; }), intl = items.filter(function (o) { return o.region === "intl"; });
+    var cats = {}; items.forEach(function (o) { if (o.score >= 40) cats[o.category || "Other"] = (cats[o.category || "Other"] || 0) + 1; });
+    var catFa = { SEO: "سئو", "Digital Marketing": "دیجیتال مارکتینگ", Website: "وب‌سایت و وردپرس", Content: "محتوا", Consulting: "مشاوره", Other: "سایر" };
+    var bins = [0, 0, 0, 0, 0];
+    items.forEach(function (o) { var b = o.score >= 80 ? 4 : o.score >= 65 ? 3 : o.score >= 50 ? 2 : o.score >= 35 ? 1 : 0; bins[b]++; });
+    return '<div class="grid g-2" style="margin-bottom:16px">' +
+      '<section class="panel"><h2>مهارت‌های پرتقاضا در ایران</h2><div class="sub">در آگهی‌های ایرانی با امتیاز ۴۰ به بالا</div>' + hbars(skillCounts(iran, 40).slice(0, 10), "var(--s1)") + "</section>" +
+      '<section class="panel"><h2>مهارت‌های پرتقاضا در آگهی‌های خارجی</h2><div class="sub">در آگهی‌های خارجی با امتیاز ۵۵ به بالا</div>' + hbars(skillCounts(intl, 55).slice(0, 10), "var(--s1)") + "</section>" +
+      "</div>" +
+      '<div class="grid g-2" style="margin-bottom:16px">' +
+      '<section class="panel"><h2>حوزه‌ی کاری فرصت‌ها</h2><div class="sub">امتیاز ۴۰ به بالا</div>' + hbars(Object.keys(cats).map(function (k) { return [catFa[k] || k, cats[k]]; }).sort(function (a, b) { return b[1] - a[1]; }), "var(--s1)") + "</section>" +
+      '<section class="panel"><h2>کیفیت تطابق</h2><div class="sub">تعداد فرصت در هر بازه‌ی امتیاز</div>' +
+      hbars([["۸۰ تا ۱۰۰ · عالی", bins[4]], ["۶۵ تا ۷۹ · خوب", bins[3]], ["۵۰ تا ۶۴ · متوسط", bins[2]], ["۳۵ تا ۴۹ · ضعیف", bins[1]], ["زیر ۳۵", bins[0]]], "var(--o3)") + "</section>" +
+      "</div>" +
+      '<section class="panel"><h2>منابع</h2><div class="sub">همه‌ی منابعی که در رادار فرصت آورده‌اند · تعداد کل و تعداد قوی (۵۵+)</div>' + sourceTable(items) + "</section>";
+  }
+  function sourceTable(items) {
+    var s = {};
+    items.forEach(function (o) {
+      var k = o.source.replace(/ \(از جستجوی وب\)/, "").replace(/ — .*$/, "");
+      var r = s[k] = s[k] || { n: 0, strong: 0, sum: 0, iran: o.region === "iran" };
+      r.n++; r.sum += o.score; if (o.score >= 55) r.strong++;
+    });
+    var rows = Object.keys(s).map(function (k) { return [k, s[k]]; }).sort(function (a, b) { return b[1].strong - a[1].strong || b[1].n - a[1].n; });
+    var max = Math.max(1, Math.max.apply(null, rows.map(function (r) { return r[1].n; })));
+    return '<div class="table-wrap" style="border:0"><table class="t" style="min-width:560px"><thead><tr><th>منبع</th><th>بازار</th><th>کل</th><th>قوی</th><th style="width:34%">سهم فرصت‌های قوی</th><th>میانگین امتیاز</th></tr></thead><tbody>' +
+      rows.map(function (r) {
+        var d = r[1];
+        return '<tr style="cursor:default"><td dir="auto">' + esc(r[0]) + "</td><td>" + (d.iran ? "ایران" : "خارجی") + '</td><td class="num">' + n(d.n) + '</td><td class="num">' + n(d.strong) + "</td>" +
+          '<td><span style="display:flex;gap:2px;height:10px;border-radius:3px;overflow:hidden;width:' + Math.max(6, d.n / max * 100) + '%"><i style="display:block;background:var(--s1);width:' + (d.strong / d.n * 100) + '%"></i><i style="display:block;background:var(--plane2);flex:1"></i></span></td>' +
+          '<td class="num">' + n(Math.round(d.sum / d.n)) + "</td></tr>";
+      }).join("") + "</tbody></table></div>" +
+      '<div class="legend" style="margin-top:10px"><span><i style="background:var(--s1)"></i>فرصت قوی</span><span><i style="background:var(--plane2)"></i>بقیه</span></div>';
+  }
+
+  // ------------------------------------------------------------ texts & filters
   function textsHtml() {
     var r = S.resume;
-    return '<div class="panel"><h2>رزومه</h2>' +
-      (r ? '<p>فایل فعلی: <a href="/_blob/' + esc(r.assetId) + '" target="_blank" rel="noopener">' + esc(r.name) + "</a> · " + faNum.format(Math.round((r.size || 0) / 1024)) + " کیلوبایت</p>"
-        : "<p>هنوز رزومه‌ای بارگذاری نشده. فایل PDF رزومه را انتخاب کنید تا به پیش‌نویس‌های ایمیل پیوست شود.</p>") +
-      '<input type="file" id="resumeFile" accept="application/pdf,.pdf"> <span class="msg" id="resumeMsg"></span></div>' +
-      '<div class="grid2">' +
-      '<div class="panel"><h2>متن آماده برای آگهی‌های ایرانی</h2><p>{title} = عنوان آگهی، {company} = نام شرکت. قبل از ارسال، متن را برای هر آگهی شخصی کنید.</p>' +
-      '<div class="field"><textarea id="tplFa" rows="12" dir="rtl">' + esc(S.templates.fa) + "</textarea></div></div>" +
-      '<div class="panel"><h2>متن آماده برای آگهی‌های خارجی</h2><p>English template. {title} and {company} are filled in automatically.</p>' +
-      '<div class="field"><textarea id="tplEn" rows="12" dir="ltr">' + esc(S.templates.en) + "</textarea></div></div>" +
+    return '<div class="grid" style="gap:16px">' +
+      '<section class="panel"><h2>رزومه</h2><div class="sub">فایل PDF؛ به پیش‌نویس‌های ایمیل خودکار پیوست می‌شود.</div>' +
+      '<label class="upload"><span class="ic">' + ic("file") + '</span><span style="flex:1"><b>' + (r ? esc(r.name) : "هنوز رزومه‌ای بارگذاری نشده") + "</b><br>" +
+      '<span class="sub" style="margin:0">' + (r ? n(Math.round((r.size || 0) / 1024)) + " کیلوبایت · " + esc(ago(r.at)) + ' · <a href="/_blob/' + esc(r.assetId) + '" target="_blank" rel="noopener">مشاهده</a>' : "برای انتخاب فایل PDF اینجا کلیک کنید") + "</span></span>" +
+      '<input type="file" id="resumeFile" accept="application/pdf,.pdf" hidden><span class="btn sm">' + (r ? "جایگزینی" : "انتخاب فایل") + "</span></label><div class=\"msg\" id=\"resumeMsg\"></div></section>" +
+      '<div class="grid g-2">' +
+      '<section class="panel"><h2>متن آماده برای آگهی‌های ایرانی</h2><div class="sub">{title} = عنوان آگهی · {company} = نام شرکت</div><textarea class="in" id="tplFa" rows="13" dir="rtl">' + esc(S.templates.fa) + "</textarea></section>" +
+      '<section class="panel"><h2>متن آماده برای آگهی‌های خارجی</h2><div class="sub">English · {title} and {company} are filled in</div><textarea class="in" id="tplEn" rows="13" dir="ltr">' + esc(S.templates.en) + "</textarea></section>" +
       "</div>" +
-      '<div class="acts"><button type="button" class="btn primary" data-act="saveTemplates">ذخیره‌ی متن‌ها</button><button type="button" class="btn ghost" data-act="resetTemplates">بازگشت به متن پیش‌فرض</button><span class="msg" id="tplMsg"></span></div>';
+      '<div class="toolbar"><button type="button" class="btn primary" data-act="saveTemplates">ذخیره‌ی متن‌ها</button><button type="button" class="btn" data-act="resetTemplates">بازگشت به متن پیش‌فرض</button><span class="msg" id="tplMsg"></span></div></div>';
   }
 
   function filtersHtml() {
     var f = S.filters;
-    return '<div class="panel"><h2>فیلترهای من</h2><p>این فیلترها روی تب‌های ایران و خارجی اعمال می‌شوند (وقتی تیک «فیلترهای من» روشن باشد). هر خط یک کلمه یا عبارت.</p>' +
-      '<div class="grid2">' +
-      '<div class="field">حداقل یکی از این کلمات باشد<textarea id="fMust" rows="5" dir="auto" placeholder="سئو&#10;دیجیتال مارکتینگ&#10;GEO">' + esc(f.mustAny.join("\n")) + "</textarea></div>" +
-      '<div class="field">این کلمات نباشند<textarea id="fEx" rows="5" dir="auto" placeholder="کارآموز&#10;فروش تلفنی&#10;ویزیتور">' + esc(f.exclude.join("\n")) + "</textarea></div>" +
-      '<div class="field">شهرهای قابل قبول برای کار حضوری<textarea id="fCity" rows="4" dir="auto" placeholder="تهران&#10;کرج">' + esc(f.cities.join("\n")) + "</textarea></div>" +
-      '<div><div class="field">حداقل امتیاز<input type="number" id="fMin" min="0" max="100" step="5" value="' + (f.minScore || 0) + '"></div>' +
-      '<label class="field" style="flex-direction:row;align-items:center"><input type="checkbox" id="fRemote"' + (f.remoteOnly ? " checked" : "") + "> فقط دورکاری</label>" +
-      '<label class="field" style="flex-direction:row;align-items:center"><input type="checkbox" id="fJob"' + (f.types.indexOf("job") > -1 ? " checked" : "") + "> استخدام</label>" +
-      '<label class="field" style="flex-direction:row;align-items:center"><input type="checkbox" id="fFree"' + (f.types.indexOf("freelance") > -1 ? " checked" : "") + "> پروژه فریلنس</label>" +
-      '<p class="sub">اگر هیچ‌کدام از «استخدام» و «پروژه فریلنس» تیک نخورد، هر دو نشان داده می‌شوند.</p></div>' +
+    return '<section class="panel"><h2>فیلترهای شخصی</h2><div class="sub">روی تب‌های ایران و خارجی اعمال می‌شود وقتی کلید «فیلترهای من» روشن است. کلمه را بنویسید و Enter بزنید.</div>' +
+      '<div class="form-grid">' +
+      '<div class="field">حداقل یکی از این کلمات در آگهی باشد<div class="taginput" data-tags="mustAny"></div><small>مثل سئو، GEO، دیجیتال مارکتینگ</small></div>' +
+      '<div class="field">آگهی‌هایی با این کلمات حذف شوند<div class="taginput" data-tags="exclude"></div><small>مثل کارآموز، ویزیتور، فروش تلفنی</small></div>' +
+      '<div class="field">شهرهای قابل قبول برای کار حضوری<div class="taginput" data-tags="cities"></div><small>خالی = همه‌ی شهرها. دورکاری همیشه نشان داده می‌شود.</small></div>' +
+      '<div class="field">نوع و حداقل امتیاز' +
+      '<div class="toolbar" style="margin:0"><label class="switch"><input type="checkbox" id="fRemote"' + (f.remoteOnly ? " checked" : "") + '>فقط دورکاری</label>' +
+      '<label class="switch"><input type="checkbox" id="fJob"' + (f.types.indexOf("job") > -1 ? " checked" : "") + '>استخدام</label>' +
+      '<label class="switch"><input type="checkbox" id="fFree"' + (f.types.indexOf("freelance") > -1 ? " checked" : "") + ">پروژه فریلنس</label></div>" +
+      '<label class="ctl" style="align-self:flex-start">حداقل امتیاز <input type="number" id="fMin" min="0" max="100" step="5" value="' + (f.minScore || 0) + '" style="width:60px"></label>' +
+      "<small>اگر هیچ‌کدام از استخدام و پروژه روشن نباشد، هر دو نشان داده می‌شوند.</small></div>" +
       "</div>" +
-      '<div class="acts"><button type="button" class="btn primary" data-act="saveFilters">ذخیره‌ی فیلترها</button><button type="button" class="btn ghost" data-act="clearFilters">پاک کردن همه</button><span class="msg" id="fMsg"></span></div></div>';
+      '<div class="toolbar" style="margin:16px 0 0"><button type="button" class="btn primary" data-act="saveFilters">ذخیره‌ی فیلترها</button><button type="button" class="btn" data-act="clearFilters">پاک کردن همه</button><span class="msg" id="fMsg"></span></div></section>';
   }
 
-  // ------------------------------------------------------------- actions
-  function lines(id) { return ($(id).value || "").split("\n").map(function (s) { return s.trim(); }).filter(Boolean); }
+  var tagState = {};
+  function bindTagInputs() {
+    tagState = { mustAny: S.filters.mustAny.slice(), exclude: S.filters.exclude.slice(), cities: S.filters.cities.slice() };
+    document.querySelectorAll("[data-tags]").forEach(drawTags);
+  }
+  function drawTags(box) {
+    var key = box.dataset.tags;
+    box.innerHTML = tagState[key].map(function (t, i) { return '<span class="t" dir="auto">' + esc(t) + '<button type="button" data-untag="' + key + '" data-i="' + i + '" aria-label="حذف">×</button></span>'; }).join("") +
+      '<input type="text" data-taginput="' + key + '" placeholder="افزودن…" dir="auto">';
+  }
 
-  async function setStatus(id, st) {
+  // ------------------------------------------------------------ drawer
+  function openDrawer(id) {
+    var o = S.items[id]; if (!o) return;
+    S.openId = id;
+    var st = statusOf(id), lang = o.region === "iran" ? "fa" : "en";
+    var text = fill(S.templates[lang] || DEFAULT_TEMPLATES[lang], o);
+    var subj = lang === "fa" ? "درخواست همکاری — " + o.title : "Application — " + o.title;
+    var reasons = o.reasons || [];
+    $("drawer").innerHTML =
+      '<div class="dhead">' + ring(o.score) + '<div style="flex:1;min-width:0"><h2 dir="auto">' + esc(o.title) + '</h2><div class="meta" dir="auto">' +
+      (o.company ? "<span>" + esc(o.company) + "</span>" : "") + (o.location ? "<span>" + esc(loc(o.location)) + "</span>" : "") + "<span>" + esc(o.source) + "</span>" +
+      (o.salary ? "<span>" + esc(o.salary) + "</span>" : "") + (o.found ? "<span>" + esc(fdate(o.found)) + "</span>" : "") + "</div></div>" +
+      '<button type="button" class="icon-btn" data-act="close" aria-label="بستن">' + ic("x") + "</button></div>" +
+      '<div class="dbody">' +
+      '<div class="toolbar" style="margin:0"><a class="btn primary" href="' + esc(o.url) + '" target="_blank" rel="noopener">' + ic("ext") + "باز کردن آگهی</a>" +
+      '<span class="chip">' + esc(REMOTE_FA[o.remote] || "نامشخص") + '</span><span class="chip">' + (o.type === "Freelance" ? "پروژه فریلنس" : "استخدام") + "</span></div>" +
+      '<div class="sec"><h4>وضعیت</h4><div class="stgrid">' + STATUSES.map(function (s) {
+        return '<button type="button" class="btn sm ' + (s === st ? "soft" : "") + '" data-act="st" data-st="' + s + '">' + STATUS_FA[s] + "</button>";
+      }).join("") + "</div></div>" +
+      '<div class="sec"><h4>چرا مناسب است</h4><div class="chips">' + (reasons.length ? reasons.map(function (r) {
+        var c = r.charAt(0) === "✗" ? "neg" : r.charAt(0) === "⚠" ? "" : "skill"; return '<span class="chip ' + c + '" dir="ltr">' + esc(r) + "</span>";
+      }).join("") : '<span class="sub">دلیلی ثبت نشده</span>') + "</div></div>" +
+      (o.desc ? '<div class="sec"><h4>خلاصه‌ی آگهی</h4><div class="desc" dir="auto">' + esc(o.desc) + "</div></div>" : "") +
+      '<div class="sec"><h4>یادداشت</h4><textarea class="in" id="dNotes" rows="3" dir="auto" placeholder="با چه کسی صحبت کردی، قدم بعدی، مبلغ پیشنهادی…">' + esc(notesOf(id)) + '</textarea><div class="toolbar" style="margin:8px 0 0"><button type="button" class="btn sm" data-act="saveNotes">ذخیره‌ی یادداشت</button></div></div>' +
+      '<div class="sec"><h4>متن درخواست</h4>' +
+      '<input class="in" id="cSubj" dir="auto" value="' + esc(subj) + '" aria-label="موضوع" style="margin-bottom:8px">' +
+      '<textarea class="in" id="cText" rows="11" dir="' + (lang === "fa" ? "rtl" : "ltr") + '">' + esc(text) + "</textarea>" +
+      '<input class="in" id="cTo" dir="ltr" value="' + esc(o.email || "") + '" placeholder="ایمیل کارفرما (اگر در آگهی هست) — hr@company.com" style="margin-top:8px">' +
+      '<div class="toolbar" style="margin:10px 0 0">' +
+      '<button type="button" class="btn" data-act="copy">' + ic("copy") + "کپی متن</button>" +
+      (caps.sample ? '<button type="button" class="btn" data-act="ai" id="aiBtn">' + ic("spark") + "<span>شخصی‌سازی با Claude</span></button>" : "") +
+      (caps.mcp ? '<button type="button" class="btn primary" data-act="draft" id="draftBtn">' + ic("mail") + "پیش‌نویس در Gmail</button>" : "") +
+      '</div><div class="msg" id="cMsg">' + (o.region === "iran" ? "بیشتر سایت‌های ایرانی رزومه را فقط داخل خود سایت قبول می‌کنند: متن را کپی کنید، آگهی را باز کنید و در فرم سایت بچسبانید." : "اگر آگهی ایمیل دارد، پیش‌نویس Gmail با رزومه‌ی پیوست بسازید؛ ارسال با خودتان است.") + "</div></div>" +
+      "</div>";
+    $("drawer").classList.add("open"); $("drawer").setAttribute("aria-hidden", "false"); $("scrim").classList.add("open");
+  }
+  function closeDrawer() {
+    S.openId = null; $("drawer").classList.remove("open"); $("drawer").setAttribute("aria-hidden", "true"); $("scrim").classList.remove("open");
+    if (aiCtl) aiCtl.abort();
+  }
+  function fill(tpl, o) { return tpl.split("{title}").join(o.title).split("{company}").join(o.company || (o.region === "iran" ? "مجموعه‌ی شما" : "your team")); }
+
+  // ------------------------------------------------------------ actions
+  async function writeStatus(id, next, note) {
     var prev = S.status[id];
-    var next = st === statusOf(id) ? "New" : st;
-    S.status[id] = { status: next, notes: notesOf(id), at: new Date().toISOString() };
-    renderAll();
+    S.status[id] = { status: next, notes: note != null ? note : notesOf(id), at: new Date().toISOString() };
+    render(); if (S.openId === id) openDrawer(id);
     if (!S.db) return;
     try { await S.db.doc("status/" + id).set(S.status[id]); }
-    catch (e) { S.status[id] = prev; renderAll(); toast("ذخیره نشد؛ دوباره امتحان کنید."); }
+    catch (e) { S.status[id] = prev; render(); toast("ذخیره نشد؛ دوباره امتحان کنید."); }
   }
-
-  async function saveNotes(id) {
-    var ta = $("n-" + id); if (!ta) return;
-    S.status[id] = { status: statusOf(id), notes: ta.value.trim(), at: new Date().toISOString() };
-    renderAll();
-    if (S.db) { try { await S.db.doc("status/" + id).set(S.status[id]); toast("یادداشت ذخیره شد"); } catch (e) { toast("یادداشت ذخیره نشد."); } }
-  }
+  function toggleStatus(id, st) { writeStatus(id, statusOf(id) === st && S.view !== "pipe" ? "New" : st); }
 
   async function saveDoc(path, data, msgId, okText) {
     var m = $(msgId);
@@ -381,44 +721,21 @@ h1{font-size:21px;font-weight:800;margin:0;text-wrap:balance}
     catch (e) { if (m) { m.className = "msg err"; m.textContent = "ذخیره نشد (" + (e && e.code || "خطا") + ")."; } }
   }
 
-  function fill(tpl, o) { return tpl.split("{title}").join(o.title).split("{company}").join(o.company || (o.region === "iran" ? "مجموعه‌ی شما" : "your team")); }
-
-  function openComposer(o) {
-    var lang = o.region === "iran" ? "fa" : "en";
-    var text = fill(S.templates[lang] || DEFAULT_TEMPLATES[lang], o);
-    var subj = lang === "fa" ? "درخواست همکاری — " + o.title : "Application — " + o.title;
-    $("modalRoot").innerHTML = '<div class="overlay" id="ov"><div class="modal" role="dialog" aria-modal="true" aria-label="متن درخواست">' +
-      '<div class="acts" style="margin:0 0 8px"><b dir="auto">' + esc(o.title) + '</b><span class="spacer"></span><button type="button" class="btn small ghost" data-act="close">بستن</button></div>' +
-      '<div class="field">موضوع<input id="cSubj" dir="auto" value="' + esc(subj) + '"></div>' +
-      '<div class="field">متن<textarea id="cText" dir="' + (lang === "fa" ? "rtl" : "ltr") + '">' + esc(text) + "</textarea></div>" +
-      '<div class="field">ایمیل کارفرما (اگر در آگهی هست)<input id="cTo" dir="ltr" value="' + esc(o.email || "") + '" placeholder="hr@company.com"></div>' +
-      '<div class="acts">' +
-      '<button type="button" class="btn" data-act="copy">کپی متن</button>' +
-      '<button type="button" class="btn" data-act="ai" id="aiBtn" hidden>شخصی‌سازی با Claude</button>' +
-      '<button type="button" class="btn primary" data-act="draft" id="draftBtn" hidden>ساخت پیش‌نویس در Gmail</button>' +
-      '<span class="spacer"></span><a class="btn ghost" href="' + esc(o.url) + '" target="_blank" rel="noopener">باز کردن آگهی</a>' +
-      '</div><div class="msg" id="cMsg">بیشتر سایت‌های ایرانی ارسال رزومه را فقط داخل خود سایت قبول می‌کنند: متن را کپی کنید، آگهی را باز کنید و در فرم سایت بچسبانید.</div>' +
-      "</div></div>";
-    $("modalRoot").dataset.id = o.id;
-    if (caps.sample) $("aiBtn").hidden = false;
-    if (caps.mcp) $("draftBtn").hidden = false;
-  }
-
   async function copyText() {
     var ta = $("cText"), m = $("cMsg");
-    try { await navigator.clipboard.writeText(ta.value); m.className = "msg ok"; m.textContent = "متن کپی شد. حالا آگهی را باز کنید و در فرم درخواست بچسبانید."; }
+    try { await navigator.clipboard.writeText(ta.value); m.className = "msg ok"; m.textContent = "متن کپی شد. آگهی را باز کنید و در فرم درخواست بچسبانید."; }
     catch (e) { ta.focus(); ta.select(); m.className = "msg"; m.textContent = "متن انتخاب شد؛ با Ctrl+C یا Cmd+C کپی کنید."; }
   }
 
   var aiCtl = null;
   async function personalize(o) {
     var sample = caps.sample, ta = $("cText"), m = $("cMsg"), b = $("aiBtn");
-    if (!sample) return;
+    if (!sample || !b) return;
     if (aiCtl) { aiCtl.abort(); return; }
-    aiCtl = new AbortController(); b.textContent = "توقف"; m.className = "msg"; m.textContent = "Claude در حال نوشتن…";
+    aiCtl = new AbortController(); b.querySelector("span").textContent = "توقف"; m.className = "msg"; m.textContent = "Claude در حال نوشتن…";
     var lang = o.region === "iran" ? "Persian (Farsi)" : "English";
     var prompt = "Rewrite this job application message so it fits the specific posting. Keep it short (at most 130 words), warm and professional, in " + lang +
-      ". Mention 2-3 of the applicant's skills that match the posting. Keep the placeholders in square brackets exactly as they are. Reply with only the message text.\n\n" +
+      ". Mention 2-3 of the applicant's skills that match the posting. Keep placeholders in square brackets exactly as they are. Reply with only the message text.\n\n" +
       "Posting title: " + o.title + "\nCompany: " + (o.company || "-") + "\nLocation: " + (o.location || "-") + "\nPosting summary: " + (o.desc || "-") +
       "\nWhy it matched: " + (o.reasons || []).join(", ") + "\n\nApplicant's base message:\n" + ta.value.slice(0, 4000);
     try {
@@ -428,23 +745,18 @@ h1{font-size:21px;font-weight:800;margin:0;text-wrap:balance}
       if (e && e.text) ta.value = e.text;
       var copy = { cancelled: "متوقف شد.", not_granted: "اجازه‌ی استفاده از Claude داده نشد.", rate_limited: "کمی بعد دوباره امتحان کنید.", sampling_disabled: "Claude برای این حساب در دسترس نیست." };
       m.className = "msg" + (e && e.code === "cancelled" ? "" : " err"); m.textContent = copy[e && e.code] || "نوشتن متن کامل نشد؛ دوباره امتحان کنید.";
-      if (e && (e.code === "not_granted" || e.code === "sampling_disabled")) { b.hidden = true; caps.sample = null; }
-    } finally { aiCtl = null; b.textContent = "شخصی‌سازی با Claude"; }
+      if (e && (e.code === "not_granted" || e.code === "sampling_disabled")) { caps.sample = null; b.hidden = true; }
+    } finally { aiCtl = null; if (b.querySelector("span")) b.querySelector("span").textContent = "شخصی‌سازی با Claude"; }
   }
 
-  function b64(blob) {
-    return new Promise(function (res, rej) {
-      var r = new FileReader(); r.onload = function () { res(String(r.result).split(",")[1] || ""); }; r.onerror = rej; r.readAsDataURL(blob);
-    });
-  }
+  function b64(blob) { return new Promise(function (res, rej) { var r = new FileReader(); r.onload = function () { res(String(r.result).split(",")[1] || ""); }; r.onerror = rej; r.readAsDataURL(blob); }); }
 
   async function makeDraft(o) {
     var mcp = caps.mcp, m = $("cMsg"), btn = $("draftBtn");
     var to = ($("cTo").value || "").trim();
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)) { m.className = "msg err"; m.textContent = "ایمیل کارفرما را وارد کنید (مثلا hr@company.com)."; return; }
     btn.disabled = true; m.className = "msg"; m.textContent = "در حال ساخت پیش‌نویس…";
-    var input = { to: [to], subject: $("cSubj").value, body: $("cText").value };
-    var attached = false;
+    var input = { to: [to], subject: $("cSubj").value, body: $("cText").value }, attached = false;
     if (S.resume) {
       try {
         var blob = await (await fetch("/_blob/" + S.resume.assetId)).blob();
@@ -460,7 +772,7 @@ h1{font-size:21px;font-weight:800;margin:0;text-wrap:balance}
       m.className = "msg ok";
       m.innerHTML = "پیش‌نویس در Gmail ساخته شد" + (attached ? " (رزومه پیوست است)" : S.resume ? " (رزومه پیوست نشد؛ در Gmail اضافه کنید)" : "") +
         ". بعد از بازبینی، خودتان در Gmail ارسالش کنید." + (url ? ' <a href="' + esc(url) + '" target="_blank" rel="noopener">باز کردن پیش‌نویس</a>' : "");
-      setStatusQuiet(o.id, "Contacted");
+      if (statusOf(o.id) === "New" || statusOf(o.id) === "Saved") writeStatus(o.id, "Contacted");
     } catch (e) {
       var codes = {
         needs_reauth: "اتصال Gmail منقضی شده؛ در claude.ai بخش Settings و بعد Connectors دوباره وصلش کنید.",
@@ -469,13 +781,7 @@ h1{font-size:21px;font-weight:800;margin:0;text-wrap:balance}
         tool_error: "Gmail پیش‌نویس را نساخت: " + (e && e.message || "")
       };
       m.className = "msg err"; m.textContent = codes[e && e.code] || "ساخت پیش‌نویس انجام نشد؛ کمی بعد دوباره امتحان کنید.";
-    } finally { btn.disabled = false; }
-  }
-  async function setStatusQuiet(id, st) {
-    if (statusOf(id) === st) return;
-    S.status[id] = { status: st, notes: notesOf(id), at: new Date().toISOString() };
-    renderAll();
-    if (S.db) { try { await S.db.doc("status/" + id).set(S.status[id]); } catch (e) {} }
+    } finally { if (btn) btn.disabled = false; }
   }
 
   async function uploadResume(file) {
@@ -496,100 +802,133 @@ h1{font-size:21px;font-weight:800;margin:0;text-wrap:balance}
 
   var scanArmed = false;
   async function scanNow() {
-    var b = $("scanBtn"), m = $("scanMsg");
+    var b = $("scanBtn"), lbl = b.querySelector("span");
     var last = Number(ls("scanAt", "0"));
-    if (Date.now() - last < 30 * 60e3) { m.className = "msg"; m.textContent = "اسکن اخیرا درخواست شده؛ نتایج حدود ۱۰ دقیقه بعد می‌آید."; return; }
-    if (!scanArmed) { scanArmed = true; b.textContent = "تأیید: اسکن شروع شود؟"; m.textContent = "از سهمیه‌ی Claude شما استفاده می‌کند."; setTimeout(function () { scanArmed = false; b.textContent = "اسکن الان"; }, 6000); return; }
-    scanArmed = false; b.disabled = true; b.textContent = "در حال درخواست…";
+    if (Date.now() - last < 30 * 60e3) { toast("اسکن اخیرا درخواست شده؛ نتایج حدود ۱۰ دقیقه بعد می‌آید."); return; }
+    if (!scanArmed) { scanArmed = true; lbl.textContent = "تأیید اسکن"; toast("یک بار دیگر بزنید تا اسکن شروع شود (از سهمیه‌ی Claude استفاده می‌کند)."); setTimeout(function () { scanArmed = false; lbl.textContent = "اسکن الان"; }, 6000); return; }
+    scanArmed = false; b.disabled = true; lbl.textContent = "در حال درخواست…";
     try {
       await caps.mcp.callTool("Claude Code Remote", "fire_trigger", { trigger_id: TRIGGER_ID });
-      lsSet("scanAt", String(Date.now()));
-      m.className = "msg ok"; m.textContent = "اسکن شروع شد؛ نتایج حدود ۱۰ دقیقه بعد همین‌جا و در ایمیل می‌آید.";
+      lsSet("scanAt", String(Date.now())); toast("اسکن شروع شد؛ نتایج حدود ۱۰ دقیقه بعد همین‌جا و در ایمیل می‌آید.");
     } catch (e) {
-      m.className = "msg err";
-      m.textContent = e && e.code === "not_in_manifest" ? "اجازه‌ی اجرای اسکن برای این صفحه داده نشد." : "اسکن شروع نشد؛ کمی بعد دوباره امتحان کنید.";
-    } finally { b.disabled = false; b.textContent = "اسکن الان"; }
+      toast(e && e.code === "not_in_manifest" ? "اجازه‌ی اجرای اسکن برای این صفحه داده نشد." : "اسکن شروع نشد؛ کمی بعد دوباره امتحان کنید.");
+    } finally { b.disabled = false; lbl.textContent = "اسکن الان"; }
   }
 
-  // -------------------------------------------------------------- events
+  // ------------------------------------------------------------ events
   document.addEventListener("click", function (ev) {
-    var t = ev.target.closest("[data-tab],[data-act]");
-    if (!t) { if (ev.target.id === "ov") $("modalRoot").innerHTML = ""; return; }
-    if (t.dataset.tab) { S.tab = t.dataset.tab; lsSet("tab", S.tab); renderTabs(); renderView(); return; }
-    var act = t.dataset.act, card = t.closest(".card"), id = card && card.dataset.id;
-    var modalId = $("modalRoot").dataset.id, mo = modalId && S.items[modalId];
-    if (act === "status") setStatus(id, t.dataset.st);
-    else if (act === "notes") { var n = card.querySelector("[data-notes]"); n.hidden = !n.hidden; if (!n.hidden) n.querySelector("textarea").focus(); }
-    else if (act === "saveNotes") saveNotes(id);
-    else if (act === "compose") openComposer(S.items[id]);
-    else if (act === "close") $("modalRoot").innerHTML = "";
-    else if (act === "copy") copyText();
-    else if (act === "ai" && mo) personalize(mo);
-    else if (act === "draft" && mo) makeDraft(mo);
-    else if (act === "saveTemplates") { S.templates = { fa: $("tplFa").value, en: $("tplEn").value }; saveDoc("config/templates", S.templates, "tplMsg", "متن‌ها ذخیره شد."); }
-    else if (act === "resetTemplates") { S.templates = clone(DEFAULT_TEMPLATES); renderView(); }
-    else if (act === "saveFilters") {
-      var types = []; if ($("fJob").checked) types.push("job"); if ($("fFree").checked) types.push("freelance");
-      S.filters = { mustAny: lines("fMust"), exclude: lines("fEx"), cities: lines("fCity"), remoteOnly: $("fRemote").checked, types: types, minScore: Number($("fMin").value) || 0 };
-      saveDoc("config/filters", S.filters, "fMsg", "فیلترها ذخیره شد و روی لیست‌ها اعمال می‌شود."); renderTabs(); renderSummary();
+    var el = ev.target;
+    if (el.closest("[data-stop]")) return;
+    var v = el.closest("[data-view]");
+    if (v) { S.view = v.dataset.view; S.limit = PAGE; lsSet("view", S.view); render(); window.scrollTo(0, 0); return; }
+    var seg = el.closest("[data-seg]");
+    if (seg) { var k = seg.dataset.seg; S.ui[k] = seg.dataset.val; if (k === "layout") lsSet("layout", S.ui.layout); S.limit = PAGE; renderView(); return; }
+    var un = el.closest("[data-untag]");
+    if (un) { tagState[un.dataset.untag].splice(Number(un.dataset.i), 1); drawTags(un.closest("[data-tags]")); return; }
+    var a = el.closest("[data-act]");
+    if (a) {
+      var act = a.dataset.act, host = a.closest("[data-open]"), id = host ? host.dataset.open : S.openId, o = id && S.items[id];
+      ev.stopPropagation();
+      if (act === "st" && id) toggleStatus(id, a.dataset.st);
+      else if (act === "close") closeDrawer();
+      else if (act === "more") { S.limit += PAGE; renderView(); }
+      else if (act === "saveNotes" && S.openId) { writeStatus(S.openId, statusOf(S.openId), $("dNotes").value.trim()); toast("یادداشت ذخیره شد"); }
+      else if (act === "copy") copyText();
+      else if (act === "ai" && o) personalize(o);
+      else if (act === "draft" && o) makeDraft(o);
+      else if (act === "saveTemplates") { S.templates = { fa: $("tplFa").value, en: $("tplEn").value }; saveDoc("config/templates", S.templates, "tplMsg", "متن‌ها ذخیره شد."); }
+      else if (act === "resetTemplates") { S.templates = clone(DEFAULT_TEMPLATES); renderView(); }
+      else if (act === "saveFilters") {
+        document.querySelectorAll("[data-taginput]").forEach(commitTag);
+        var types = []; if ($("fJob").checked) types.push("job"); if ($("fFree").checked) types.push("freelance");
+        S.filters = { mustAny: tagState.mustAny, exclude: tagState.exclude, cities: tagState.cities, remoteOnly: $("fRemote").checked, types: types, minScore: Number($("fMin").value) || 0 };
+        saveDoc("config/filters", S.filters, "fMsg", "فیلترها ذخیره شد و روی لیست‌ها اعمال می‌شود."); renderNav();
+      }
+      else if (act === "clearFilters") { S.filters = clone(DEFAULT_FILTERS); renderView(); saveDoc("config/filters", S.filters, "fMsg", "همه‌ی فیلترها پاک شد."); }
+      return;
     }
-    else if (act === "clearFilters") { S.filters = clone(DEFAULT_FILTERS); renderView(); saveDoc("config/filters", S.filters, "fMsg", "همه‌ی فیلترها پاک شد."); renderTabs(); }
+    var open = el.closest("[data-open]");
+    if (open) { openDrawer(open.dataset.open); return; }
+    if (el.id === "scrim") closeDrawer();
   });
   $("scanBtn").addEventListener("click", scanNow);
 
+  function commitTag(input) {
+    var key = input.dataset.taginput, val = input.value.trim().replace(/[،,]$/, "");
+    if (val && tagState[key].indexOf(val) === -1) tagState[key].push(val);
+    input.value = "";
+  }
+  document.addEventListener("keydown", function (ev) {
+    if (ev.key === "Escape") closeDrawer();
+    var t = ev.target;
+    if (t.dataset && t.dataset.taginput && (ev.key === "Enter" || ev.key === "," || ev.key === "،")) {
+      ev.preventDefault(); commitTag(t); var box = t.closest("[data-tags]"); drawTags(box); box.querySelector("input").focus();
+    }
+  });
+
   var qTimer = null;
+  $("q").addEventListener("input", function (ev) {
+    clearTimeout(qTimer);
+    qTimer = setTimeout(function () {
+      S.ui.q = ev.target.value; S.limit = PAGE;
+      if (S.ui.q && S.view !== "iran" && S.view !== "intl") { S.view = "iran"; lsSet("view", "iran"); }
+      render();
+    }, 220);
+  });
   document.addEventListener("input", function (ev) {
-    var id = ev.target.id;
-    if (id === "q") { clearTimeout(qTimer); qTimer = setTimeout(function () { S.ui.q = ev.target.value; refreshList(); }, 200); }
-    if (id === "minScore") { S.ui.minScore = Number(ev.target.value) || 0; refreshList(); }
+    if (ev.target.id === "minScore") { S.ui.minScore = Number(ev.target.value) || 0; $("minOut").textContent = n(S.ui.minScore); lsSet("minScore", String(S.ui.minScore)); clearTimeout(qTimer); qTimer = setTimeout(renderView, 120); }
   });
   document.addEventListener("change", function (ev) {
     var id = ev.target.id;
-    if (["type", "mode", "days", "st", "sort"].indexOf(id) > -1) { S.ui[id] = ev.target.value; refreshList(); }
-    if (id === "mine") { S.ui.mine = ev.target.checked; lsSet("mine", S.ui.mine ? "1" : "0"); refreshList(); }
-    if (id === "friendly") { S.ui.friendly = ev.target.checked; lsSet("friendly", S.ui.friendly ? "1" : "0"); refreshList(); }
+    if (["days", "st", "sort"].indexOf(id) > -1) { S.ui[id] = ev.target.value; S.limit = PAGE; renderView(); }
+    if (id === "mine") { S.ui.mine = ev.target.checked; lsSet("mine", S.ui.mine ? "1" : "0"); renderView(); }
+    if (id === "friendly") { S.ui.friendly = ev.target.checked; lsSet("friendly", S.ui.friendly ? "1" : "0"); renderView(); }
     if (id === "resumeFile" && ev.target.files[0]) uploadResume(ev.target.files[0]);
   });
-  document.addEventListener("keydown", function (ev) { if (ev.key === "Escape") $("modalRoot").innerHTML = ""; });
 
-  // keep the search box and its caret while the list re-renders
-  function refreshList() {
-    var region = S.tab; if (region !== "iran" && region !== "intl") return;
-    var list = $("view").querySelector(".list, .empty");
-    var tmp = document.createElement("div"); tmp.innerHTML = feedHtml(region);
-    var fresh = tmp.querySelector(".list, .empty");
-    if (list && fresh) list.replaceWith(fresh); else renderView();
-    renderTabs();
-  }
+  // chart tooltips
+  var tip = $("tip");
+  document.addEventListener("mousemove", function (ev) {
+    var t = ev.target.closest && ev.target.closest("[data-tip]");
+    if (!t) { tip.hidden = true; return; }
+    tip.textContent = t.dataset.tip; tip.hidden = false;
+    var x = Math.min(window.innerWidth - tip.offsetWidth - 8, ev.clientX + 14), y = ev.clientY + 16;
+    tip.style.left = Math.max(8, x) + "px"; tip.style.top = y + "px";
+  });
 
-  // ---------------------------------------------------------------- boot
-  var caps = { db: null, mcp: null, sample: null, assets: null };
-  renderAll();
-
+  // ------------------------------------------------------------ boot
+  render();
   (async function boot() {
-    if (!window.claude || !window.claude.use) { S.loaded = true; $("view").innerHTML = '<div class="empty">این صفحه فقط داخل Claude داده‌ها را نشان می‌دهد.</div>'; renderHeader(); return; }
+    if (!window.claude || !window.claude.use) { S.loaded = true; $("view").innerHTML = '<div class="empty">این صفحه فقط داخل Claude داده‌ها را نشان می‌دهد.</div>'; renderTop(); return; }
     var db = await window.claude.use("db");
     caps.db = S.db = db;
-    if (!db) { S.loaded = true; $("view").innerHTML = '<div class="empty">پایگاه داده در این نما در دسترس نیست. صفحه را از داخل claude.ai باز کنید.</div>'; renderHeader(); return; }
-    var pending = 2, done = function () { if (--pending <= 0) { S.loaded = true; renderAll(); } };
-    var failed = function () { S.loaded = true; $("view").innerHTML = '<div class="empty">اتصال به داده‌ها قطع شد؛ صفحه را دوباره باز کنید.</div>'; };
+    if (!db) { S.loaded = true; $("view").innerHTML = '<div class="empty">پایگاه داده در این نما در دسترس نیست. صفحه را از داخل claude.ai باز کنید.</div>'; renderTop(); return; }
+    var pending = 2;
+    function ready() { if (--pending <= 0 && !S.loaded) { S.loaded = true; render(); } }
+    function failed() { S.loaded = true; $("view").innerHTML = '<div class="empty">اتصال به داده‌ها قطع شد؛ صفحه را دوباره باز کنید.</div>'; }
+    function refresh() {
+      if (!S.loaded) return;
+      renderNav(); renderTop();
+      var typing = document.activeElement && /TEXTAREA|INPUT/.test(document.activeElement.tagName) && document.activeElement.id !== "q";
+      if (!typing) renderView();
+      if (S.openId && !typing) openDrawer(S.openId);
+    }
     db.collection("feed").onSnapshot(function (snap) {
       var items = {};
       snap.docs.forEach(function (d) { var b = d.data() || {}; (b.items || []).forEach(function (o) { if (o && o.id) items[o.id] = o; }); });
-      S.items = items; if (S.loaded) renderAll(); else done();
+      S.items = items; if (S.loaded) refresh(); else ready();
     }, failed);
     db.collection("status").onSnapshot(function (snap) {
       var st = {}; snap.docs.forEach(function (d) { st[d.id] = d.data() || {}; });
-      S.status = st; if (S.loaded) { renderSummary(); renderTabs(); if (S.tab === "iran" || S.tab === "intl") refreshList(); else if (S.tab === "pipe") renderView(); } else done();
+      S.status = st; if (S.loaded) refresh(); else ready();
     }, failed);
-    db.doc("config/meta").onSnapshot(function (d) { S.meta = d.exists ? d.data() : null; renderHeader(); });
+    db.doc("config/meta").onSnapshot(function (d) { S.meta = d.exists ? d.data() : null; renderNav(); renderTop(); });
     db.doc("config/filters").onSnapshot(function (d) {
       if (d.exists) { var f = d.data(); S.filters = { mustAny: f.mustAny || [], exclude: f.exclude || [], cities: f.cities || [], remoteOnly: !!f.remoteOnly, types: f.types || [], minScore: f.minScore || 0 }; }
-      if (S.loaded && S.tab !== "filters" && S.tab !== "texts") { renderTabs(); renderView(); }
+      if (S.loaded && S.view !== "filters") refresh();
     });
     db.doc("config/templates").onSnapshot(function (d) { if (d.exists) { var t = d.data(); S.templates = { fa: t.fa || DEFAULT_TEMPLATES.fa, en: t.en || DEFAULT_TEMPLATES.en }; } });
-    db.doc("config/resume").onSnapshot(function (d) { S.resume = d.exists ? d.data() : null; if (S.loaded && S.tab === "texts") renderView(); });
-
+    db.doc("config/resume").onSnapshot(function (d) { S.resume = d.exists ? d.data() : null; if (S.loaded && S.view === "texts") renderView(); });
     window.claude.use("sample").then(function (s) { caps.sample = s; });
     window.claude.use("assets").then(function (a) { caps.assets = a; });
     window.claude.use("mcp").then(function (m) { caps.mcp = m; if (m) $("scanBtn").hidden = false; });
