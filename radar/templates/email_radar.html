@@ -1,0 +1,21 @@
+{% macro rows(list, limit) %}{% for o in list[:limit] %}<tr><td style="padding:10px 0;border-bottom:1px solid #eceef5" dir="auto">
+<a href="{{ o.url }}" style="color:#1e1b4b;font-weight:bold;font-size:14px;text-decoration:none">{{ o.title }}</a><br>
+<span style="color:#6c7294;font-size:12px">{{ o.company or o.source }}{% if o.location and o.ch != 'social' %} · {{ o.location }}{% endif %}</span><br>
+<span style="display:inline-block;margin-top:4px;background:{% if o.mode == 'project' %}#eef4ff;color:#1d5fbf{% else %}#e8f7ef;color:#067647{% endif %};font-size:11px;padding:2px 8px;border-radius:6px">{% if o.mode == 'project' %}پروژه‌ای{% elif o.pt %}دورکاری پاره‌وقت{% elif o.mode == 'remote' %}دورکاری{% else %}نامشخص{% endif %}</span>
+<span style="color:#6c7294;font-size:11px"> · {% if o.age is none %}تاریخ نامشخص{% elif o.age == 0 %}امروز{% elif o.age == 1 %}دیروز{% else %}{{ o.age }} روز پیش{% endif %}</span>
+{% if o.salary %}<span style="color:#0c6b3f;font-size:11px"> · {{ o.salary[:50] }}</span>{% endif %}
+{% if o.tier == 'review' %}<br><span style="color:#a15c07;font-size:12px">⚠ {{ o.why|join(' · ') }}</span>{% endif %}
+</td></tr>{% endfor %}{% if list|length > limit %}<tr><td style="padding:8px 0;color:#6c7294;font-size:12px">و {{ list|length - limit }} مورد دیگر در داشبورد</td></tr>{% endif %}{% endmacro %}
+{% macro section(title, list, limit, empty) %}<h3 style="margin:22px 0 4px;font-size:15px">{{ title }} <span style="color:#6c7294;font-weight:normal;font-size:13px">({{ list|length }})</span></h3>{% if list %}<table width="100%" cellspacing="0">{{ rows(list, limit) }}</table>{% else %}<p style="color:#6c7294;font-size:13px;margin:4px 0">{{ empty }}</p>{% endif %}{% endmacro %}
+<div dir="rtl" style="font-family:Tahoma,Arial,sans-serif;max-width:640px;margin:auto;color:#0d1226;line-height:1.7">
+<div style="background:#4f46e5;background:linear-gradient(135deg,#4f46e5,#2a78d6);color:#fff;padding:18px 20px;border-radius:14px">
+<b style="font-size:18px">رادار فرصت — سئو و جئو</b><br>
+<span style="font-size:13px">{{ rep.date }} · {{ rep.match_count }} آگهی منطبق · {{ rep.review|length }} قابل بررسی · {{ rep.days }} روز اخیر · فقط دورکاری و پروژه‌ای</span></div>
+{{ section('🇮🇷 سایت‌های ایرانی', rep.iran, 15, 'آگهی ایرانی منطبق جدیدی نبود.') }}
+{% if rep.social %}{{ section('✈️ تلگرام و اینستاگرام', rep.social, 10, '') }}{% endif %}
+{{ section('💼 لینکدین', rep.linkedin, 12, 'آگهی لینکدین منطبق جدیدی نبود.') }}
+{% if rep.intl %}{{ section('🌍 خارجی', rep.intl, 8, '') }}{% endif %}
+{% if rep.review %}{{ section('🔎 قابل بررسی', rep.review, 10, '') }}{% endif %}
+{% if rep.excel_url %}<p style="margin-top:18px"><a href="{{ rep.excel_url }}" style="color:#4f46e5">⬇ فایل Excel کامل</a></p>{% endif %}
+<p style="color:#a0a5bf;font-size:11px;margin-top:18px">فیلترها و منابع را از صفحه‌ی تنظیمات داشبورد رادار فرصت عوض کن.</p>
+</div>

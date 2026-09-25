@@ -16,7 +16,7 @@ def test_strong_seo_match():
     assert "✓ Remote" in r.reasons
     assert r.remote_type == "Remote"
     assert r.category == "SEO"
-    assert "GA4" in r.skills
+    assert "Search Console & Analytics" in r.skills
 
 
 def test_persian_posting_matches():
@@ -25,7 +25,7 @@ def test_persian_posting_matches():
     r = score_item(item, load_profile())
     assert r.score >= 60, r
     assert r.remote_type == "Remote"
-    assert "WordPress" in r.skills
+    assert "WordPress / Ecommerce SEO" in r.skills
 
 
 def test_irrelevant_job_is_low():

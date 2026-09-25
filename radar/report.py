@@ -107,6 +107,33 @@ def collect_report(con, profile, include_reported: bool = False) -> dict:
     }
 
 
+def collect_tiered(con, rules=None, days: int = 7, include_review: bool = True, include_reported: bool = False) -> dict:
+    """E-mail content for the SEO/GEO radar: matches per page (Iran first) plus the review list."""
+    from .feed import item as feed_item
+    from .tiers import Classifier
+
+    clf = Classifier(rules)
+    days = int((rules or {}).get("days") or days)
+    floor = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat(timespec="seconds")
+    where = "found_at > ? AND status NOT IN (?,?)" + ("" if include_reported else " AND reported = 0")
+    rows = con.execute(f"SELECT * FROM opportunities WHERE {where} ORDER BY found_at DESC", (floor, *dbm.CLOSED)).fetchall()
+    picked, opp = [], []
+    for row in rows:
+        it = feed_item(row, clf)
+        if it["tier"] == "match" or (include_review and it["tier"] == "review"):
+            it["db_id"] = row["id"]
+            picked.append(it)
+            opp.append(dbm.opp_dict(row))
+    by_age = lambda o: (o["age"] if o["age"] is not None else 99, -o["score"])  # noqa: E731
+    match = sorted([o for o in picked if o["tier"] == "match"], key=by_age)
+    return {
+        "date": local_now().date().isoformat(), "days": days, "items": picked, "opp_rows": opp,
+        "iran": [o for o in match if o["ch"] == "iran"], "social": [o for o in match if o["ch"] == "social"],
+        "linkedin": [o for o in match if o["ch"] == "linkedin"], "intl": [o for o in match if o["ch"] == "intl"],
+        "review": sorted([o for o in picked if o["tier"] == "review"], key=by_age), "match_count": len(match),
+    }
+
+
 _FA = re.compile(r"[\u0600-\u06ff]")
 
 

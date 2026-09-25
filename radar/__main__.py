@@ -37,10 +37,17 @@ def main(argv=None) -> int:
     em = sub.add_parser("render-email", help="write the compact HTML report + Excel for an external mailer")
     em.add_argument("--out", default="data/reports")
     em.add_argument("--excel-url", default="")
-    sub.add_parser("mark-reported", help="mark current unreported matches as reported (after mailing)")
+    em.add_argument("--rules", default="", help="JSON file with the dashboard's config/rules document")
+    em.add_argument("--report", default="", help="JSON file with the dashboard's config/report document")
+    mr = sub.add_parser("mark-reported", help="mark current unreported matches as reported (after mailing)")
+    mr.add_argument("--rules", default="")
+    mr.add_argument("--report", default="")
     fx = sub.add_parser("export-feed", help="write chunk JSON files for the artifact dashboard")
     fx.add_argument("--out", default="data/feed")
     fx.add_argument("--since", default="", help="ISO time; only items found after it")
+    fx.add_argument("--rules", default="", help="JSON file with the dashboard's config/rules document")
+    ac = sub.add_parser("apply-config", help="apply the dashboard's config/sources document to config/sources.yaml")
+    ac.add_argument("--sources", required=True, help="JSON file with the config/sources document")
     imp = sub.add_parser("import-json", help="import opportunities from a JSON list (e.g. collected by an assistant)")
     imp.add_argument("path")
     imp.add_argument("--source", default="Web search")
@@ -116,15 +123,17 @@ def main(argv=None) -> int:
         from pathlib import Path
 
         from .exporters import export_xlsx
-        from .profile import load_profile
-        from .report import _jinja, collect_report
+        from .report import _jinja, collect_tiered
 
+        rules = _load_json(args.rules)
+        prefs = _load_json(args.report) or {}
         with dbm.get_db() as con:
-            rep = collect_report(con, load_profile())
+            rep = collect_tiered(con, rules, include_review=prefs.get("includeReview", True) is not False,
+                                 include_reported=prefs.get("onlyNew", True) is False)
             if args.cmd == "mark-reported":
-                con.executemany("UPDATE opportunities SET reported=1 WHERE id=?", [(o["id"],) for o in rep["items"]])
+                con.executemany("UPDATE opportunities SET reported=1 WHERE id=?", [(o["db_id"],) for o in rep["items"]])
                 con.execute("INSERT INTO email_logs(sent_at, local_date, channel, recipients, subject, items, status) "
-                            "VALUES (datetime('now'), date('now'), 'email', 'gmail-connector', 'Daily Opportunity Radar Report', ?, 'sent')",
+                            "VALUES (datetime('now'), date('now'), 'email', 'gmail-connector', 'SEO/GEO Radar', ?, 'sent')",
                             (len(rep["items"]),))
                 con.commit()
                 print(f"marked {len(rep['items'])}")
@@ -132,19 +141,24 @@ def main(argv=None) -> int:
         out = Path(args.out)
         out.mkdir(parents=True, exist_ok=True)
         rep["excel_url"] = args.excel_url
-        html_text = re.sub(r">\s+<", "><", _jinja.get_template("email_compact.html").render(rep=rep)).strip()
-        html_text = html_text.replace("</b><a ", "</b> <a ")
+        html_text = re.sub(r">\s+<", "><", _jinja.get_template("email_radar.html").render(rep=rep)).strip()
         (out / "email.html").write_text(html_text, encoding="utf-8")
-        export_xlsx(out / "opportunity_report.xlsx", {"Top matches": rep["items"]})
-        print(json.dumps({"matches": len(rep["items"]), "iran": len(rep["iran_items"]), "scanned": rep["scanned"],
+        export_xlsx(out / "opportunity_report.xlsx", {"SEO-GEO radar": rep["opp_rows"]})
+        print(json.dumps({"match": rep["match_count"], "iran": len(rep["iran"]), "linkedin": len(rep["linkedin"]),
+                          "social": len(rep["social"]), "review": len(rep["review"]),
                           "html": str(out / "email.html"), "xlsx": str(out / "opportunity_report.xlsx")}))
+        return 0
+    if args.cmd == "apply-config":
+        from .remote_config import apply_sources
+
+        print(json.dumps(apply_sources(_load_json(args.sources) or {}), ensure_ascii=False))
         return 0
     if args.cmd == "export-feed":
         from pathlib import Path
 
         from .feed import export
 
-        print(json.dumps(export(Path(args.out), args.since), ensure_ascii=False))
+        print(json.dumps(export(Path(args.out), args.since, rules=_load_json(args.rules)), ensure_ascii=False))
         return 0
     if args.cmd == "rescore":
         from .scanner import rescore_all
@@ -152,6 +166,16 @@ def main(argv=None) -> int:
         print(f"Re-scored {rescore_all()} opportunities")
         return 0
     return 1
+
+
+def _load_json(path: str):
+    """Reads a JSON document saved from the artifact (ArtifactData out_dir files wrap it in {data: ...})."""
+    if not path:
+        return None
+    from pathlib import Path
+
+    doc = json.loads(Path(path).read_text(encoding="utf-8"))
+    return doc.get("data", doc) if isinstance(doc, dict) else None
 
 
 if __name__ == "__main__":

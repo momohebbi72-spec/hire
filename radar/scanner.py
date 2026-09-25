@@ -24,7 +24,18 @@ def _fetch(src: SourceConfig, limit: int):
     try:
         return src, stype.fetch(src, limit), None
     except Exception as exc:  # one broken source must not stop the scan
-        return src, [], f"{type(exc).__name__}: {exc}"[:300]
+        return src, [], friendly_error(exc)
+
+
+def friendly_error(exc: Exception) -> str:
+    name = type(exc).__name__
+    if name in ("ReadTimeout", "ConnectTimeout", "Timeout"):
+        return "سایت در ۴۵ ثانیه جواب نداد (دو بار امتحان شد). اگر VPN روشن است خاموشش کن و دوباره اسکن کن."
+    if name in ("ConnectionError", "SSLError", "ProxyError"):
+        return "اتصال به سایت برقرار نشد — اینترنت/VPN را بررسی کن (سایت‌های ایرانی فقط با IP ایران باز می‌شوند)."
+    if name == "HTTPError" and " 403 " in f" {exc} ":
+        return "سایت دسترسی را بست (403) — احتمالا به‌خاطر VPN یا IP خارج از ایران."
+    return f"{name}: {exc}"[:300]
 
 
 def runs_here(src: SourceConfig) -> bool:

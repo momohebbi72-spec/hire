@@ -107,7 +107,7 @@ PRESETS = {
     "ponisha": ("پونیشا (Ponisha)", "https://ponisha.ir/search/projects/{slug}",
                 r"^/project/\d+", "seo", None),
     "karlancer": ("کارلنسر (Karlancer)", "https://www.karlancer.com/jobs/{slug}",
-                  r"^/(?:job|jobs|project|projects)/\d+", "seo", None),
+                  r"^/projects/[^/?#]+", "seo", None),
     "parscoders": ("پارس‌کدرز (Parscoders)", "https://parscoders.com/project/skills/{slug}",
                    r"^/project/\d+", "seo", None),
     "eestekhdam": ("ای‌استخدام (e-estekhdam)", "https://www.e-estekhdam.com/search/{slug}",

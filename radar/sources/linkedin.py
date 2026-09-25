@@ -57,7 +57,7 @@ def _description(job_id: str) -> str:
           help="موقعیت‌ها با ویرگول (Canada, United States, Iran, Remote). کلمات کلیدی = عنوان‌های جستجو (SEO Specialist, SEO Manager).")
 def linkedin(src: SourceConfig, limit: int) -> List[Item]:
     locations = split_targets(src.target) or ["Worldwide"]
-    days = max(1, min(30, (src.frequency_hours or 24) // 24 * 2 or 2))
+    days = 7  # only postings from the last week
     items, seen = [], set()
     described = 0
     for location in locations:

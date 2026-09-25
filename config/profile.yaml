@@ -1,130 +1,99 @@
 # پروفایل مهارتی — از صفحه‌ی «پروفایل» داشبورد ویرایش می‌شود.
 # علامت ! اول یک کلمه یعنی حساس به حروف بزرگ (مثلا !GEO تا با geo-targeting قاطی نشود)
 name: User
-min_score: 55
+min_score: 45
 report_top_n: 15
-max_age_days: 30
+max_age_days: 7
 per_source_limit: 60
 skill_target: 25
 
 skills:
   SEO:
     weight: 10
-    aliases: [search engine optimization, search engine optimisation, organic search, سئو, سئوکار, بهینه سازی سایت]
-  Technical SEO:
-    weight: 9
-    aliases: [site audit, core web vitals, schema markup, crawl budget, site speed, سئو تکنیکال, سئو فنی]
-  AI SEO:
-    weight: 9
-    aliases: [generative engine optimization, "!GEO", جئو, answer engine optimization, "!AEO", LLM optimization, AI overviews, سئو هوش مصنوعی]
-  Google Search Console:
+    aliases: [search engine optimization, search engine optimisation, organic search, سئو, سئوکار, بهینه سازی موتور جستجو]
+  GEO / AI Search:
+    weight: 10
+    aliases: [generative engine optimization, "!GEO", جئو, answer engine optimization, "!AEO", LLM optimization, AI search, AI visibility, AI overviews, سئو هوش مصنوعی, نتایج هوش مصنوعی]
+  SEO Strategy & Leadership:
+    weight: 8
+    aliases: [seo strategy, head of seo, seo manager, seo lead, مدیر سئو, سرپرست سئو, استراتژی سئو]
+  Technical & On-page:
     weight: 6
-    aliases: [search console, "!GSC", سرچ کنسول]
-  GA4:
-    weight: 7
-    aliases: [google analytics, google analytics 4, گوگل آنالیتیکس]
-  WordPress:
-    weight: 7
-    aliases: [woocommerce, elementor, yoast, rank math, وردپرس, ووکامرس]
-  Content Marketing:
-    weight: 6
-    aliases: [content strategy, content marketing, copywriting, تولید محتوا, استراتژی محتوا, بازاریابی محتوا]
-  Digital Marketing:
-    weight: 6
-    aliases: [online marketing, growth marketing, inbound marketing, دیجیتال مارکتینگ, بازاریابی دیجیتال]
-  Local SEO:
+    aliases: [technical seo, on-page, core web vitals, schema, سئو تکنیکال, سئو داخلی, سئو فنی]
+  Off-page & Link Building:
     weight: 4
-    aliases: [google business profile, google my business, local search, سئو محلی]
-  Ecommerce SEO:
-    weight: 5
-    aliases: [e-commerce seo, shopify, سئو فروشگاهی]
-  CRO:
+    aliases: [link building, backlinks, digital pr, لینک سازی, بک لینک, سئو خارجی]
+  Search Console & Analytics:
     weight: 4
-    aliases: [conversion rate optimization, A/B testing, بهینه سازی نرخ تبدیل]
-  Website Optimization:
-    weight: 4
-    aliases: [website optimization, page speed, بهینه سازی سرعت]
-  Marketing Automation:
-    weight: 3
-    aliases: [hubspot, mailchimp, email automation, اتوماسیون بازاریابی]
+    aliases: [search console, "!GSC", google analytics, GA4, سرچ کنسول, گوگل آنالیتیکس]
   Keyword Research:
-    weight: 5
-    aliases: [ahrefs, semrush, screaming frog, تحقیق کلمات کلیدی]
-  Link Building:
     weight: 4
-    aliases: [backlinks, off-page, digital pr, لینک سازی, بک لینک]
+    aliases: [ahrefs, semrush, screaming frog, keyword research, تحقیق کلمات کلیدی]
+  WordPress / Ecommerce SEO:
+    weight: 3
+    aliases: [wordpress, woocommerce, rank math, yoast, وردپرس, ووکامرس, سئو فروشگاهی]
 
 # کلمات کلیدی عمومی (در عنوان یا متن آگهی)
 keywords:
   - SEO
   - سئو
+  - سئوکار
   - "!GEO"
   - جئو
+  - "!AEO"
   - AI SEO
-  - digital marketing
-  - دیجیتال مارکتینگ
-  - growth
-  - content marketing
-  - wordpress
-  - analytics
-  - marketing
+  - AI search
+  - generative engine optimization
+  - search engine optimization
 
-# عنوان‌های هدف — اگر در عنوان آگهی باشند امتیاز کامل کلمه‌ی کلیدی
+# عنوان‌های هدف (پاسخ خودت): کارشناس/متخصص سئو، سئوکار، GEO، مدیر/سرپرست سئو
 target_roles:
   - SEO Specialist
+  - SEO Expert
   - SEO Manager
-  - SEO Consultant
   - SEO Lead
-  - SEO Strategist
   - Head of SEO
-  - Technical SEO
-  - Digital Marketing Manager
-  - Content Strategist
-  - Growth Marketing
-  - Growth Marketer
-  - Freelance SEO
-  - Marketing Consultant
-  - Website Optimization
+  - SEO Consultant
+  - SEO Strategist
+  - GEO Specialist
+  - AI Search Specialist
+  - AEO Specialist
   - کارشناس سئو
   - متخصص سئو
-  - مدیر سئو
   - سئوکار
-  - کارشناس دیجیتال مارکتینگ
-  - مدیر دیجیتال مارکتینگ
+  - مدیر سئو
+  - سرپرست سئو
+  - مسئول سئو
   - مشاور سئو
+  - متخصص جئو
 
-industries:
-  Technology: {weight: 1, aliases: [tech, technology, فناوری, تکنولوژی]}
-  SaaS: {weight: 1, aliases: [saas, software as a service, نرم افزار]}
-  Ecommerce: {weight: 1, aliases: [ecommerce, e-commerce, online store, فروشگاه اینترنتی, فروشگاه آنلاین]}
-  Marketing Agencies: {weight: 1, aliases: [agency, digital agency, آژانس, آژانس دیجیتال]}
-  Startups: {weight: 1, aliases: [startup, start-up, استارتاپ]}
-  Online Businesses: {weight: 1, aliases: [online business, کسب و کار اینترنتی, کسب و کار آنلاین]}
+industries: {}
 
 preferred_locations:
   - Remote
   - Worldwide
   - Anywhere
-  - Canada
-  - USA
-  - United States
-  - Europe
-  - Iran
+  - دورکاری
   - ایران
-  - تهران
 
+# فقط دورکاری تمام‌وقت، دورکاری پاره‌وقت، پروژه‌ای/فریلنس
 work_types:
   - Remote
+  - Part-time
   - Freelance
   - Contract
-  - Full-time
-  - Consulting
 
 avoid_locations:
   - US citizens only
-  - must be located in India
+  - must be located in
 
 exclude_in_title:
+  - digital marketing
+  - دیجیتال مارکتینگ
+  - marketing manager
+  - social media
+  - content writer
+  - junior
   - intern
   - internship
   - nurse

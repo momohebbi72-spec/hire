@@ -30,6 +30,9 @@ from .sources.websearch import backend_name
 
 app = Flask(__name__)
 app.secret_key = env("FLASK_SECRET") or secrets.token_hex(16)
+from .localapp import bp as _localapp  # noqa: E402  (new dashboard, same page as the claude.ai artifact)
+
+app.register_blueprint(_localapp)
 scheduler = BackgroundScheduler()
 
 _job = {"running": False, "label": "", "error": None}
@@ -120,6 +123,11 @@ def _int(value, default):
 
 # ------------------------------------------------------------------ dashboard
 @app.route("/")
+def home():
+    return redirect("/app")
+
+
+@app.route("/classic")
 def dashboard():
     profile = load_profile()
     with dbm.get_db() as con:
