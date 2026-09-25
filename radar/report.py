@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import html
+import re
 import smtplib
 import ssl
 from datetime import datetime, timedelta, timezone
@@ -86,6 +87,8 @@ def collect_report(con, profile, include_reported: bool = False) -> dict:
     ).fetchall()
     pipeline = {r[0]: r[1] for r in con.execute("SELECT status, COUNT(*) FROM opportunities GROUP BY status")}
     sheet_id = env("GOOGLE_SHEET_ID")
+    items = [dbm.opp_dict(r) for r in rows]
+    iran = [o for o in items if _is_iran(o)]
     return {
         "date": local_now().date().isoformat(),
         "name": profile.name,
@@ -93,13 +96,23 @@ def collect_report(con, profile, include_reported: bool = False) -> dict:
         "top_n": profile.report_top_n,
         "scanned": scans[0],
         "new": scans[1],
-        "items": [dbm.opp_dict(r) for r in rows],
+        "items": items,
+        "iran_items": iran,
+        "intl_items": [o for o in items if o not in iran],
         "followups": [dbm.opp_dict(r) for r in followups],
         "pipeline": pipeline,
         "statuses": dbm.STATUSES,
         "status_fa": dbm.STATUS_FA,
         "sheet_url": env("GOOGLE_SHEET_URL") or (f"https://docs.google.com/spreadsheets/d/{sheet_id}" if sheet_id else ""),
     }
+
+
+_FA = re.compile(r"[\u0600-\u06ff]")
+
+
+def _is_iran(o: dict) -> bool:
+    loc = (o.get("location") or "").lower()
+    return bool(_FA.search(o.get("title") or "")) or "iran" in loc or "ایران" in loc or "تهران" in loc
 
 
 def render_email(rep: dict) -> str:

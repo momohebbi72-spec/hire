@@ -180,7 +180,17 @@ def score_item(item: Item, profile: Profile) -> ScoreResult:
     else:
         bd["preference"] += 2
 
+    # Context points (type, location, preference) only count as much as the posting is relevant:
+    # a remote full-time job that merely mentions WordPress must not look like a strong match.
+    relevance = (bd["skills"] + bd["keywords"]) / 60
+    factor = min(1.0, relevance * 2)
+    for key in ("type", "location", "preference"):
+        if bd[key] > 0:
+            bd[key] = round(bd[key] * factor)
     total = sum(bd.values())
+    title_relevant = bool(role or kw_title or any(s.search(title) for s in profile.skills))
+    if not title_relevant:
+        total = min(total, profile.min_score - 5)  # strong matches need a relevant title
     if not skills and not role and not keywords:
         total = min(total, 15)  # nothing relevant matched
     return ScoreResult(max(0, min(100, int(total))), reasons, skills=[s.label for s in skills],

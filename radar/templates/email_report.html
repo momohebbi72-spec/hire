@@ -1,3 +1,22 @@
+{% macro opp_rows(list, limit) %}
+  {% for o in list[:limit] %}
+  <tr><td style="padding:6px 24px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e6ec;border-radius:10px;">
+      <tr>
+        <td dir="auto" style="padding:12px 14px;">
+          <a href="{{ o.url }}" style="font-size:15px;font-weight:bold;color:#4f46e5;text-decoration:none;">{{ loop.index }}. {{ o.title }}</a>
+          <div style="font-size:12px;color:#5b6475;margin-top:4px;">{{ o.company }}{% if o.location %} · {{ o.location }}{% endif %} · {{ o.source }}{% if o.salary %} · {{ o.salary }}{% endif %}</div>
+          <div style="font-size:12px;color:#16a34a;margin-top:6px;line-height:1.7;">{{ o.reasons_list[:7]|join(' &nbsp; '|safe) }}</div>
+        </td>
+        <td width="70" align="center" style="border-left:1px solid #e2e6ec;padding:8px;">
+          <div style="font-size:20px;font-weight:bold;color:{% if o.score >= 75 %}#16a34a{% elif o.score >= 60 %}#8a6d00{% else %}#5b6475{% endif %};direction:ltr;">{{ o.score }}%</div>
+          <div style="font-size:11px;color:#5b6475;">{{ o.category }}</div>
+        </td>
+      </tr>
+    </table>
+  </td></tr>
+  {% endfor %}
+{% endmacro %}
 <!doctype html>
 <html lang="fa" dir="rtl">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>رادار فرصت</title></head>
@@ -24,28 +43,14 @@
     </tr></table>
   </td></tr>
 
-  <tr><td style="padding:14px 24px 4px;font-size:15px;font-weight:bold;">بهترین‌ها</td></tr>
-  {% for o in rep['items'][:rep.top_n] %}
-  <tr><td style="padding:6px 24px;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e6ec;border-radius:10px;">
-      <tr>
-        <td dir="ltr" style="padding:12px 14px;text-align:left;">
-          <a href="{{ o.url }}" style="font-size:15px;font-weight:bold;color:#4f46e5;text-decoration:none;">{{ loop.index }}. {{ o.title }}</a>
-          <div style="font-size:12px;color:#5b6475;margin-top:4px;">{{ o.company }}{% if o.location %} · {{ o.location }}{% endif %} · {{ o.source }}{% if o.salary %} · {{ o.salary }}{% endif %}</div>
-          <div style="font-size:12px;color:#16a34a;margin-top:6px;line-height:1.7;">{{ o.reasons_list[:7]|join(' &nbsp; '|safe) }}</div>
-        </td>
-        <td width="70" align="center" style="border-left:1px solid #e2e6ec;padding:8px;">
-          <div style="font-size:20px;font-weight:bold;color:{% if o.score >= 75 %}#16a34a{% elif o.score >= 60 %}#8a6d00{% else %}#5b6475{% endif %};direction:ltr;">{{ o.score }}%</div>
-          <div style="font-size:11px;color:#5b6475;">{{ o.category }}</div>
-        </td>
-      </tr>
-    </table>
-  </td></tr>
-  {% else %}
-  <tr><td style="padding:6px 24px;color:#5b6475;font-size:14px;">امروز فرصت جدیدِ مناسبی پیدا نشد. اگر زیاد تکرار شد، منابع یا حداقل امتیاز را در پروفایل تنظیم کنید.</td></tr>
-  {% endfor %}
-  {% if rep['items']|length > rep.top_n %}
-  <tr><td style="padding:6px 24px;font-size:13px;color:#5b6475;">+ {{ rep['items']|length - rep.top_n }} فرصت دیگر در فایل Excel پیوست.</td></tr>
+  <tr><td style="padding:14px 24px 4px;font-size:15px;font-weight:bold;">🇮🇷 فرصت‌های ایران</td></tr>
+  {% if rep.iran_items %}{{ opp_rows(rep.iran_items, 8) }}{% else %}
+  <tr><td style="padding:6px 24px;color:#5b6475;font-size:13px;">امروز فرصت جدید ایرانی با امتیاز بالا نبود.</td></tr>{% endif %}
+  <tr><td style="padding:14px 24px 4px;font-size:15px;font-weight:bold;">🌍 فرصت‌های بین‌المللی و ریموت</td></tr>
+  {% if rep.intl_items %}{{ opp_rows(rep.intl_items, rep.top_n) }}{% else %}
+  <tr><td style="padding:6px 24px;color:#5b6475;font-size:13px;">امروز فرصت جدید بین‌المللی با امتیاز بالا نبود.</td></tr>{% endif %}
+  {% if rep['items']|length > 8 + rep.top_n %}
+  <tr><td style="padding:6px 24px;font-size:13px;color:#5b6475;">+ فرصت‌های بیشتر در فایل Excel پیوست ({{ rep['items']|length }} مورد).</td></tr>
   {% endif %}
 
   {% if rep.followups %}

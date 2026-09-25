@@ -34,6 +34,9 @@ def main(argv=None) -> int:
     sync_p = sub.add_parser("sync", help="GitHub sync")
     sync_p.add_argument("action", choices=["pull", "push", "config-push", "config-pull"])
     sub.add_parser("rescore", help="re-score all stored opportunities with the current profile")
+    imp = sub.add_parser("import-json", help="import opportunities from a JSON list (e.g. collected by an assistant)")
+    imp.add_argument("path")
+    imp.add_argument("--source", default="Web search")
 
     args = parser.parse_args(argv)
     if args.cmd is None:
@@ -75,6 +78,31 @@ def main(argv=None) -> int:
         fn = {"pull": sync.pull_items, "push": sync.push_items, "config-push": sync.push_config,
               "config-pull": sync.pull_config}[args.action]
         print(fn())
+        return 0
+    if args.cmd == "import-json":
+        from .profile import load_profile
+        from .scoring import score_item
+        from .sources.base import Item
+
+        rows = json.load(open(args.path, encoding="utf-8"))
+        profile = load_profile()
+        counts = {"new": 0, "updated": 0}
+        with dbm.get_db() as con:
+            for r in rows:
+                if not r.get("title"):
+                    continue
+                item = Item(title=r["title"], url=r.get("url", ""), company=r.get("company", ""),
+                            location=r.get("location", ""), description=r.get("description", ""),
+                            posted_at=r.get("posted_at"), job_type=r.get("job_type", ""),
+                            source=r.get("source") or args.source, source_type=r.get("source_type") or "websearch",
+                            external_id=r.get("url") or r["title"])
+                kind, _ = dbm.upsert_opportunity(con, item, score_item(item, profile),
+                                                 source_id=r.get("source_id", "assistant"), origin="cloud")
+                counts[kind] += 1
+                if item.url:
+                    dbm.record_discovery(con, item.url, item.title)
+            con.commit()
+        print(json.dumps(counts))
         return 0
     if args.cmd == "rescore":
         from .scanner import rescore_all
