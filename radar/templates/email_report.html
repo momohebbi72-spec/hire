@@ -6,21 +6,21 @@
 <tr><td align="center">
 <table role="presentation" width="640" cellpadding="0" cellspacing="0" style="max-width:640px;width:100%;background:#ffffff;border-radius:14px;overflow:hidden;">
 
-  <tr><td style="background:#123a5e;color:#ffffff;padding:22px 24px;">
+  <tr><td style="background:#4f46e5;color:#ffffff;padding:22px 24px;">
     <div style="font-size:12px;opacity:.75;direction:ltr;text-align:right;">Personal Opportunity Radar · {{ rep.date }}</div>
-    <div style="font-size:21px;font-weight:bold;margin-top:6px;">گزارش روزانه‌ی فرصت‌ها{% if rep.name %} — {{ rep.name }}{% endif %}</div>
+    <div style="font-size:21px;font-weight:bold;margin-top:6px;">Daily Opportunity Radar Report</div><div style="font-size:14px;opacity:.85;">گزارش روزانه‌ی فرصت‌ها{% if rep.name %} — {{ rep.name }}{% endif %}</div>
   </td></tr>
 
   <tr><td style="padding:18px 24px 6px;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
       <td align="center" style="background:#f5f7fa;border-radius:10px;padding:12px;">
-        <div style="font-size:22px;font-weight:bold;">{{ rep.scanned }}</div><div style="font-size:12px;color:#5b6475;">بررسی‌شده امروز</div></td>
+        <div style="font-size:22px;font-weight:bold;">{{ rep.scanned }}</div><div style="font-size:12px;color:#5b6475;">بررسی‌شده (۲۴ ساعت)</div></td>
       <td width="10"></td>
       <td align="center" style="background:#f5f7fa;border-radius:10px;padding:12px;">
         <div style="font-size:22px;font-weight:bold;">{{ rep.new }}</div><div style="font-size:12px;color:#5b6475;">جدید</div></td>
       <td width="10"></td>
-      <td align="center" style="background:#e5f4ea;border-radius:10px;padding:12px;">
-        <div style="font-size:22px;font-weight:bold;color:#1e6b3a;">{{ rep['items']|length }}</div><div style="font-size:12px;color:#1e6b3a;">مناسب (≥ {{ rep.min_score }})</div></td>
+      <td align="center" style="background:#dcfce7;border-radius:10px;padding:12px;">
+        <div style="font-size:22px;font-weight:bold;color:#16a34a;">{{ rep['items']|length }}</div><div style="font-size:12px;color:#16a34a;">مناسب (≥ {{ rep.min_score }})</div></td>
     </tr></table>
   </td></tr>
 
@@ -30,12 +30,12 @@
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e6ec;border-radius:10px;">
       <tr>
         <td dir="ltr" style="padding:12px 14px;text-align:left;">
-          <a href="{{ o.url }}" style="font-size:15px;font-weight:bold;color:#123a5e;text-decoration:none;">{{ loop.index }}. {{ o.title }}</a>
+          <a href="{{ o.url }}" style="font-size:15px;font-weight:bold;color:#4f46e5;text-decoration:none;">{{ loop.index }}. {{ o.title }}</a>
           <div style="font-size:12px;color:#5b6475;margin-top:4px;">{{ o.company }}{% if o.location %} · {{ o.location }}{% endif %} · {{ o.source }}{% if o.salary %} · {{ o.salary }}{% endif %}</div>
-          <div style="font-size:12px;color:#1e6b3a;margin-top:6px;line-height:1.7;">{{ o.reasons_list[:7]|join(' &nbsp; '|safe) }}</div>
+          <div style="font-size:12px;color:#16a34a;margin-top:6px;line-height:1.7;">{{ o.reasons_list[:7]|join(' &nbsp; '|safe) }}</div>
         </td>
         <td width="70" align="center" style="border-left:1px solid #e2e6ec;padding:8px;">
-          <div style="font-size:20px;font-weight:bold;color:{% if o.score >= 75 %}#1e6b3a{% elif o.score >= 60 %}#8a6d00{% else %}#5b6475{% endif %};direction:ltr;">{{ o.score }}%</div>
+          <div style="font-size:20px;font-weight:bold;color:{% if o.score >= 75 %}#16a34a{% elif o.score >= 60 %}#8a6d00{% else %}#5b6475{% endif %};direction:ltr;">{{ o.score }}%</div>
           <div style="font-size:11px;color:#5b6475;">{{ o.category }}</div>
         </td>
       </tr>
@@ -63,7 +63,7 @@
   </td></tr>
 
   <tr><td style="padding:16px 24px 22px;font-size:12px;color:#5b6475;border-top:1px solid #eef0f3;">
-    {% if rep.sheet_url %}<a href="{{ rep.sheet_url }}" style="color:#123a5e;">باز کردن Google Sheet</a> · {% endif %}
+    {% if rep.sheet_url %}<a href="{{ rep.sheet_url }}" style="color:#4f46e5;">باز کردن Google Sheet</a> · {% endif %}
     فایل Excel کامل پیوست این ایمیل است. وضعیت‌ها را در داشبورد رادار به‌روز کنید.
   </td></tr>
 

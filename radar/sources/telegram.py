@@ -6,7 +6,7 @@ from typing import List
 
 from ..http import get_text
 from ..textutil import first_line, strip_html, to_iso
-from .base import Item, register, split_targets
+from .base import Item, SourceConfig, register, split_targets
 
 _TEXT = re.compile(r'<div class="tgme_widget_message_text[^"]*"[^>]*>(.*?)</div>', re.S)
 _TIME = re.compile(r'<time[^>]+datetime="([^"]+)"')
@@ -20,10 +20,17 @@ def _channel(value: str) -> str:
     return value.strip("/")
 
 
-@register("telegram", "کانال عمومی تلگرام", "یوزرنیم کانال عمومی بدون @ (چندتا با ویرگول)، مثلا: seo_jobs")
-def telegram(target: str, limit: int) -> List[Item]:
+@register("telegram", "کانال عمومی تلگرام", group="feed", keyword_mode="filter", needs_target=True,
+          target_label="کانال‌ها",
+          help="یوزرنیم یا لینک کانال عمومی (t.me/xxx) — چندتا با ویرگول. کلمات کلیدی برای فیلتر پیام‌ها.")
+def telegram(src: SourceConfig, limit: int) -> List[Item]:
+    """Reads the public web preview t.me/s/<channel> (no bot, no login).
+
+    For private channels / groups a Telegram API client (Telethon, api_id + api_hash)
+    can be plugged in later behind the same function signature.
+    """
     items = []
-    for raw in split_targets(target):
+    for raw in split_targets(src.target):
         channel = _channel(raw)
         page = get_text(f"https://t.me/s/{channel}")
         posts = []

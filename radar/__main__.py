@@ -1,7 +1,8 @@
-"""CLI:  python -m radar [serve|scan|report|sheet|daily|rescore]"""
+"""CLI:  python -m radar [serve|tick|scan|report|sheet|sync|rescore|daily]"""
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import sys
 
@@ -17,21 +18,26 @@ def main(argv=None) -> int:
     serve.add_argument("--port", type=int, default=int(os.environ.get("PORT", "3000")))
     serve.add_argument("--no-browser", action="store_true")
 
-    scan = sub.add_parser("scan", help="fetch all enabled sources")
-    scan.add_argument("--report", action="store_true", help="send the report afterwards")
+    tick = sub.add_parser("tick", help="do everything that is due: sync, scan, sheet, report (for schedulers)")
+    tick.add_argument("--force", action="store_true", help="scan all sources and send the report now")
+    sub.add_parser("daily", help="same as: tick --force")
 
-    report = sub.add_parser("report", help="send e-mail / Telegram report (+ Excel)")
+    scan = sub.add_parser("scan", help="scan sources")
+    scan.add_argument("--source", action="append", help="source id (repeatable); default = all enabled here")
+    scan.add_argument("--due", action="store_true", help="only sources whose frequency is due")
+
+    report = sub.add_parser("report", help="send the e-mail / Telegram report now (+ Excel)")
     report.add_argument("--all", action="store_true", help="include already-reported matches")
     report.add_argument("--no-mark", action="store_true", help="do not mark items as reported")
 
     sub.add_parser("sheet", help="push new matches to Google Sheets")
-    sub.add_parser("daily", help="scan + report + sheet (for cron / GitHub Actions)")
+    sync_p = sub.add_parser("sync", help="GitHub sync")
+    sync_p.add_argument("action", choices=["pull", "push", "config-push", "config-pull"])
     sub.add_parser("rescore", help="re-score all stored opportunities with the current profile")
 
     args = parser.parse_args(argv)
     if args.cmd is None:
         args = parser.parse_args(["serve"])
-
     dbm.init_db()
 
     if args.cmd == "serve":
@@ -39,13 +45,23 @@ def main(argv=None) -> int:
 
         serve_main(args.host, args.port, open_browser=not args.no_browser)
         return 0
+    if args.cmd in ("tick", "daily"):
+        from .scheduler import tick as run_tick
 
-    if args.cmd == "rescore":
-        from .scanner import rescore_all
-
-        print(f"Re-scored {rescore_all()} opportunities")
+        out = run_tick(force=args.cmd == "daily" or args.force)
+        print(json.dumps(out, ensure_ascii=False, indent=2, default=str))
         return 0
+    if args.cmd == "scan":
+        from .scanner import run_scan
 
+        run_scan(source_ids=args.source, due_only=args.due)
+        return 0
+    if args.cmd == "report":
+        from .report import deliver_report
+
+        out = deliver_report(mark=not args.no_mark, include_reported=args.all)
+        print(json.dumps(out, ensure_ascii=False, indent=2))
+        return 0
     if args.cmd == "sheet":
         from .exporters import sync_google_sheet
         from .profile import load_profile
@@ -53,25 +69,19 @@ def main(argv=None) -> int:
         with dbm.get_db() as con:
             print("Google Sheet:", sync_google_sheet(con, load_profile().min_score))
         return 0
+    if args.cmd == "sync":
+        from . import sync
 
-    from .report import deliver_report
-    from .scanner import run_scan
+        fn = {"pull": sync.pull_items, "push": sync.push_items, "config-push": sync.push_config,
+              "config-pull": sync.pull_config}[args.action]
+        print(fn())
+        return 0
+    if args.cmd == "rescore":
+        from .scanner import rescore_all
 
-    if args.cmd in ("scan", "daily"):
-        summary = run_scan()
-        if summary["sources"] and summary["errors"] == len(summary["sources"]):
-            print("All sources failed — check network access.", file=sys.stderr)
-        if args.cmd == "scan" and not args.report:
-            return 0
-
-    if args.cmd == "report":
-        out = deliver_report(mark=not args.no_mark, include_reported=args.all, sheet=False)
-    else:
-        out = deliver_report(sheet=args.cmd == "daily")
-    print(f"Report: {out['matches']} matches → {out['xlsx']}")
-    for channel, result in out["results"].items():
-        print(f"  {channel}: {result}")
-    return 0
+        print(f"Re-scored {rescore_all()} opportunities")
+        return 0
+    return 1
 
 
 if __name__ == "__main__":

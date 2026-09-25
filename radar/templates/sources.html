@@ -1,65 +1,72 @@
 {% extends "base.html" %}
+{% from "_source_form.html" import source_form with context %}
 {% block title %}منابع — رادار فرصت{% endblock %}
 {% block content %}
+<div class="page-head">
+  <div><h1>منابع</h1><div class="muted">{{ sources|length }} منبع · جستجوی وب با {{ search_backend }}</div></div>
+  <form method="post" action="{{ url_for('scan') }}"><button class="btn primary" {{ 'disabled' if job.running }}>اسکن همه</button></form>
+</div>
+
+{% if synced %}
+<div class="flash warn">منابع «مک» فقط روی مک (IP ایران، VPN خاموش) اسکن می‌شوند و منابع «GitHub» فقط روی GitHub. دکمه‌ی «تست» هر منبعی را همین‌جا اجرا می‌کند.</div>
+{% endif %}
+
 <section class="panel">
-  <h2>منابع فعال</h2>
   <div class="table-wrap">
   <table class="table">
-    <thead><tr><th>نام</th><th>نوع</th><th>مقدار</th><th>آخرین اجرا</th><th>آیتم</th><th>وضعیت</th><th></th></tr></thead>
+    <thead><tr><th>نام</th><th>نوع</th><th>Target / کلمات کلیدی</th><th>دفعات</th><th>اجرا</th><th>آخرین اسکن</th><th>یافته</th><th>وضعیت</th><th></th></tr></thead>
     <tbody>
     {% for s in sources %}
+      {% set rt = runtime.get(s.id, {}) %}
+      {% set where = effective_runner(s) %}
       <tr class="{{ '' if s.enabled else 'off' }}">
-        <td dir="auto">{{ s.name }}</td>
-        <td>{{ fetchers[s.type].label if s.type in fetchers else s.type }}</td>
-        <td dir="ltr" class="mono">{{ s.target or '—' }}</td>
-        <td dir="ltr">{{ s.last_run|fmt_dt }}</td>
-        <td>{{ s.last_count if s.last_count is not none else '—' }}</td>
+        <td dir="auto"><b>{{ s.name }}</b></td>
+        <td class="small">{{ fetchers[s.type].label if s.type in fetchers else s.type }}</td>
+        <td class="small"><div dir="ltr" class="mono">{{ s.target or '—' }}</div><div class="muted" dir="auto">{{ s.keywords|join('، ') }}</div></td>
+        <td class="small">{{ frequencies.get(s.frequency_hours, s.frequency_hours ~ 'h') }}</td>
+        <td class="small">{{ {'local': 'مک', 'cloud': 'GitHub', 'both': 'هر دو'}[where] }}</td>
+        <td class="small" dir="ltr">{{ rt.last_run|ago if rt.last_run else '—' }}</td>
+        <td class="small">{{ rt.last_count if rt.last_count is not none else '—' }}{% if rt.last_new %} <span class="chip">+{{ rt.last_new }}</span>{% endif %}</td>
         <td>
-          {% if s.last_error %}<span class="chip neg" title="{{ s.last_error }}">خطا</span>
-          {% elif s.last_run %}<span class="chip">OK</span>{% endif %}
+          {% if not s.enabled %}<span class="chip plain">خاموش</span>
+          {% elif rt.last_error %}<span class="chip neg">خطا</span>
+          {% elif rt.last_run %}<span class="chip">OK</span>{% else %}<span class="chip plain">اجرا نشده</span>{% endif %}
         </td>
-        <td class="row">
-          <form method="post" action="{{ url_for('scan_source', sid=s.id) }}"><button class="btn ghost small">تست</button></form>
-          <form method="post" action="{{ url_for('toggle_source', sid=s.id) }}"><button class="btn ghost small">{{ 'خاموش' if s.enabled else 'روشن' }}</button></form>
-          <form method="post" action="{{ url_for('delete_source', sid=s.id) }}" onsubmit="return confirm('حذف شود؟')"><button class="btn danger small">حذف</button></form>
-        </td>
+        <td><div class="row">
+          <form method="post" action="{{ url_for('scan_source', sid=s.id) }}"><button class="btn small">تست</button></form>
+          <a class="btn small ghost" href="{{ url_for('edit_source', sid=s.id) }}">ویرایش</a>
+          <form method="post" action="{{ url_for('toggle_source', sid=s.id) }}"><button class="btn small ghost">{{ 'خاموش' if s.enabled else 'روشن' }}</button></form>
+          <form method="post" action="{{ url_for('delete_source', sid=s.id) }}" onsubmit="return confirm('حذف شود؟')"><button class="btn small danger">حذف</button></form>
+        </div></td>
       </tr>
-      {% if s.last_error %}<tr class="err-row"><td colspan="7" dir="ltr">{{ s.last_error }}</td></tr>{% endif %}
+      {% if rt.last_error %}<tr><td colspan="9" class="err">{{ rt.last_error }}</td></tr>{% endif %}
     {% endfor %}
     </tbody>
   </table>
   </div>
 </section>
 
-<section class="panel">
-  <h2>افزودن منبع</h2>
-  <form method="post" class="form">
-    <div class="grid2 tight">
-      <label>نوع
-        <select name="type" id="stype">
-          {% for key, st in fetchers.items() %}<option value="{{ key }}" data-help="{{ st.help }}">{{ st.label }}</option>{% endfor %}
-        </select>
-      </label>
-      <label>نام (اختیاری)<input name="name" dir="auto"></label>
-    </div>
-    <label>مقدار (Target)<input name="target" dir="ltr" id="starget"></label>
-    <p class="muted" id="shelp"></p>
-    <button class="btn primary">افزودن منبع</button>
-  </form>
-  <details class="tips">
-    <summary>ایده برای منابع بیشتر</summary>
-    <ul>
-      <li><b>Google Alerts:</b> در google.com/alerts یک هشدار مثل <code dir="ltr">"SEO consultant" remote</code> بسازید، Deliver to را روی RSS بگذارید و لینک فید را با نوع RSS اضافه کنید.</li>
-      <li><b>سایت شرکت‌ها:</b> اگر صفحه‌ی کاریابی شرکت آدرس <code dir="ltr">boards.greenhouse.io/x</code>، <code dir="ltr">jobs.lever.co/x</code> یا <code dir="ltr">jobs.ashbyhq.com/x</code> دارد، فقط <code>x</code> را وارد کنید.</li>
-      <li><b>تلگرام:</b> هر کانال عمومی آگهی کار (فارسی یا انگلیسی) — فقط یوزرنیم کانال.</li>
-      <li><b>Reddit:</b> <code dir="ltr">https://www.reddit.com/r/SUBREDDIT/new/.rss</code></li>
-      <li><b>LinkedIn / Indeed:</b> API عمومی ندارند؛ Job Alert ایمیلی بسازید و موارد مهم را از «افزودن دستی» یا CSV وارد کنید.</li>
+<div class="grid2">
+  <section class="panel">
+    <h2>افزودن منبع</h2>
+    {{ source_form(None, fetchers, group_names, frequencies, 'افزودن منبع') }}
+  </section>
+
+  <section class="panel" id="discovered">
+    <h2>سایت‌های کشف‌شده</h2>
+    <p class="muted small">دامنه‌هایی که در نتایج جستجوی گوگل برای کلمات کلیدی‌ات پیدا شده‌اند و هنوز منبع نیستند.</p>
+    <ul class="list">
+      {% for d in discovered %}
+      <li>
+        <div><b dir="ltr">{{ d.domain }}</b> <span class="muted small">{{ d.hits }} بار</span>
+          <div class="small"><a href="{{ d.sample_url }}" target="_blank" rel="noopener" dir="auto">{{ d.sample_title }}</a></div></div>
+        <div class="row">
+          <form method="post" action="{{ url_for('discovered_action', domain=d.domain, action='add') }}"><button class="btn small primary">افزودن</button></form>
+          <form method="post" action="{{ url_for('discovered_action', domain=d.domain, action='dismiss') }}"><button class="btn small ghost">نه</button></form>
+        </div>
+      </li>
+      {% else %}<li class="muted">هنوز چیزی کشف نشده. یک منبع «جستجوی گوگل» فعال کنید.</li>{% endfor %}
     </ul>
-  </details>
-</section>
-<script>
-  const sel = document.getElementById('stype'), help = document.getElementById('shelp');
-  const upd = () => { help.textContent = sel.selectedOptions[0].dataset.help || ''; };
-  sel.addEventListener('change', upd); upd();
-</script>
+  </section>
+</div>
 {% endblock %}

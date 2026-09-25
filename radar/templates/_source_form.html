@@ -1,0 +1,61 @@
+{% macro source_form(src, fetchers, groups, frequencies, submit_label) %}
+<form method="post" class="form">
+  <div class="grid2 tight">
+    <label>نوع منبع
+      <select name="type" id="stype">
+        {% for gkey, gname in groups.items() %}
+        <optgroup label="{{ gname }}">
+          {% for key, st in fetchers.items() if st.group == gkey %}
+          <option value="{{ key }}" data-help="{{ st.help }}" data-target="{{ st.target_label }}" data-mode="{{ st.keyword_mode }}"
+                  {{ 'selected' if src and src.type == key }}>{{ st.label }}{{ '' if st.available else ' (به‌زودی)' }}</option>
+          {% endfor %}
+        </optgroup>
+        {% endfor %}
+      </select>
+    </label>
+    <label>نام<input name="name" value="{{ src.name if src else '' }}" dir="auto" placeholder="مثلا: جابینجا — سئو"></label>
+  </div>
+  <p class="hint" id="shelp"></p>
+  <label><span id="starget-label">Target (آدرس / موقعیت / اسلاگ)</span>
+    <input name="target" id="starget" dir="ltr" value="{{ src.target if src else '' }}"></label>
+  <label><span id="skw-label">کلمات کلیدی</span>
+    <textarea name="keywords" rows="2" dir="auto" placeholder="با ویرگول جدا کنید: سئو, SEO, GEO, دیجیتال مارکتینگ">{{ src.keywords|join(', ') if src else '' }}</textarea></label>
+  <div class="grid2 tight">
+    <label>دفعات اسکن
+      <select name="frequency_hours">
+        {% for h, label in frequencies.items() %}<option value="{{ h }}" {{ 'selected' if (src.frequency_hours if src else 24) == h }}>{{ label }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>کجا اجرا شود
+      <select name="runner">
+        <option value="" {{ 'selected' if not src or not src.runner }}>خودکار (پیشنهادی)</option>
+        <option value="local" {{ 'selected' if src and src.runner == 'local' }}>مک (IP ایران)</option>
+        <option value="cloud" {{ 'selected' if src and src.runner == 'cloud' }}>GitHub (خارج از ایران)</option>
+        <option value="both" {{ 'selected' if src and src.runner == 'both' }}>هر دو</option>
+      </select>
+    </label>
+  </div>
+  <label>وضعیت
+    <select name="enabled">
+      <option value="1" {{ 'selected' if not src or src.enabled }}>فعال</option>
+      <option value="0" {{ 'selected' if src and not src.enabled }}>غیرفعال</option>
+    </select>
+  </label>
+  <div><button class="btn primary">{{ submit_label }}</button></div>
+</form>
+<script>
+  (function () {
+    const sel = document.getElementById('stype');
+    const help = document.getElementById('shelp');
+    const tl = document.getElementById('starget-label');
+    const kl = document.getElementById('skw-label');
+    const upd = () => {
+      const o = sel.selectedOptions[0];
+      help.textContent = o.dataset.help || '';
+      tl.textContent = (o.dataset.target && o.dataset.target !== '—') ? o.dataset.target : 'Target (برای این نوع لازم نیست)';
+      kl.textContent = o.dataset.mode === 'filter' ? 'کلمات کلیدی (فقط آیتم‌های شامل این کلمات نگه داشته می‌شوند)' : 'کلمات کلیدی (عبارت‌های جستجو)';
+    };
+    sel.addEventListener('change', upd); upd();
+  })();
+</script>
+{% endmacro %}

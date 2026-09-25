@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% from "_card.html" import card with context %}
+{% block title %}فرصت‌ها — رادار فرصت{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>فرصت‌ها</h1><div class="muted">{{ total }} مورد</div></div>
+  <div class="row">
+    <form method="post" action="{{ url_for('rescore') }}"><button class="btn ghost">امتیازدهی مجدد</button></form>
+    <a class="btn" href="{{ url_for('export', fmt='xlsx') }}">⬇ Excel</a>
+  </div>
+</div>
+
+<form class="filters panel" method="get">
+  <input type="search" name="q" value="{{ f.q }}" placeholder="جستجو در عنوان، شرکت، توضیحات، یادداشت…">
+  <select name="status">
+    <option value="active" {{ 'selected' if f.status == 'active' }}>فعال (بدون نادیده/رد)</option>
+    <option value="all" {{ 'selected' if f.status == 'all' }}>همه‌ی وضعیت‌ها</option>
+    {% for s in STATUSES %}<option value="{{ s }}" {{ 'selected' if f.status == s }}>{{ STATUS_FA[s] }}</option>{% endfor %}
+  </select>
+  <select name="category">
+    <option value="">همه‌ی دسته‌ها</option>
+    {% for c in categories %}<option value="{{ c }}" {{ 'selected' if f.category == c }}>{{ c }}</option>{% endfor %}
+  </select>
+  <select name="source">
+    <option value="">همه‌ی منابع</option>
+    {% for s in sources %}<option value="{{ s }}" {{ 'selected' if f.source == s }}>{{ s }}</option>{% endfor %}
+  </select>
+  <select name="days">
+    <option value="">هر زمان</option>
+    {% for d, label in [('1', 'امروز'), ('3', '۳ روز اخیر'), ('7', 'هفته‌ی اخیر'), ('30', 'ماه اخیر')] %}
+    <option value="{{ d }}" {{ 'selected' if f.days == d }}>{{ label }}</option>{% endfor %}
+  </select>
+  <input name="location" value="{{ f.location }}" placeholder="موقعیت (Canada، تهران…)">
+  <select name="remote">
+    <option value="">دورکاری: همه</option>
+    {% for r in remote_types %}<option value="{{ r }}" {{ 'selected' if f.remote == r }}>{{ r }}</option>{% endfor %}
+  </select>
+  <select name="type">
+    <option value="">نوع: همه</option>
+    {% for t in opp_types %}<option value="{{ t }}" {{ 'selected' if f.type == t }}>{{ t }}</option>{% endfor %}
+  </select>
+  <label class="row small muted">حداقل امتیاز <input type="number" name="min_score" min="0" max="100" value="{{ f.min_score }}" style="width:76px"></label>
+  <div class="row">
+    <select name="sort">
+      <option value="score" {{ 'selected' if f.sort == 'score' }}>بیشترین امتیاز</option>
+      <option value="new" {{ 'selected' if f.sort == 'new' }}>جدیدترین</option>
+    </select>
+    <button class="btn primary">اعمال</button>
+  </div>
+</form>
+
+{% for o in opps %}{{ card(o, request.full_path) }}{% else %}
+<div class="empty">فرصتی با این فیلترها نیست. حداقل امتیاز را کم کنید یا اسکن بزنید.</div>
+{% endfor %}
+
+{% if pages > 1 %}
+<nav class="pager">
+  {% if page > 1 %}<a class="btn" href="{{ page_url(page - 1) }}">قبلی</a>{% endif %}
+  <span class="muted">صفحه {{ page }} از {{ pages }}</span>
+  {% if page < pages %}<a class="btn" href="{{ page_url(page + 1) }}">بعدی</a>{% endif %}
+</nav>
+{% endif %}
+{% endblock %}

@@ -1,20 +1,24 @@
 #!/bin/bash
-# اجرای خودکار روزانه روی مک (launchd).  استفاده:  ./scripts/install_mac_schedule.sh 9 0   (ساعت ۹:۰۰)
-# حذف:  launchctl unload ~/Library/LaunchAgents/com.opportunity-radar.daily.plist && rm ~/Library/LaunchAgents/com.opportunity-radar.daily.plist
+# اجرای خودکار ساعتی روی مک (launchd) — حتی وقتی داشبورد بسته است.
+# هر ساعت: دریافت نتایج GitHub → اسکن منابع ایرانی موعددار → ارسال به GitHub.
+#   نصب:  ./scripts/install_mac_schedule.sh
+#   حذف:  ./scripts/install_mac_schedule.sh uninstall
 set -e
 cd "$(dirname "$0")/.."
 ROOT="$(pwd)"
-HOUR="${1:-9}"
-MINUTE="${2:-0}"
-PY="$ROOT/.venv/bin/python"
-
-if [ ! -x "$PY" ]; then
-  python3 -m venv .venv
-fi
-"$PY" -m pip install -q -r requirements.txt
-
-LABEL="com.opportunity-radar.daily"
+LABEL="com.opportunity-radar.tick"
 PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
+
+if [ "$1" = "uninstall" ]; then
+  launchctl unload "$PLIST" 2>/dev/null || true
+  rm -f "$PLIST"
+  echo "✓ اجرای خودکار حذف شد."
+  exit 0
+fi
+
+PY="$ROOT/.venv/bin/python"
+[ -x "$PY" ] || python3 -m venv .venv
+"$PY" -m pip install -q -r requirements.txt
 mkdir -p "$HOME/Library/LaunchAgents" "$ROOT/data"
 
 cat > "$PLIST" <<PLIST
@@ -25,15 +29,15 @@ cat > "$PLIST" <<PLIST
   <key>Label</key><string>$LABEL</string>
   <key>WorkingDirectory</key><string>$ROOT</string>
   <key>ProgramArguments</key>
-  <array><string>$PY</string><string>-m</string><string>radar</string><string>daily</string></array>
-  <key>StartCalendarInterval</key>
-  <dict><key>Hour</key><integer>$HOUR</integer><key>Minute</key><integer>$MINUTE</integer></dict>
-  <key>StandardOutPath</key><string>$ROOT/data/daily.log</string>
-  <key>StandardErrorPath</key><string>$ROOT/data/daily.log</string>
+  <array><string>$PY</string><string>-m</string><string>radar</string><string>tick</string></array>
+  <key>StartInterval</key><integer>3600</integer>
+  <key>RunAtLoad</key><true/>
+  <key>StandardOutPath</key><string>$ROOT/data/tick.log</string>
+  <key>StandardErrorPath</key><string>$ROOT/data/tick.log</string>
 </dict>
 </plist>
 PLIST
 
 launchctl unload "$PLIST" 2>/dev/null || true
 launchctl load "$PLIST"
-echo "✓ هر روز ساعت $HOUR:$(printf '%02d' "$MINUTE") اسکن + گزارش اجرا می‌شود. لاگ: $ROOT/data/daily.log"
+echo "✓ هر ساعت اجرا می‌شود. لاگ: $ROOT/data/tick.log"

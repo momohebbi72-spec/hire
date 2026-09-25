@@ -3,5 +3,8 @@ __pycache__/
 *.pyc
 .env
 data/
+backups/
+dist/
 config/google-service-account.json
 .DS_Store
+.pytest_cache/

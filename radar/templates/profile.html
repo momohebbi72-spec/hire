@@ -1,12 +1,31 @@
 {% extends "base.html" %}
 {% block title %}پروفایل — رادار فرصت{% endblock %}
 {% block content %}
-<div class="grid2 wide-left">
+<div class="page-head">
+  <div><h1>پروفایل مهارتی</h1><div class="muted">امتیاز هر فرصت بر اساس همین پروفایل حساب می‌شود.</div></div>
+</div>
+
+<div class="grid2 wide">
   <section class="panel">
-    <h2>پروفایل مهارتی (YAML)</h2>
-    <p class="muted">مهارت‌ها با وزن ۱ تا ۱۰، عنوان‌های هدف، موقعیت‌ها و کلمات حذفی. بعد از تغییر، «ذخیره و امتیازدهی مجدد» را بزنید.</p>
     <form method="post" class="form">
-      <textarea name="yaml" rows="34" class="mono" dir="ltr" spellcheck="false">{{ text }}</textarea>
+      <input type="hidden" name="mode" value="form">
+      <div class="grid2 tight">
+        <label>نام<input name="name" value="{{ data.get('name', '') }}" dir="auto"></label>
+        <label>حداقل امتیاز «فرصت قوی»<input type="number" name="min_score" min="0" max="100" value="{{ data.get('min_score', 55) }}"></label>
+        <label>تعداد فرصت در ایمیل<input type="number" name="report_top_n" min="1" max="100" value="{{ data.get('report_top_n', 15) }}"></label>
+        <label>حداکثر عمر آگهی (روز)<input type="number" name="max_age_days" min="1" max="365" value="{{ data.get('max_age_days', 30) }}"></label>
+      </div>
+      <label>مهارت‌ها
+        <textarea name="skills" rows="10" dir="ltr" class="mono">{{ skills_text }}</textarea>
+        <span class="hint">هر خط: نام | وزن ۱ تا ۱۰ | مترادف‌ها با ویرگول — مثل: <code>GA4 | 7 | google analytics, گوگل آنالیتیکس</code></span></label>
+      <label>صنایع مورد علاقه
+        <textarea name="industries" rows="4" dir="ltr" class="mono">{{ industries_text }}</textarea>
+        <span class="hint">هر خط: نام | وزن | مترادف‌ها — مثل: <code>SaaS | 1 | software as a service, نرم‌افزار</code></span></label>
+      <div class="grid2 tight">
+        {% for key, label, hint, value in lists %}
+        <label>{{ label }}<textarea name="{{ key }}" rows="5" dir="auto">{{ value }}</textarea><span class="hint">{{ hint }}</span></label>
+        {% endfor %}
+      </div>
       <div class="row gap">
         <button class="btn primary" name="rescore" value="1">ذخیره و امتیازدهی مجدد</button>
         <button class="btn">فقط ذخیره</button>
@@ -14,30 +33,28 @@
     </form>
   </section>
 
-  <section class="panel">
-    <h2>خلاصه</h2>
-    <dl class="facts">
-      <dt>حداقل امتیاز مناسب</dt><dd>{{ profile.min_score }}</dd>
-      <dt>تعداد در ایمیل</dt><dd>{{ profile.report_top_n }}</dd>
-      <dt>حداکثر عمر آگهی</dt><dd>{{ profile.max_age_days }} روز</dd>
-      <dt>Remote</dt><dd>{{ 'بله' if profile.wants_remote else 'خیر' }}</dd>
-    </dl>
-    <h3>مهارت‌ها</h3>
-    <div class="reasons" dir="ltr">{% for s in profile.skills|sort(attribute='weight', reverse=true) %}<span class="chip">{{ s.label }} · {{ s.weight }}</span>{% endfor %}</div>
-    <h3>عنوان‌های هدف</h3>
-    <div class="reasons" dir="ltr">{% for r in profile.target_roles %}<span class="chip">{{ r.label }}</span>{% endfor %}</div>
-    <h3>موقعیت‌ها</h3>
-    <div class="reasons" dir="ltr">{% for p in profile.places %}<span class="chip">{{ p.label }}</span>{% endfor %}</div>
-    <h3>نوع همکاری</h3>
-    <div class="reasons" dir="ltr">{% for w in profile.work_types %}<span class="chip">{{ w.label }}</span>{% endfor %}</div>
-    <h3>فرمول امتیاز</h3>
-    <ul class="muted small">
-      <li>عنوان شغل با نقش هدف: ۳۵ (یا مهارت در عنوان: ۲۲)</li>
-      <li>مهارت‌های پیدا شده در آگهی: تا ۴۰ (جمع وزن‌ها ÷ skill_target)</li>
-      <li>Remote: ۱۰ · کشور/منطقه‌ی دلخواه: ۵ تا ۱۰</li>
-      <li>نوع همکاری دلخواه: ۱۰</li>
-      <li>منفی: کلمات حذفی = ۰ · منطقه‌ی نامطلوب −۲۰ · آگهی قدیمی‌تر از ۱۴ روز −۵</li>
-    </ul>
-  </section>
+  <aside>
+    <section class="panel">
+      <h2>فرمول امتیاز (۰ تا ۱۰۰)</h2>
+      <div class="bars small">
+        {% for label, w in [('تطابق مهارت', 35), ('تطابق کلمه‌ی کلیدی / عنوان', 25), ('نوع فرصت', 15), ('موقعیت', 10), ('ترجیحات (صنعت، تازگی)', 15)] %}
+        <div class="bar"><span>{{ label }}</span><span class="track"><span class="fill" style="width: {{ (w / 35 * 100)|int }}%; display:block"></span></span><span>{{ w }}</span></div>
+        {% endfor %}
+      </div>
+      <p class="hint">کلمات حذفی = امتیاز صفر · منطقه‌ی نامطلوب −۱۵ · آگهی قدیمی‌تر از ۱۴ روز −۵</p>
+    </section>
+    <section class="panel">
+      <h2>مهارت‌ها و وزن‌ها</h2>
+      <div class="reasons" dir="ltr">{% for s in profile.skills|sort(attribute='weight', reverse=true) %}<span class="chip">{{ s.label }} · {{ s.weight }}</span>{% endfor %}</div>
+    </section>
+    <details class="panel">
+      <summary><b>ویرایش پیشرفته (YAML)</b></summary>
+      <form method="post" class="form" style="margin-top:10px">
+        <input type="hidden" name="mode" value="yaml">
+        <textarea name="yaml" rows="24" class="mono" dir="ltr" spellcheck="false">{{ yaml_text }}</textarea>
+        <div><button class="btn" name="rescore" value="1">ذخیره‌ی YAML</button></div>
+      </form>
+    </details>
+  </aside>
 </div>
 {% endblock %}

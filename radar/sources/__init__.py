@@ -1,3 +1,5 @@
-"""Source registry. Importing this package registers every fetcher."""
-from .base import FETCHERS, Item, SourceType, register  # noqa: F401
-from . import ats, feeds, freelance, job_boards, telegram  # noqa: F401,E402
+"""Connector registry. Importing this package registers every connector."""
+from .base import FETCHERS, GROUPS, Item, SourceConfig, SourceType, register  # noqa: F401
+from . import (  # noqa: F401,E402
+    ats, feeds, freelance, iran, job_boards, jobspy_boards, linkedin, telegram, websearch,
+)

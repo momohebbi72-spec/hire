@@ -12,6 +12,20 @@ _TAGS = re.compile(r"<[^>]+>")
 _SPACES = re.compile(r"[ \t\r\f\v ]+")
 _BLANK_LINES = re.compile(r"\n\s*\n+")
 _ILLEGAL_XML = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f]")
+_FA_MAP = str.maketrans({
+    "\u064a": "\u06cc",  # Arabic yeh  -> Persian yeh
+    "\u0649": "\u06cc",  # alef maksura -> Persian yeh
+    "\u0643": "\u06a9",  # Arabic kaf  -> Persian keheh
+    "\u200c": " ",        # ZWNJ (نیم‌فاصله) -> space
+    "\u200f": "",
+    "\u200e": "",
+    "\u0640": "",         # tatweel
+})
+
+
+def normalize(text) -> str:
+    """Normalise Persian/Arabic variants so keyword matching is reliable."""
+    return str(text or "").translate(_FA_MAP)
 
 
 def strip_html(value) -> str:

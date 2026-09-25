@@ -1,0 +1,88 @@
+# Personal Opportunity Radar — cloud side (runs on GitHub's servers, even when your Mac is off).
+#
+# Every hour it runs `python -m radar tick`, which only does what is due:
+#   1. imports what your Mac found on Iranian sites (branch radar-data)
+#   2. scans international sources whose frequency is due (LinkedIn, Indeed, Google, RemoteOK, Telegram…)
+#   3. publishes its results for the Mac dashboard
+#   4. appends new strong matches to Google Sheet
+#   5. sends the e-mail report once a day at the time set in config/settings.yaml
+name: Opportunity Radar
+
+on:
+  schedule:
+    - cron: "7 * * * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Scan all sources and send the report now"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: opportunity-radar
+  cancel-in-progress: false
+
+jobs:
+  radar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      RADAR_RUNNER: cloud
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      SMTP_HOST: ${{ secrets.SMTP_HOST }}
+      SMTP_PORT: ${{ secrets.SMTP_PORT }}
+      SMTP_USER: ${{ secrets.SMTP_USER }}
+      SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+      REPORT_EMAIL_TO: ${{ secrets.REPORT_EMAIL_TO }}
+      GOOGLE_SHEET_WEBHOOK_URL: ${{ secrets.GOOGLE_SHEET_WEBHOOK_URL }}
+      GOOGLE_SHEET_WEBHOOK_SECRET: ${{ secrets.GOOGLE_SHEET_WEBHOOK_SECRET }}
+      GOOGLE_SHEET_URL: ${{ secrets.GOOGLE_SHEET_URL }}
+      GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+      GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+      SERPER_API_KEY: ${{ secrets.SERPER_API_KEY }}
+      SERPAPI_API_KEY: ${{ secrets.SERPAPI_API_KEY }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt -r requirements-cloud.txt
+
+      - name: Restore radar database
+        uses: actions/cache/restore@v4
+        with:
+          path: data/radar.db
+          key: radar-db-${{ github.run_id }}
+          restore-keys: radar-db-
+
+      - name: Run radar
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.force }}" = "true" ]; then
+            python -m radar tick --force
+          else
+            python -m radar tick
+          fi
+
+      - name: Save radar database
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: data/radar.db
+          key: radar-db-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Upload Excel report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: opportunity-report-${{ github.run_id }}
+          path: data/reports/opportunity_report.xlsx
+          retention-days: 7
+          if-no-files-found: ignore

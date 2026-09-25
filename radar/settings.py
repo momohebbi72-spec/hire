@@ -42,9 +42,18 @@ def resolve_path(value: str) -> Path:
     return path if path.is_absolute() else ROOT / path
 
 
+def runner() -> str:
+    """Where this process runs: 'cloud' (GitHub Actions) or 'local' (your Mac)."""
+    value = env("RADAR_RUNNER").lower()
+    if value in ("cloud", "local"):
+        return value
+    return "cloud" if env("GITHUB_ACTIONS") == "true" else "local"
+
+
 CONFIG_DIR = ROOT / "config"
 DATA_DIR = resolve_path(env("RADAR_DATA_DIR", "data"))
 REPORT_DIR = DATA_DIR / "reports"
 DB_PATH = DATA_DIR / "radar.db"
 PROFILE_PATH = CONFIG_DIR / "profile.yaml"
 SOURCES_PATH = CONFIG_DIR / "sources.yaml"
+SETTINGS_PATH = CONFIG_DIR / "settings.yaml"

@@ -6,26 +6,33 @@
 <title>{% block title %}رادار فرصت{% endblock %}</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+{% if job.running %}<meta http-equiv="refresh" content="8">{% endif %}
 {% block head %}{% endblock %}
 </head>
 <body>
-<header class="topbar">
-  <a class="brand" href="{{ url_for('index') }}"><span class="dot"></span>رادار فرصت</a>
-  <nav>
+<div class="app">
+  <aside class="side">
+    <a class="brand" href="{{ url_for('dashboard') }}"><span class="logo">◉</span>رادار فرصت</a>
     {% set ep = request.endpoint %}
-    <a href="{{ url_for('index') }}" class="{{ 'on' if ep == 'index' }}">فرصت‌ها</a>
-    <a href="{{ url_for('add') }}" class="{{ 'on' if ep == 'add' }}">افزودن دستی</a>
-    <a href="{{ url_for('sources_page') }}" class="{{ 'on' if ep == 'sources_page' }}">منابع</a>
-    <a href="{{ url_for('profile_page') }}" class="{{ 'on' if ep == 'profile_page' }}">پروفایل</a>
-    <a href="{{ url_for('report_page') }}" class="{{ 'on' if ep == 'report_page' }}">گزارش</a>
-  </nav>
-</header>
-<main class="wrap">
-  {% with msgs = get_flashed_messages(with_categories=true) %}
-    {% for cat, m in msgs %}<div class="flash {{ cat }}">{{ m }}</div>{% endfor %}
-  {% endwith %}
-  {% if scan_error %}<div class="flash error">آخرین اسکن با خطا تمام شد: <span dir="ltr">{{ scan_error }}</span></div>{% endif %}
-  {% block content %}{% endblock %}
-</main>
+    <nav class="nav">
+      <a href="{{ url_for('dashboard') }}" class="{{ 'on' if ep == 'dashboard' }}"><span class="ico">▦</span>داشبورد</a>
+      <a href="{{ url_for('feed') }}" class="{{ 'on' if ep in ('feed', 'detail') }}"><span class="ico">☰</span>فرصت‌ها</a>
+      <a href="{{ url_for('sources_page') }}" class="{{ 'on' if ep in ('sources_page', 'edit_source') }}"><span class="ico">⊕</span>منابع</a>
+      <a href="{{ url_for('profile_page') }}" class="{{ 'on' if ep == 'profile_page' }}"><span class="ico">☺</span>پروفایل</a>
+      <a href="{{ url_for('report_page') }}" class="{{ 'on' if ep == 'report_page' }}"><span class="ico">✉</span>گزارش</a>
+      <a href="{{ url_for('settings_page') }}" class="{{ 'on' if ep == 'settings_page' }}"><span class="ico">⚙</span>تنظیمات</a>
+      <a href="{{ url_for('add') }}" class="{{ 'on' if ep == 'add' }}"><span class="ico">＋</span>افزودن دستی</a>
+    </nav>
+    <div class="side-foot">اجرای فعلی: {{ 'مک (IP ایران)' if RUNNER == 'local' else 'GitHub' }}</div>
+  </aside>
+  <main class="main">
+    {% if job.running %}<div class="banner"><span class="pulse"></span>{{ job.label }} در حال اجراست… صفحه خودکار به‌روز می‌شود.</div>{% endif %}
+    {% if job.error %}<div class="flash error">آخرین کار با خطا تمام شد: <span dir="ltr">{{ job.error }}</span></div>{% endif %}
+    {% with msgs = get_flashed_messages(with_categories=true) %}
+      {% for cat, m in msgs %}<div class="flash {{ cat }}">{{ m }}</div>{% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
 </body>
 </html>

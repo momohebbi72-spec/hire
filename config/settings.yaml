@@ -1,0 +1,12 @@
+# تنظیمات گزارش و زمان‌بندی — از صفحه‌ی «تنظیمات» داشبورد هم قابل ویرایش است.
+timezone: Asia/Tehran
+report:
+  email_to: ''            # خالی = REPORT_EMAIL_TO از .env / GitHub Secrets (پیشنهاد: ایمیل را اینجا ننویسید اگر ریپو عمومی است)
+  time: '09:30'           # ساعت ارسال (به وقت timezone بالا)
+  frequency: daily        # daily | weekly | off
+  weekly_day: sat
+  sender: cloud           # cloud = GitHub Actions ایمیل می‌فرستد · local = مک
+  send_empty: true
+  subject: Daily Opportunity Radar Report
+sync:
+  data_branch: radar-data

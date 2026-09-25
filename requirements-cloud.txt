@@ -1,0 +1,2 @@
+# Extra connectors for GitHub Actions (Python 3.10+): Indeed, Glassdoor, Google Jobs
+python-jobspy>=1.1.80

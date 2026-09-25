@@ -1,24 +1,23 @@
 {% extends "base.html" %}
 {% block title %}گزارش — رادار فرصت{% endblock %}
 {% block content %}
-<section class="panel">
-  <h2>گزارش روزانه</h2>
-  <div class="channels">
-    <span class="chip {{ '' if channels.email else 'neg' }}">ایمیل: {{ 'تنظیم شده' if channels.email else 'تنظیم نشده' }}</span>
-    <span class="chip {{ '' if channels.telegram else 'neg' }}">تلگرام: {{ 'تنظیم شده' if channels.telegram else 'تنظیم نشده' }}</span>
-    <span class="chip {{ '' if channels.sheet else 'neg' }}">Google Sheet: {{ 'تنظیم شده' if channels.sheet else 'تنظیم نشده' }}</span>
-  </div>
-  <p class="muted">تنظیمات کانال‌ها در فایل <code>.env</code> است (راهنما در README). گزارش فقط فرصت‌های «گزارش‌نشده» با امتیاز ≥ {{ rep.min_score }} را می‌فرستد.</p>
-  <div class="row gap">
+<div class="page-head">
+  <div><h1>گزارش روزانه</h1><div class="muted">فرصت‌های گزارش‌نشده با امتیاز ≥ {{ rep.min_score }}</div></div>
+  <div class="row">
     <form method="post" action="{{ url_for('report_send') }}"><button class="btn primary">ارسال گزارش الان</button></form>
-    <form method="post" action="{{ url_for('report_sheet') }}"><button class="btn">همگام‌سازی Google Sheet</button></form>
-    <a class="btn ghost" href="{{ url_for('export', fmt='xlsx') }}">دانلود Excel</a>
-    <a class="btn ghost" href="{{ url_for('export', fmt='csv') }}">دانلود CSV</a>
-    {% if include_all %}<a class="btn ghost" href="{{ url_for('report_page') }}">فقط گزارش‌نشده‌ها</a>
-    {% else %}<a class="btn ghost" href="{{ url_for('report_page', all=1) }}">پیش‌نمایش با همه‌ی موارد</a>{% endif %}
+    <form method="post" action="{{ url_for('report_sheet') }}"><button class="btn">ارسال به Google Sheet</button></form>
+    <a class="btn" href="{{ url_for('export', fmt='xlsx') }}">⬇ opportunity_report.xlsx</a>
+    <a class="btn ghost" href="{{ url_for('export', fmt='csv') }}">CSV</a>
   </div>
-</section>
-
+</div>
+<div class="row" style="margin-bottom:12px">
+  <span class="chip {{ '' if channels.email else 'neg' }}">ایمیل: {{ 'آماده' if channels.email else 'تنظیم نشده' }}</span>
+  <span class="chip {{ '' if channels.sheet else 'neg' }}">Google Sheet: {{ 'آماده' if channels.sheet else 'تنظیم نشده' }}</span>
+  <span class="chip {{ '' if channels.telegram else 'plain' }}">تلگرام: {{ 'آماده' if channels.telegram else 'اختیاری' }}</span>
+  <span class="spacer"></span>
+  {% if include_all %}<a href="{{ url_for('report_page') }}">فقط گزارش‌نشده‌ها</a>
+  {% else %}<a href="{{ url_for('report_page', all=1) }}">پیش‌نمایش با همه‌ی موارد</a>{% endif %}
+</div>
 <section class="panel">
   <h3>پیش‌نمایش ایمیل ({{ rep['items']|length }} فرصت)</h3>
   <iframe class="preview" srcdoc="{{ email_html }}" title="پیش‌نمایش ایمیل"></iframe>

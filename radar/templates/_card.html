@@ -1,0 +1,43 @@
+{% macro card(o, back) %}
+<article class="opp">
+  <div class="score {{ o.score|score_class }}"><b>{{ o.score }}</b><small>MATCH</small></div>
+  <div>
+    <div class="row">
+      <h3 dir="auto"><a href="{{ url_for('detail', oid=o.id) }}">{{ o.title }}</a></h3>
+      <span class="spacer"></span>
+      <span class="status-pill st-{{ o.status }}">{{ STATUS_FA[o.status] }}</span>
+    </div>
+    <div class="meta" dir="auto">
+      {% if o.company %}<span>🏢 {{ o.company }}</span>{% endif %}
+      {% if o.location %}<span>📍 {{ o.location }}</span>{% endif %}
+      <span class="tag {{ 'green' if o.remote_type == 'Remote' else 'gray' }}">{{ o.remote_type }}</span>
+      <span class="tag">{{ o.category }}</span>
+      <span class="tag gray">{{ o.opp_type }}</span>
+      <span>🔗 {{ o.source }}{% if o.also_on_list %} +{{ o.also_on_list|length }}{% endif %}</span>
+      <span>{{ o.found_at|ago }}</span>
+    </div>
+    <div class="reasons" dir="ltr">
+      {% for r in o.reasons_list[:9] %}<span class="chip {{ 'neg' if r.startswith('✗') else 'warn' if r.startswith('⚠') }}">{{ r }}</span>{% endfor %}
+    </div>
+    {% if o.notes %}<div class="note">📝 {{ o.notes }}</div>{% endif %}
+    <div class="actions">
+      {% for st, label in [('Saved', 'ذخیره'), ('Contacted', 'تماس گرفتم'), ('Applied', 'اپلای کردم'), ('Ignored', 'نادیده')] %}
+      <form method="post" action="{{ url_for('set_status', oid=o.id) }}">
+        <input type="hidden" name="next" value="{{ back }}"><input type="hidden" name="status" value="{{ st }}">
+        <button class="btn small {{ 'on' if o.status == st }}">{{ label }}</button>
+      </form>
+      {% endfor %}
+      <details class="notes">
+        <summary>✎ یادداشت</summary>
+        <form method="post" action="{{ url_for('set_notes', oid=o.id) }}">
+          <input type="hidden" name="next" value="{{ back }}">
+          <textarea name="notes" rows="1" dir="auto">{{ o.notes }}</textarea>
+          <button class="btn small">ذخیره</button>
+        </form>
+      </details>
+      <span class="spacer"></span>
+      {% if o.url %}<a class="btn small ghost" href="{{ o.url }}" target="_blank" rel="noopener">مشاهده آگهی ↗</a>{% endif %}
+    </div>
+  </div>
+</article>
+{% endmacro %}

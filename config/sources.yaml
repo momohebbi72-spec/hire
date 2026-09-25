@@ -1,37 +1,47 @@
-# ─────────────────────────────────────────────────────────────
-#  منابع پیش‌فرض. در اولین اجرا وارد دیتابیس می‌شوند و بعد از آن
-#  از صفحه‌ی «منابع» در داشبورد مدیریت می‌شوند.
-#  منبع جدیدی که اینجا اضافه کنید، در اجرای بعدی خودکار اضافه می‌شود.
-#
-#  type ها: remoteok, remotive, jobicy, himalayas, arbeitnow, rss,
-#           freelancer, greenhouse, lever, ashby, telegram
-# ─────────────────────────────────────────────────────────────
+# منابع — از صفحه‌ی «منابع» داشبورد مدیریت می‌شود (یا همین‌جا دستی ویرایش کنید).
+# frequency_hours: 0 = فقط دستی · runner: local (مک/IP ایران) | cloud (GitHub) | both — خالی = خودکار
 sources:
-  # ── Job boards (Remote) ──
-  - {name: "RemoteOK — SEO & Marketing", type: remoteok, target: "seo,marketing"}
-  - {name: "Remotive — SEO", type: remotive, target: "seo"}
-  - {name: "Remotive — Marketing", type: remotive, target: "category:marketing"}
-  - {name: "Jobicy — SEO", type: jobicy, target: "seo"}
-  - {name: "Jobicy — Marketing", type: jobicy, target: "industry:marketing"}
-  - {name: "Himalayas — SEO", type: himalayas, target: "seo"}
-  - {name: "Himalayas — Digital Marketing", type: himalayas, target: "digital marketing"}
-  - {name: "We Work Remotely — Sales & Marketing", type: rss, target: "https://weworkremotely.com/categories/remote-sales-and-marketing-jobs.rss"}
-  - {name: "Arbeitnow (Europe)", type: arbeitnow, target: "", enabled: false}
+  # ── سایت‌های کاریابی ایرانی (روی مک اجرا می‌شوند) ──
+  - {id: jobinja-seo, name: "جابینجا — سئو", type: jobinja, keywords: [سئو, دیجیتال مارکتینگ, SEO], frequency_hours: 12, enabled: true}
+  - {id: jobvision-seo, name: "جاب‌ویژن — سئو", type: jobvision, keywords: [سئو, دیجیتال مارکتینگ], frequency_hours: 12, enabled: true}
+  - {id: jobvision-collection, name: "جاب‌ویژن — صفحه‌ی مجموعه سئو", type: webpage, target: "https://jobvision.ir/jobs/collection/seo | ^/jobs/\\d+", frequency_hours: 24, enabled: true}
+  - {id: eestekhdam-seo, name: "ای‌استخدام — متخصص SEO", type: eestekhdam, keywords: [استخدام متخصص SEO, استخدام کارشناس سئو], frequency_hours: 24, enabled: true}
+  - {id: iranestekhdam-seo, name: "ایران استخدام — سئو (RSS)", type: rss, runner: local, target: "https://iranestekhdam.ir/category/agahi-estekhdam/recruitment-jobs/%D8%A7%D8%B3%D8%AA%D8%AE%D8%AF%D8%A7%D9%85-%D8%B3%D8%A6%D9%88-%DA%A9%D8%A7%D8%B1-%D9%88-%D9%85%D8%AA%D8%AE%D8%B5%D8%B5-seo/feed", frequency_hours: 24, enabled: true}
+  - {id: karbord-seo, name: "کاربرد — سئو", type: karbord, keywords: [seo], frequency_hours: 24, enabled: true}
+  - {id: kardix-seo, name: "کاردیکس — سئو", type: kardix, keywords: [seo], frequency_hours: 24, enabled: true}
+  - {id: karpishe-seo, name: "کارپیشه — سئوکار", type: webpage, runner: local, target: "https://karpishe.com/job;q=%D8%B3%D8%A6%D9%88%DA%A9%D8%A7%D8%B1", frequency_hours: 24, enabled: true}
+  - {id: jobteam-seo, name: "جاب‌تیم — سئو", type: webpage, runner: local, target: "https://jobteam.ir/ProductUser/131-Seo-expert-recruitment", frequency_hours: 72, enabled: false}
+  - {id: divar-tehran, name: "دیوار تهران — سئو", type: divar, target: tehran, keywords: [سئو], frequency_hours: 24, enabled: false}
 
-  # ── Freelance projects ──
-  - {name: "Freelancer — SEO", type: freelancer, target: "seo"}
-  - {name: "Freelancer — WordPress", type: freelancer, target: "wordpress"}
-  - {name: "Freelancer — Google Analytics", type: freelancer, target: "google analytics"}
-  - {name: "Reddit r/forhire", type: rss, target: "https://www.reddit.com/r/forhire/search.rss?q=seo+OR+marketing+OR+wordpress&restrict_sr=1&sort=new"}
-  - {name: "Reddit r/SEOJobs", type: rss, target: "https://www.reddit.com/r/SEOJobs/new/.rss"}
+  # ── فریلنس ایرانی (روی مک) ──
+  - {id: ponisha-seo, name: "پونیشا — پروژه‌های سئو", type: ponisha, keywords: [seo], frequency_hours: 12, enabled: true}
+  - {id: karlancer-seo, name: "کارلنسر — پروژه‌های سئو", type: karlancer, keywords: [seo], frequency_hours: 12, enabled: true}
+  - {id: parscoders-seo, name: "پارس‌کدرز — سئو", type: parscoders, keywords: [seo], frequency_hours: 24, enabled: true}
+  - {id: lancerify-seo, name: "لنسریفای — سئو", type: lancerify, keywords: [seo], frequency_hours: 24, enabled: false}
 
-  # ── Company career sites (examples — slug را با شرکت‌های مدنظرتان عوض کنید) ──
-  - {name: "Greenhouse companies", type: greenhouse, target: "airbnb,gitlab", enabled: false}
-  - {name: "Lever companies", type: lever, target: "palantir", enabled: false}
-  - {name: "Ashby companies", type: ashby, target: "ramp", enabled: false}
+  # ── جستجوی گوگل: ۱۰ نتیجه‌ی اول + کشف سایت‌های جدید (روی GitHub) ──
+  - {id: google-fa, name: "گوگل — آگهی‌های سئو و جئو (فارسی)", type: websearch, target: week, keywords: [استخدام کارشناس سئو, استخدام سئو دورکاری, استخدام متخصص جئو GEO, پروژه سئو فریلنسری], frequency_hours: 24, enabled: true}
+  - {id: google-en, name: "Google — SEO & GEO jobs (English)", type: websearch, target: week, keywords: ["SEO specialist remote job", "GEO generative engine optimization job", "freelance SEO consultant wanted"], frequency_hours: 24, enabled: true}
+  - {id: linkedin-posts-fa, name: "پست‌های لینکدین — استخدام سئو", type: linkedin_posts, keywords: [استخدام سئو, استخدام کارشناس سئو, "hiring SEO"], frequency_hours: 24, enabled: true}
+  - {id: instagram-seo, name: "اینستاگرام — هشتگ استخدام", type: instagram, target: "#استخدام_سئو, #استخدام_دیجیتال_مارکتینگ, #seojobs", frequency_hours: 72, enabled: false}
+  - {id: wellfound-seo, name: "Wellfound — SEO", type: site_search, target: wellfound.com/jobs, keywords: [SEO, growth marketing], frequency_hours: 72, enabled: true}
 
-  # ── Telegram (public channels) — یوزرنیم کانال را جایگزین کنید ──
-  - {name: "Telegram — job channel", type: telegram, target: "your_channel_username", enabled: false}
+  # ── LinkedIn / Indeed / Google Jobs (روی GitHub) ──
+  - {id: linkedin-jobs, name: "LinkedIn Jobs — SEO", type: linkedin, target: "Remote, Canada, United States, Iran", keywords: [SEO Specialist, SEO Manager, Digital Marketing Manager], frequency_hours: 24, enabled: true}
+  - {id: indeed-seo, name: "Indeed — SEO", type: indeed, target: "Remote, Canada", keywords: [SEO specialist, SEO manager], frequency_hours: 24, enabled: true}
+  - {id: google-jobs-seo, name: "Google Jobs — SEO", type: google_jobs, target: "Remote, Canada", keywords: [SEO specialist], frequency_hours: 24, enabled: false}
 
-  # ── Google Alerts RSS — لینک فید خودتان را بگذارید ──
-  - {name: "Google Alerts — SEO consultant", type: rss, target: "https://www.google.com/alerts/feeds/REPLACE/ME", enabled: false}
+  # ── سایت‌های کاریابی ریموت بین‌المللی (روی GitHub) ──
+  - {id: remoteok, name: "RemoteOK — SEO & Marketing", type: remoteok, keywords: [seo, marketing], frequency_hours: 24, enabled: true}
+  - {id: remotive-seo, name: "Remotive — SEO & Marketing", type: remotive, keywords: [seo, "category:marketing"], frequency_hours: 24, enabled: true}
+  - {id: jobicy, name: "Jobicy — SEO & Marketing", type: jobicy, keywords: [seo, "industry:marketing"], frequency_hours: 24, enabled: true}
+  - {id: himalayas, name: "Himalayas — SEO", type: himalayas, keywords: [seo, digital marketing], frequency_hours: 24, enabled: true}
+  - {id: wwr-marketing, name: "We Work Remotely — Marketing", type: rss, runner: cloud, target: "https://weworkremotely.com/categories/remote-sales-and-marketing-jobs.rss", frequency_hours: 24, enabled: true}
+  - {id: freelancer-seo, name: "Freelancer.com — SEO/WordPress", type: freelancer, keywords: [seo, wordpress, google analytics], frequency_hours: 24, enabled: true}
+  - {id: reddit-forhire, name: "Reddit r/forhire", type: rss, runner: cloud, target: "https://www.reddit.com/r/forhire/search.rss?q=seo+OR+marketing&restrict_sr=1&sort=new", frequency_hours: 24, enabled: true}
+
+  # ── تلگرام (روی GitHub — تلگرام در ایران فیلتر است) — یوزرنیم کانال را جایگزین کنید ──
+  - {id: telegram-jobs, name: "تلگرام — کانال آگهی کار", type: telegram, target: your_channel_username, keywords: [سئو, SEO, دیجیتال مارکتینگ, دورکاری, Remote, Freelance], frequency_hours: 12, enabled: false}
+
+  # ── سایت شرکت‌ها (مثال) ──
+  - {id: greenhouse-companies, name: "Greenhouse companies", type: greenhouse, target: "gitlab", keywords: [SEO, marketing, growth, content], frequency_hours: 72, enabled: false}

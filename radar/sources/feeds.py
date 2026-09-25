@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 
 from ..http import get_bytes
 from ..textutil import strip_html, to_iso
-from .base import Item, register
+from .base import Item, SourceConfig, register
 
 
 def _local(tag: str) -> str:
@@ -42,9 +42,11 @@ def parse_feed(payload: bytes) -> List[Dict]:
     return entries
 
 
-@register("rss", "RSS / Atom Feed", "آدرس کامل فید، مثلا: https://weworkremotely.com/categories/remote-sales-and-marketing-jobs.rss")
-def rss(target: str, limit: int) -> List[Item]:
-    url = (target or "").strip()
+@register("rss", "RSS / Atom Feed", group="feed", keyword_mode="filter", needs_target=True, runner="both",
+          target_label="آدرس فید",
+          help="هر فید RSS: وبلاگ‌ها، سایت‌های کاریابی (WordPress: آدرس/feed)، Google Alerts، Reddit. کلمات کلیدی برای فیلتر.")
+def rss(src: SourceConfig, limit: int) -> List[Item]:
+    url = (src.target or "").strip()
     host = urlparse(url).netloc.lower()
     items = []
     for e in parse_feed(get_bytes(url))[:limit]:

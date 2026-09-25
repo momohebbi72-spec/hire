@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}تنظیمات — رادار فرصت{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>تنظیمات</h1><div class="muted">گزارش، زمان‌بندی و همگام‌سازی</div></div></div>
+
+<div class="grid2">
+  <section class="panel">
+    <h2>گزارش ایمیلی</h2>
+    <form method="post" class="form">
+      <label>ایمیل گیرنده
+        <input name="email_to" type="text" dir="ltr" value="{{ s.report.email_to }}" placeholder="{{ env_email or 'you@gmail.com' }}">
+        <span class="hint">خالی = مقدار REPORT_EMAIL_TO در .env / GitHub Secrets{% if env_email %} (الان: {{ env_email }}){% endif %}. چندتا با ویرگول.</span></label>
+      <div class="grid2 tight">
+        <label>ساعت ارسال<input name="time" type="time" value="{{ s.report.time }}"></label>
+        <label>منطقه‌ی زمانی<input name="timezone" dir="ltr" value="{{ s.timezone }}"></label>
+        <label>دفعات
+          <select name="frequency">
+            {% for v, l in [('daily', 'روزانه'), ('weekly', 'هفتگی'), ('off', 'خاموش')] %}<option value="{{ v }}" {{ 'selected' if s.report.frequency == v }}>{{ l }}</option>{% endfor %}
+          </select></label>
+        <label>روز (برای هفتگی)
+          <select name="weekly_day">
+            {% for v, l in [('sat', 'شنبه'), ('sun', 'یکشنبه'), ('mon', 'دوشنبه'), ('tue', 'سه‌شنبه'), ('wed', 'چهارشنبه'), ('thu', 'پنجشنبه'), ('fri', 'جمعه')] %}
+            <option value="{{ v }}" {{ 'selected' if s.report.weekly_day == v }}>{{ l }}</option>{% endfor %}
+          </select></label>
+      </div>
+      <label>چه کسی ایمیل را بفرستد
+        <select name="sender">
+          <option value="cloud" {{ 'selected' if s.report.sender == 'cloud' }}>GitHub Actions (پیشنهادی — حتی وقتی مک خاموش است)</option>
+          <option value="local" {{ 'selected' if s.report.sender == 'local' }}>همین مک</option>
+        </select></label>
+      <label class="check"><input type="checkbox" name="send_empty" value="1" {{ 'checked' if s.report.send_empty }}> وقتی فرصت جدیدی نیست هم ایمیل بیاید</label>
+      <label class="check"><input type="checkbox" name="scheduler_enabled" value="1" {{ 'checked' if scheduler_enabled }}> زمان‌بند داخلی داشبورد روشن باشد (هر ۵ دقیقه کارهای موعددار را اجرا می‌کند)</label>
+      <div><button class="btn primary">ذخیره</button></div>
+    </form>
+  </section>
+
+  <div>
+    <section class="panel">
+      <h2>کانال‌ها</h2>
+      <ul class="list small">
+        <li><span>ایمیل (SMTP)</span><span><span class="dot {{ 'ok' if channels.email else 'bad' }}"></span> {{ 'آماده' if channels.email else 'SMTP_USER / SMTP_PASSWORD در .env' }}</span></li>
+        <li><span>Google Sheet</span><span><span class="dot {{ 'ok' if channels.sheet else 'bad' }}"></span> {{ 'آماده' if channels.sheet else 'GOOGLE_SHEET_WEBHOOK_URL در .env' }}</span></li>
+        <li><span>تلگرام</span><span><span class="dot {{ 'ok' if channels.telegram else 'bad' }}"></span> {{ 'آماده' if channels.telegram else 'اختیاری' }}</span></li>
+        <li><span>جستجوی گوگل</span><span>{{ search_backend }}</span></li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>همگام‌سازی با GitHub</h2>
+      {% if synced %}
+        <p class="small">ریپو: <code dir="ltr">{{ repo }}</code> — منابع ایرانی از این مک، منابع خارجی از GitHub.</p>
+        <div class="row">
+          <form method="post" action="{{ url_for('sync_action', action='pull') }}"><button class="btn small">دریافت نتایج GitHub</button></form>
+          <form method="post" action="{{ url_for('sync_action', action='push') }}"><button class="btn small">ارسال نتایج مک</button></form>
+          <form method="post" action="{{ url_for('sync_action', action='config-push') }}"><button class="btn small">ارسال تنظیمات</button></form>
+          <form method="post" action="{{ url_for('sync_action', action='config-pull') }}"><button class="btn small ghost">دریافت تنظیمات</button></form>
+        </div>
+        {% if sync_error %}<p class="err small">{{ sync_error }}</p>{% endif %}
+      {% else %}
+        <p class="small muted">غیرفعال. برای فعال شدن، GITHUB_TOKEN و GITHUB_REPO را در فایل .env بگذارید (راهنما در README). بدون آن، همه‌ی منابع روی همین مک اسکن می‌شوند.</p>
+      {% endif %}
+      <form method="post" action="{{ url_for('tick_now') }}" style="margin-top:10px"><button class="btn primary small" {{ 'disabled' if job.running }}>اجرای کامل الان (همگام‌سازی + اسکن + گزارش)</button></form>
+    </section>
+
+    <section class="panel">
+      <h2>آخرین ارسال‌ها</h2>
+      <ul class="list small">
+        {% for l in logs %}
+        <li><span>{{ l.channel }} · {{ l.items }} فرصت</span><span><span class="dot {{ 'ok' if l.status == 'sent' else 'bad' }}"></span> <span dir="ltr">{{ l.sent_at|fmt_dt }}</span></span></li>
+        {% if l.error %}<li class="err">{{ l.error }}</li>{% endif %}
+        {% else %}<li class="muted">هنوز گزارشی ارسال نشده.</li>{% endfor %}
+      </ul>
+    </section>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% from "_card.html" import card with context %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>سلام{% if profile.name %} {{ profile.name }}{% endif %} 👋</h1>
+    <div class="muted">امروز چه فرصت‌هایی ارزش بررسی دارند؟</div>
+  </div>
+  <div class="row">
+    <a class="btn" href="{{ url_for('export', fmt='xlsx') }}">⬇ Excel</a>
+    <form method="post" action="{{ url_for('scan') }}"><button class="btn primary" {{ 'disabled' if job.running }}>اسکن الان</button></form>
+  </div>
+</div>
+
+<div class="hero">
+  <div>
+    <div class="muted small">امروز</div>
+    <div class="big">{{ stats.scanned_today }} فرصت بررسی شد · {{ stats.high_today }} فرصت قوی پیدا شد</div>
+    <div class="muted small">
+      {% if last_scan %}آخرین اسکن {{ last_scan.started_at|ago }} — {{ last_scan.new }} جدید، {{ last_scan.updated }} تکراری ادغام شد{% else %}هنوز اسکنی انجام نشده.{% endif %}
+      {% if errors %} · <a href="{{ url_for('sources_page') }}">{{ errors }} منبع خطا دارد</a>{% endif %}
+    </div>
+  </div>
+  <a class="btn primary" href="{{ url_for('feed') }}">دیدن فرصت‌ها ←</a>
+</div>
+
+<section class="widgets">
+  <div class="widget"><b>{{ stats.scanned_today }}</b><span>بررسی‌شده امروز</span></div>
+  <div class="widget"><b>{{ stats.new_today }}</b><span>فرصت جدید</span></div>
+  <div class="widget accent"><b>{{ stats.high }}</b><span>تطابق بالا (≥ {{ profile.min_score }})</span></div>
+  <div class="widget"><b>{{ stats.saved }}</b><span>ذخیره‌شده</span></div>
+  <div class="widget"><b>{{ stats.applied }}</b><span>اپلای‌شده</span></div>
+  <div class="widget good"><b>{{ stats.won }}</b><span>موفق</span></div>
+</section>
+
+<div class="grid2 wide">
+  <section>
+    <div class="row"><h2>تازه‌ترین فرصت‌های قوی</h2><span class="spacer"></span><a href="{{ url_for('feed', sort='new') }}">همه ←</a></div>
+    {% for o in top %}{{ card(o, request.full_path) }}{% else %}
+      <div class="empty">هنوز فرصت قوی‌ای نیست. «اسکن الان» را بزنید یا منابع را در صفحه‌ی منابع تنظیم کنید.</div>
+    {% endfor %}
+  </section>
+  <aside>
+    <section class="panel">
+      <h2>بهترین منابع (۳۰ روز)</h2>
+      <ul class="list">
+        {% for s in stats.best_sources %}
+        <li><span dir="auto">{{ s.source }}</span><span class="muted small">{{ s.strong or 0 }} قوی از {{ s.total }} · میانگین {{ s.avg_score|int }}</span></li>
+        {% else %}<li class="muted">هنوز داده‌ای نیست.</li>{% endfor %}
+      </ul>
+    </section>
+    <section class="panel">
+      <h2>پایپ‌لاین</h2>
+      <ul class="list">
+        {% for s in STATUSES %}<li><span class="status-pill st-{{ s }}">{{ STATUS_FA[s] }}</span><b>{{ stats.by_status.get(s, 0) }}</b></li>{% endfor %}
+      </ul>
+    </section>
+    <section class="panel">
+      <h2>وضعیت سیستم</h2>
+      <ul class="list small">
+        <li><span>ایمیل</span><span><span class="dot {{ 'ok' if channels.email else 'bad' }}"></span> {{ 'آماده' if channels.email else 'تنظیم نشده' }}</span></li>
+        <li><span>Google Sheet</span><span><span class="dot {{ 'ok' if channels.sheet else 'bad' }}"></span> {{ 'آماده' if channels.sheet else 'تنظیم نشده' }}</span></li>
+        <li><span>همگام‌سازی GitHub</span><span><span class="dot {{ 'ok' if synced else 'bad' }}"></span> {{ 'فعال' if synced else 'غیرفعال' }}</span></li>
+        <li><span>آخرین گزارش</span><span>{{ last_report.sent_at|ago if last_report else '—' }}</span></li>
+        <li><span>سایت‌های کشف‌شده</span><a href="{{ url_for('sources_page') }}#discovered">{{ discovered }}</a></li>
+      </ul>
+    </section>
+  </aside>
+</div>
+{% endblock %}

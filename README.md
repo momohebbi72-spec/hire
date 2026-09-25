@@ -1,201 +1,205 @@
 # 📡 Personal Opportunity Radar
 
-دستیار شخصی برای پیدا کردن فرصت‌های کاری و درآمدی مرتبط با مهارت‌های تو (SEO، دیجیتال مارکتینگ، وردپرس، مشاوره، پروژه‌ی فریلنس، کار ریموت).
-
-هر روز خودکار:
-
-1. از منابع مختلف فرصت جمع می‌کند
-2. هر فرصت را با پروفایل مهارتی‌ات مقایسه می‌کند و امتیاز ۰ تا ۱۰۰ + دلیل می‌دهد
-3. در داشبورد (CRM شخصی) نگه می‌دارد تا وضعیت و یادداشت بگذاری
-4. گزارش روزانه را به **ایمیل** (با فایل Excel پیوست)، **تلگرام** و **Google Sheet** می‌فرستد
+دستیار شخصی برای پیدا کردن فرصت‌های کاری و درآمدی مرتبط با مهارت‌های تو: شغل سئو و جئو (GEO)، دیجیتال مارکتینگ، پروژه‌ی فریلنس، کار ریموت، مشاوره، پروژه‌ی سایت.
 
 ```
-SEO Manager - Remote Canada
-Match Score: 92%
-✓ Role: SEO Manager  ✓ SEO  ✓ Technical SEO  ✓ GA4  ✓ WordPress  ✓ Remote  ✓ Canada
+منابع → جمع‌آوری → نرمال‌سازی → حذف تکراری → تحلیل → امتیاز → داشبورد → Excel → ایمیل
 ```
+
+- ابزار شخصی است: لاگین، پرداخت و چندکاربره ندارد.
+- بدون AI کار می‌کند (موتور امتیازدهی داخلی)؛ لایه‌ی AI برای آینده آماده است.
 
 ---
 
-## شروع سریع (مک)
+## معماری: چرا دو بخش؟
 
-1. پوشه را باز کن و روی `start.command` دابل‌کلیک کن
-   (بار اول اگر مک اجازه نداد: کلیک راست ← Open)
-2. داشبورد خودکار باز می‌شود:
-   `http://127.0.0.1:3000`
-3. دکمه‌ی «اسکن الان» را بزن
+| | مک تو (IP ایران) | GitHub Actions (سرور خارج) |
+|---|---|---|
+| سایت‌های ایرانی (جابینجا، جاب‌ویژن، پونیشا، کارلنسر…) | ✅ | ❌ اتصال از خارج را رد می‌کنند |
+| LinkedIn، تلگرام، Indeed، گوگل، RemoteOK… | ❌ فیلتر / تحریم | ✅ |
+| ایمیل روزانه + Google Sheet | اختیاری | ✅ حتی وقتی مک خاموش است |
+| داشبورد و CRM | ✅ | — |
 
-یا از ترمینال:
+دو طرف از طریق یک برنچ جدا در همین ریپو (`radar-data`) نتایج را رد و بدل می‌کنند. تنظیمات (پروفایل، منابع، زمان ایمیل) فقط یک جاست:
+`config/`
+و وقتی در داشبورد عوض شوند، خودکار به GitHub هم فرستاده می‌شوند.
+
+> اگر همگام‌سازی را تنظیم نکنی، همه‌ی منابع روی همان مک اسکن می‌شوند (منابع خارجی فقط با VPN جواب می‌دهند).
+
+---
+
+## نصب و اجرا (مک)
+
+1. پوشه‌ی پروژه را روی مک داشته باش (دانلود ZIP یا `git clone`)
+2. روی `start.command` دابل‌کلیک کن (بار اول اگر مک اجازه نداد: کلیک راست ← Open)
+3. مرورگر خودکار باز می‌شود:
+   `http://localhost:3000`
+
+پیش‌نیاز: Python 3.9 یا بالاتر. اگر نصب نیست:
+`https://www.python.org/downloads/`
+
+> وقتی منابع ایرانی را اسکن می‌کنی، VPN باید خاموش باشد.
+
+اجرای خودکار ساعتی روی مک (حتی وقتی داشبورد بسته است):
 
 ```bash
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env
-python -m radar            # داشبورد
-python -m radar scan       # فقط اسکن
-python -m radar report     # ارسال گزارش
-python -m radar daily      # اسکن + گزارش + Google Sheet (برای اجرای روزانه)
-python -m radar rescore    # امتیازدهی مجدد بعد از تغییر پروفایل
+./scripts/install_mac_schedule.sh            # نصب
+./scripts/install_mac_schedule.sh uninstall  # حذف
+```
+
+دستورات ترمینال:
+
+```bash
+.venv/bin/python -m radar              # داشبورد
+.venv/bin/python -m radar tick         # هر کاری که موعدش رسیده
+.venv/bin/python -m radar daily        # اسکن همه + ارسال گزارش همین الان
+.venv/bin/python -m radar scan --source jobinja-seo
+.venv/bin/python -m radar report
+.venv/bin/python -m radar sync pull    # pull | push | config-push | config-pull
 ```
 
 ---
 
-## بخش‌ها
+## راه‌اندازی GitHub (ایمیل روزانه + منابع خارجی)
 
-| بخش | کار |
+### ۱) Secrets
+در ریپو برو به:
+`Settings → Secrets and variables → Actions → New repository secret`
+
+| Secret | مقدار |
 |---|---|
-| **فرصت‌ها** | فهرست با امتیاز، دلایل، فیلتر (وضعیت، دسته، منبع، حداقل امتیاز، جستجو) و تغییر وضعیت |
-| **جزئیات فرصت** | متن کامل آگهی، یادداشت، وضعیت |
-| **افزودن دستی** | فرصت‌هایی که از لینکدین، معرفی یا ایمیل پیدا کردی + ورود گروهی از CSV |
-| **منابع** | افزودن، خاموش/روشن، تست تکی، نمایش خطای هر منبع |
-| **پروفایل** | ویرایش مهارت‌ها، وزن‌ها، عنوان‌های هدف، موقعیت‌ها، کلمات حذفی |
-| **گزارش** | پیش‌نمایش ایمیل، ارسال دستی، همگام‌سازی شیت، دانلود Excel/CSV |
+| `SMTP_USER` | آدرس Gmail |
+| `SMTP_PASSWORD` | App Password (پایین‌تر) |
+| `REPORT_EMAIL_TO` | ایمیلی که گزارش به آن برسد |
+| `GOOGLE_SHEET_WEBHOOK_URL` | اختیاری — Google Sheet |
+| `GOOGLE_SHEET_WEBHOOK_SECRET` | اختیاری — Google Sheet |
+| `GOOGLE_SHEET_URL` | اختیاری — لینک شیت برای ایمیل |
+| `SERPER_API_KEY` | اختیاری — نتایج واقعی گوگل |
+| `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` | اختیاری |
 
-وضعیت‌های CRM:
-`New` → `Saved` → `Contacted` → `Applied` → `Won` / `Rejected` / `Archived`
+### ۲) فعال‌سازی
+تب Actions ← Opportunity Radar ← Run workflow
 
-ایمیل روزانه برای موارد `Contacted` و `Applied` که ۵ روز تغییری نداشته‌اند، **یادآوری پیگیری** هم دارد.
+از این به بعد هر ساعت اجرا می‌شود ولی فقط کارهای موعددار را انجام می‌دهد؛ ایمیل روزی یک بار در ساعتی که در «تنظیمات» گذاشتی ارسال می‌شود.
+
+### ۳) اتصال مک به GitHub
+1. یک Fine-grained token بساز:
+   `https://github.com/settings/personal-access-tokens/new`
+   - Repository access: فقط همین ریپو
+   - Permissions → Contents: Read and write
+2. در فایل `.env` روی مک:
+
+```
+GITHUB_TOKEN=github_pat_...
+GITHUB_REPO=momohebbi72-spec/hire
+```
+
+---
+
+## ایمیل (Gmail)
+
+1. در حساب گوگل 2-Step Verification را روشن کن
+2. App Password بساز:
+   `https://myaccount.google.com/apppasswords`
+3. همان را در `SMTP_PASSWORD` (GitHub Secret و `.env`) بگذار
+
+ساعت، دفعات (روزانه/هفتگی/خاموش) و ایمیل گیرنده از صفحه‌ی «تنظیمات» داشبورد عوض می‌شود. عنوان ایمیل:
+`Daily Opportunity Radar Report`
+و فایل `opportunity_report.xlsx` پیوست آن است.
+
+## Google Sheet (بدون Google Cloud)
+
+1. یک Google Sheet بساز ← Extensions ← Apps Script
+2. محتوای این فایل را در آن بگذار و `SECRET` را عوض کن:
+   `scripts/google_apps_script.gs`
+3. Deploy ← New deployment ← Web app ← Execute as: Me ← Who has access: Anyone
+4. آدرس Web app را در `GOOGLE_SHEET_WEBHOOK_URL` و رمز را در `GOOGLE_SHEET_WEBHOOK_SECRET` بگذار
+
+فقط ردیف‌های جدید اضافه می‌شوند؛ وضعیت و یادداشتی که در شیت می‌نویسی پاک نمی‌شود.
+
+## جستجوی گوگل (۱۰ نتیجه‌ی اول)
+
+منابع «جستجوی گوگل»، «پست‌های LinkedIn»، «Instagram» و «جستجو در یک سایت خاص» از جستجوی وب استفاده می‌کنند:
+
+- با `SERPER_API_KEY` (ثبت‌نام رایگان، ۲۵۰۰ جستجو): نتایج واقعی گوگل
+  `https://serper.dev`
+- بدون کلید: DuckDuckGo (رایگان، گاهی محدود می‌شود)
+
+دامنه‌های جدیدی که در نتایج پیدا می‌شوند در صفحه‌ی «منابع» ← «سایت‌های کشف‌شده» می‌آیند و با یک کلیک منبع می‌شوند.
 
 ---
 
 ## منابع
 
-| نوع | مثال مقدار | توضیح |
-|---|---|---|
-| `remoteok` | `seo,marketing` | RemoteOK |
-| `remotive` | `seo` یا `category:marketing` | Remotive |
-| `jobicy` | `seo` یا `industry:marketing` | Jobicy |
-| `himalayas` | `digital marketing` | Himalayas |
-| `arbeitnow` | — | اروپا |
-| `freelancer` | `seo`, `wordpress` | پروژه‌های فریلنس Freelancer.com |
-| `rss` | لینک فید | We Work Remotely، Reddit، Google Alerts، هر سایت دارای RSS |
-| `greenhouse` / `lever` / `ashby` | `airbnb,gitlab` | صفحه‌ی کاریابی شرکت‌ها |
-| `telegram` | `channel_username` | کانال‌های عمومی تلگرام (بدون ربات) |
+از صفحه‌ی «منابع»: افزودن، ویرایش، حذف، روشن/خاموش، تغییر کلمات کلیدی، دفعات اسکن، تست تکی، نمایش آخرین اسکن، تعداد یافته و خطا.
 
-نکته‌ها:
-
-- **Google Alerts** بهترین راه برای پوشش سایت‌هایی است که API ندارند: یک Alert بساز، Deliver to را روی RSS بگذار و لینک فید را به‌عنوان منبع `rss` اضافه کن.
-- **LinkedIn / Indeed** API عمومی ندارند؛ Job Alert ایمیلی بساز و موارد مهم را با «افزودن دستی» یا CSV وارد کن.
-- منابع پیش‌فرض در
-  `config/sources.yaml`
-  هستند. بعد از اولین اجرا از صفحه‌ی «منابع» مدیریت می‌شوند.
-
----
-
-## امتیازدهی
-
-فایل پروفایل:
-`config/profile.yaml`
-
-| بخش | امتیاز |
+| گروه | نوع‌ها |
 |---|---|
-| عنوان آگهی شامل یکی از `target_roles` | ۳۵ (یا مهارت در عنوان: ۲۲) |
-| مهارت‌های پیدا شده در متن آگهی | تا ۴۰ (جمع وزن‌ها نسبت به `skill_target`) |
-| Remote | ۱۰ |
-| کشور/منطقه‌ی دلخواه | ۵ تا ۱۰ |
-| نوع همکاری دلخواه (`work_types`) | ۱۰ |
-| کلمه‌ی حذفی (`exclude_in_title` / `exclude_anywhere`) | امتیاز = ۰ |
-| منطقه‌ی نامطلوب (`avoid_locations`) | −۲۰ |
-| آگهی قدیمی‌تر از ۱۴ روز | −۵ |
+| کاریابی ایرانی (مک) | `jobinja`، `jobvision`، `eestekhdam`، `karbord`، `kardix`، `divar`، `webpage` |
+| فریلنس ایرانی (مک) | `ponisha`، `karlancer`، `parscoders`، `lancerify` |
+| کاریابی بین‌المللی (GitHub) | `linkedin`، `indeed`، `glassdoor`، `remoteok`، `remotive`، `jobicy`، `himalayas`، `arbeitnow` |
+| فریلنس بین‌المللی | `freelancer` |
+| جستجو و شبکه‌های اجتماعی | `websearch`، `site_search` (مثلا Wellfound)، `linkedin_posts`، `instagram`، `google_jobs` |
+| سایت شرکت‌ها | `greenhouse`، `lever`، `ashby`، `webpage` |
+| فید و کانال | `rss`، `telegram` |
+| دستی | «افزودن دستی» + ورود CSV |
 
-آگهی‌های تکراری (یک شغل در چند سایت) خودکار حذف می‌شوند.
+- **هر سایتی که نوع آماده ندارد:** نوع «هر صفحه‌ی وب» را انتخاب کن و آدرس صفحه‌ی لیست آگهی‌ها را بده. لینک‌های آگهی خودکار تشخیص داده می‌شوند.
+- **کلمات کلیدی:** در منابع جستجویی، همان عبارت جستجو هستند. در فید، تلگرام و سایت شرکت‌ها، فیلترند (فقط آیتم‌های شامل آن‌ها نگه داشته می‌شوند).
+- **افزودن سایت جدید در کد:** یک تابع با `@register(...)` در پوشه‌ی `radar/sources/` کافی است.
 
----
+## امتیازدهی (۰ تا ۱۰۰)
 
-## گزارش روزانه
+| بخش | وزن |
+|---|---|
+| تطابق مهارت (وزن هر مهارت در پروفایل) | ۳۵ |
+| تطابق کلمه‌ی کلیدی / عنوان هدف | ۲۵ |
+| نوع فرصت (Remote، Freelance، Contract…) | ۱۵ |
+| موقعیت | ۱۰ |
+| ترجیحات (صنعت، تازگی آگهی) | ۱۵ |
 
-فایل `.env` را از روی `.env.example` بساز. هر کانالی که خالی بماند نادیده گرفته می‌شود.
+متن فارسی نرمال‌سازی می‌شود (ي/ی، ك/ک، نیم‌فاصله). علامت `!` قبل از یک کلمه یعنی حساس به حروف بزرگ؛ مثلا `!GEO` تا با geo-targeting قاطی نشود.
 
-### ۱) ایمیل (پیشنهاد اصلی)
+**حذف تکراری:** اثرانگشت از عنوان + شرکت + موقعیت (+ آدرس)؛ اگر همان فرصت دوباره یا در سایت دیگری دیده شود، رکورد قبلی به‌روز می‌شود و «همچنین در …» نشان داده می‌شود.
 
-1. در حساب گوگل، 2-Step Verification را روشن کن
-2. از این آدرس یک App Password بساز:
-   `https://myaccount.google.com/apppasswords`
-3. در `.env`:
+## لایه‌ی AI (اختیاری)
 
-```
-SMTP_USER=you@gmail.com
-SMTP_PASSWORD=abcd efgh ijkl mnop
-REPORT_EMAIL_TO=you@gmail.com
-```
+رابط `AIProvider` با متدهای `analyze_opportunity`، `summarize_opportunity` و `explain_match` در این مسیر است:
+`radar/ai/`
 
-ایمیل شامل: تعداد بررسی‌شده، بهترین فرصت‌ها با امتیاز و دلیل، یادآوری پیگیری، وضعیت پایپ‌لاین + فایل Excel کامل پیوست.
-
-### ۲) Google Sheet (CRM ابری)
-
-1. در Google Cloud Console یک پروژه بساز و **Google Sheets API** را فعال کن
-2. یک **Service Account** بساز و کلید JSON آن را دانلود کن
-3. فایل را اینجا بگذار:
-   `config/google-service-account.json`
-4. یک Google Sheet خالی بساز و آن را با ایمیل Service Account (`...@...iam.gserviceaccount.com`) با دسترسی Editor به اشتراک بگذار
-5. شناسه‌ی شیت (بخش بین `/d/` و `/edit` در آدرس) را در `.env` بگذار:
-
-```
-GOOGLE_SHEET_ID=1AbC...xyz
-```
-
-فقط ردیف‌های جدید اضافه می‌شوند؛ وضعیت و یادداشتی که در شیت می‌نویسی هیچ‌وقت بازنویسی نمی‌شود.
-
-### ۳) تلگرام (نوتیفیکیشن فوری، اختیاری)
-
-1. از `@BotFather` یک ربات بساز و توکن را بگیر
-2. به ربات پیام بده و Chat ID خودت را از `@userinfobot` بگیر
-3. در `.env`:
-
-```
-TELEGRAM_BOT_TOKEN=123456:ABC...
-TELEGRAM_CHAT_ID=123456789
-```
+پیش‌فرض `rules` است: بدون کلید و بدون اینترنت، خلاصه، دلیل تطابق و «قدم بعدی» می‌دهد. جای OpenAI، Claude، Gemini و مدل محلی (Ollama) آماده است.
 
 ---
 
-## اجرای خودکار روزانه
-
-### گزینه‌ی الف: روی مک
+## پشتیبان‌گیری و به‌روزرسانی
 
 ```bash
-./scripts/install_mac_schedule.sh 9 0     # هر روز ساعت ۹:۰۰
+./scripts/backup.sh     # data/radar.db + config + .env → backups/
+git pull                # به‌روزرسانی کد (یا ZIP جدید را روی پوشه کپی کن؛ data/ و .env دست نمی‌خورند)
 ```
 
-مک باید روشن باشد. لاگ در
-`data/daily.log`
+## تست‌ها
 
-### گزینه‌ی ب: GitHub Actions (پیشنهادی — حتی وقتی مک خاموش است)
-
-فایل workflow آماده است:
-`.github/workflows/daily-radar.yml`
-
-1. در ریپو به Settings ← Secrets and variables ← Actions برو
-2. این Secretها را اضافه کن (هر کدام را که لازم داری):
-   - `SMTP_USER`، `SMTP_PASSWORD`، `REPORT_EMAIL_TO`
-   - `TELEGRAM_BOT_TOKEN`، `TELEGRAM_CHAT_ID`
-   - `GOOGLE_SHEET_ID`، `GOOGLE_SERVICE_ACCOUNT_JSON` (کل محتوای فایل JSON)
-3. از تب Actions یک بار دستی `Run workflow` بزن
-
-هر روز ساعت 05:15 UTC اجرا می‌شود (ساعت را در فایل workflow عوض کن). دیتابیس بین اجراها در Cache می‌ماند تا فرصت تکراری گزارش نشود. در این حالت Google Sheet نقش CRM را دارد و منابع از
-`config/sources.yaml`
-خوانده می‌شوند (برای خاموش کردن یک منبع `enabled: false` بگذار).
-
-> پیشنهاد: **GitHub Actions + ایمیل + Google Sheet** برای گزارش روزانه، و داشبورد محلی مک برای وقتی که می‌خواهی عمیق‌تر بررسی کنی.
-
----
-
-## ساختار پروژه
-
-```
-config/profile.yaml       پروفایل مهارتی
-config/sources.yaml       منابع پیش‌فرض
-radar/sources/            جمع‌آورنده‌ها (job board، RSS، ATS شرکت‌ها، فریلنس، تلگرام)
-radar/scoring.py          امتیازدهی و دسته‌بندی
-radar/scanner.py          اجرای اسکن موازی
-radar/report.py           ایمیل، تلگرام، گزارش
-radar/exporters.py        Excel، CSV، Google Sheets
-radar/web.py              داشبورد
-data/                     دیتابیس و گزارش‌ها (در git نیست)
+```bash
+.venv/bin/pip install -r requirements-dev.txt
+.venv/bin/python -m pytest -q
 ```
 
-## قدم‌های بعدی (Roadmap)
+در GitHub هم با هر push خودکار اجرا می‌شوند (workflow به نام `Tests`).
 
-- لایه‌ی AI: خلاصه‌ی هر فرصت، مقایسه‌ی فرصت‌ها و پیشنهاد اقدام بعدی (متن پیام/پروپوزال)
-- همگام‌سازی دوطرفه‌ی وضعیت‌ها با Google Sheet
-- منابع بیشتر (Upwork با API رسمی، سایت‌های کاریابی ایرانی)
+## ساختار
+
+```
+config/          profile.yaml · sources.yaml · settings.yaml
+radar/sources/   کانکتورها (ایرانی، بین‌المللی، جستجو، RSS، تلگرام، اینستاگرام)
+radar/scoring.py موتور امتیازدهی
+radar/scanner.py اسکن موازی + حذف تکراری
+radar/scheduler.py زمان‌بند (tick)
+radar/sync.py    همگام‌سازی مک ⇄ GitHub
+radar/report.py  ایمیل، تلگرام، EmailLogs
+radar/exporters.py Excel، CSV، Google Sheet
+radar/ai/        لایه‌ی AI
+radar/web.py     داشبورد
+```
+
+ایده‌ی `LinkedIn guest endpoint` و استفاده از `python-jobspy` از پروژه‌ی `ScottCoffin/Job_Scraper` گرفته شده، ولی کد آن (با لایسنس `AGPL-3.0`) کپی نشده است.
