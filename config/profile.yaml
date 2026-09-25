@@ -1,0 +1,128 @@
+# ─────────────────────────────────────────────────────────────
+#  پروفایل مهارتی — امتیاز هر فرصت بر اساس همین فایل حساب می‌شود.
+#  از داشبورد (صفحه‌ی «پروفایل») هم قابل ویرایش است.
+# ─────────────────────────────────────────────────────────────
+
+name: "Mohammad"
+
+min_score: 55          # از این امتیاز به بالا = «فرصت مناسب» (در گزارش می‌آید)
+report_top_n: 15       # چند مورد در بدنه‌ی ایمیل نمایش داده شود (بقیه در Excel)
+max_age_days: 30       # آگهی‌های قدیمی‌تر نادیده گرفته می‌شوند
+per_source_limit: 100  # حداکثر آیتم از هر منبع در هر اسکن
+skill_target: 25       # جمع وزن مهارت‌هایی که امتیاز کامل مهارت (۴۰) را می‌دهد
+
+# عنوان‌هایی که اگر در «عنوان آگهی» باشند بیشترین امتیاز را می‌گیرند
+target_roles:
+  - SEO Manager
+  - SEO Specialist
+  - SEO Consultant
+  - SEO Lead
+  - SEO Strategist
+  - SEO Analyst
+  - Head of SEO
+  - Technical SEO
+  - Organic Growth
+  - Growth Marketing
+  - Growth Marketer
+  - Digital Marketing Manager
+  - Digital Marketing Specialist
+  - Content Marketing Manager
+  - Marketing Manager
+  - Performance Marketing
+  - Search Marketing
+  - Web Analytics
+  - کارشناس سئو
+  - مدیر سئو
+  - دیجیتال مارکتینگ
+
+# مهارت‌ها: وزن ۱ تا ۱۰ + نام‌های مترادف (aliases)
+skills:
+  SEO:
+    weight: 10
+    aliases: ["search engine optimization", "search engine optimisation", "organic search", "سئو"]
+  Technical SEO:
+    weight: 9
+    aliases: ["site audit", "core web vitals", "schema markup", "crawl budget", "site speed"]
+  AI SEO:
+    weight: 8
+    aliases: ["generative engine optimization", "answer engine optimization", "AEO", "LLM optimization", "AI overviews"]
+  GA4:
+    weight: 7
+    aliases: ["google analytics", "google analytics 4"]
+  GSC:
+    weight: 6
+    aliases: ["google search console", "search console"]
+  GTM:
+    weight: 4
+    aliases: ["google tag manager", "tag manager"]
+  WordPress:
+    weight: 7
+    aliases: ["woocommerce", "elementor", "yoast", "rank math", "وردپرس"]
+  Keyword Research:
+    weight: 5
+    aliases: ["ahrefs", "semrush", "screaming frog", "moz", "keyword strategy"]
+  Content Strategy:
+    weight: 6
+    aliases: ["content marketing", "content strategy", "editorial calendar", "copywriting", "تولید محتوا"]
+  Link Building:
+    weight: 5
+    aliases: ["backlinks", "off-page", "digital pr", "link outreach"]
+  Local SEO:
+    weight: 4
+    aliases: ["google business profile", "google my business", "local search"]
+  Ecommerce SEO:
+    weight: 5
+    aliases: ["e-commerce seo", "shopify", "product pages"]
+  Digital Marketing:
+    weight: 6
+    aliases: ["online marketing", "growth marketing", "inbound marketing", "دیجیتال مارکتینگ", "بازاریابی دیجیتال"]
+  PPC:
+    weight: 3
+    aliases: ["google ads", "paid search", "SEM"]
+  Marketing Experience:
+    weight: 3
+    aliases: ["marketing strategy", "go-to-market", "conversion rate optimization", "CRO", "A/B testing"]
+
+# موقعیت‌های مطلوب (Remote هم اینجا تعریف می‌شود)
+preferred_locations:
+  - Remote
+  - Worldwide
+  - Anywhere
+  - Canada
+  - USA
+  - United States
+  - North America
+  - Europe
+  - UK
+
+# منطقه‌هایی که برایت مناسب نیست (−۲۰ امتیاز). مثال: "US citizens only"
+avoid_locations:
+  - US citizens only
+  - must be located in India
+  - Philippines only
+
+# نوع همکاری مطلوب (+۱۰)
+work_types:
+  - Freelance
+  - Contract
+  - Part-time
+  - Consulting
+  - Consultant
+
+# اگر این کلمات در «عنوان» باشند، امتیاز = ۰
+exclude_in_title:
+  - intern
+  - internship
+  - nurse
+  - driver
+  - java developer
+  - sales development representative
+  - SDR
+  - account executive
+  - cold calling
+
+# اگر این عبارت‌ها در هر جای آگهی باشند، امتیاز = ۰
+exclude_anywhere:
+  - unpaid
+  - commission only
+  - commission-only

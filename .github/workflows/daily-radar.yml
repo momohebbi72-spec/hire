@@ -1,0 +1,67 @@
+# اجرای خودکار روزانه در GitHub (حتی وقتی مک خاموش است):
+# اسکن همه‌ی منابع → ایمیل/تلگرام → Google Sheet → فایل Excel به‌عنوان Artifact.
+# دیتابیس بین اجراها در Actions Cache نگه داشته می‌شود تا فرصت تکراری گزارش نشود.
+name: Daily Opportunity Radar
+
+on:
+  schedule:
+    - cron: "15 5 * * *"   # هر روز 05:15 UTC  (≈ 08:45 تهران / 01:15 تورنتو)
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: opportunity-radar
+  cancel-in-progress: false
+
+jobs:
+  radar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Restore radar database
+        uses: actions/cache/restore@v4
+        with:
+          path: data/radar.db
+          key: radar-db-${{ github.run_id }}
+          restore-keys: radar-db-
+
+      - name: Scan + report
+        env:
+          RADAR_SOURCES_MODE: yaml
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          REPORT_EMAIL_TO: ${{ secrets.REPORT_EMAIL_TO }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: python -m radar daily
+
+      - name: Save radar database
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: data/radar.db
+          key: radar-db-${{ github.run_id }}
+
+      - name: Upload Excel report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: radar-report-${{ github.run_id }}
+          path: data/reports/*.xlsx
+          retention-days: 14
+          if-no-files-found: ignore

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}منابع — رادار فرصت{% endblock %}
+{% block content %}
+<section class="panel">
+  <h2>منابع فعال</h2>
+  <div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>نام</th><th>نوع</th><th>مقدار</th><th>آخرین اجرا</th><th>آیتم</th><th>وضعیت</th><th></th></tr></thead>
+    <tbody>
+    {% for s in sources %}
+      <tr class="{{ '' if s.enabled else 'off' }}">
+        <td dir="auto">{{ s.name }}</td>
+        <td>{{ fetchers[s.type].label if s.type in fetchers else s.type }}</td>
+        <td dir="ltr" class="mono">{{ s.target or '—' }}</td>
+        <td dir="ltr">{{ s.last_run|fmt_dt }}</td>
+        <td>{{ s.last_count if s.last_count is not none else '—' }}</td>
+        <td>
+          {% if s.last_error %}<span class="chip neg" title="{{ s.last_error }}">خطا</span>
+          {% elif s.last_run %}<span class="chip">OK</span>{% endif %}
+        </td>
+        <td class="row">
+          <form method="post" action="{{ url_for('scan_source', sid=s.id) }}"><button class="btn ghost small">تست</button></form>
+          <form method="post" action="{{ url_for('toggle_source', sid=s.id) }}"><button class="btn ghost small">{{ 'خاموش' if s.enabled else 'روشن' }}</button></form>
+          <form method="post" action="{{ url_for('delete_source', sid=s.id) }}" onsubmit="return confirm('حذف شود؟')"><button class="btn danger small">حذف</button></form>
+        </td>
+      </tr>
+      {% if s.last_error %}<tr class="err-row"><td colspan="7" dir="ltr">{{ s.last_error }}</td></tr>{% endif %}
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>افزودن منبع</h2>
+  <form method="post" class="form">
+    <div class="grid2 tight">
+      <label>نوع
+        <select name="type" id="stype">
+          {% for key, st in fetchers.items() %}<option value="{{ key }}" data-help="{{ st.help }}">{{ st.label }}</option>{% endfor %}
+        </select>
+      </label>
+      <label>نام (اختیاری)<input name="name" dir="auto"></label>
+    </div>
+    <label>مقدار (Target)<input name="target" dir="ltr" id="starget"></label>
+    <p class="muted" id="shelp"></p>
+    <button class="btn primary">افزودن منبع</button>
+  </form>
+  <details class="tips">
+    <summary>ایده برای منابع بیشتر</summary>
+    <ul>
+      <li><b>Google Alerts:</b> در google.com/alerts یک هشدار مثل <code dir="ltr">"SEO consultant" remote</code> بسازید، Deliver to را روی RSS بگذارید و لینک فید را با نوع RSS اضافه کنید.</li>
+      <li><b>سایت شرکت‌ها:</b> اگر صفحه‌ی کاریابی شرکت آدرس <code dir="ltr">boards.greenhouse.io/x</code>، <code dir="ltr">jobs.lever.co/x</code> یا <code dir="ltr">jobs.ashbyhq.com/x</code> دارد، فقط <code>x</code> را وارد کنید.</li>
+      <li><b>تلگرام:</b> هر کانال عمومی آگهی کار (فارسی یا انگلیسی) — فقط یوزرنیم کانال.</li>
+      <li><b>Reddit:</b> <code dir="ltr">https://www.reddit.com/r/SUBREDDIT/new/.rss</code></li>
+      <li><b>LinkedIn / Indeed:</b> API عمومی ندارند؛ Job Alert ایمیلی بسازید و موارد مهم را از «افزودن دستی» یا CSV وارد کنید.</li>
+    </ul>
+  </details>
+</section>
+<script>
+  const sel = document.getElementById('stype'), help = document.getElementById('shelp');
+  const upd = () => { help.textContent = sel.selectedOptions[0].dataset.help || ''; };
+  sel.addEventListener('change', upd); upd();
+</script>
+{% endblock %}

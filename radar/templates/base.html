@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}رادار فرصت{% endblock %}</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+{% block head %}{% endblock %}
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="{{ url_for('index') }}"><span class="dot"></span>رادار فرصت</a>
+  <nav>
+    {% set ep = request.endpoint %}
+    <a href="{{ url_for('index') }}" class="{{ 'on' if ep == 'index' }}">فرصت‌ها</a>
+    <a href="{{ url_for('add') }}" class="{{ 'on' if ep == 'add' }}">افزودن دستی</a>
+    <a href="{{ url_for('sources_page') }}" class="{{ 'on' if ep == 'sources_page' }}">منابع</a>
+    <a href="{{ url_for('profile_page') }}" class="{{ 'on' if ep == 'profile_page' }}">پروفایل</a>
+    <a href="{{ url_for('report_page') }}" class="{{ 'on' if ep == 'report_page' }}">گزارش</a>
+  </nav>
+</header>
+<main class="wrap">
+  {% with msgs = get_flashed_messages(with_categories=true) %}
+    {% for cat, m in msgs %}<div class="flash {{ cat }}">{{ m }}</div>{% endfor %}
+  {% endwith %}
+  {% if scan_error %}<div class="flash error">آخرین اسکن با خطا تمام شد: <span dir="ltr">{{ scan_error }}</span></div>{% endif %}
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>

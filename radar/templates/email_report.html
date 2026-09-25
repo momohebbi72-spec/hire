@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>رادار فرصت</title></head>
+<body style="margin:0;padding:0;background:#f1f3f6;font-family:Vazirmatn,Tahoma,Arial,sans-serif;color:#1d2433;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f1f3f6;padding:24px 8px;">
+<tr><td align="center">
+<table role="presentation" width="640" cellpadding="0" cellspacing="0" style="max-width:640px;width:100%;background:#ffffff;border-radius:14px;overflow:hidden;">
+
+  <tr><td style="background:#123a5e;color:#ffffff;padding:22px 24px;">
+    <div style="font-size:12px;opacity:.75;direction:ltr;text-align:right;">Personal Opportunity Radar · {{ rep.date }}</div>
+    <div style="font-size:21px;font-weight:bold;margin-top:6px;">گزارش روزانه‌ی فرصت‌ها{% if rep.name %} — {{ rep.name }}{% endif %}</div>
+  </td></tr>
+
+  <tr><td style="padding:18px 24px 6px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+      <td align="center" style="background:#f5f7fa;border-radius:10px;padding:12px;">
+        <div style="font-size:22px;font-weight:bold;">{{ rep.scanned }}</div><div style="font-size:12px;color:#5b6475;">بررسی‌شده امروز</div></td>
+      <td width="10"></td>
+      <td align="center" style="background:#f5f7fa;border-radius:10px;padding:12px;">
+        <div style="font-size:22px;font-weight:bold;">{{ rep.new }}</div><div style="font-size:12px;color:#5b6475;">جدید</div></td>
+      <td width="10"></td>
+      <td align="center" style="background:#e5f4ea;border-radius:10px;padding:12px;">
+        <div style="font-size:22px;font-weight:bold;color:#1e6b3a;">{{ rep['items']|length }}</div><div style="font-size:12px;color:#1e6b3a;">مناسب (≥ {{ rep.min_score }})</div></td>
+    </tr></table>
+  </td></tr>
+
+  <tr><td style="padding:14px 24px 4px;font-size:15px;font-weight:bold;">بهترین‌ها</td></tr>
+  {% for o in rep['items'][:rep.top_n] %}
+  <tr><td style="padding:6px 24px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e6ec;border-radius:10px;">
+      <tr>
+        <td dir="ltr" style="padding:12px 14px;text-align:left;">
+          <a href="{{ o.url }}" style="font-size:15px;font-weight:bold;color:#123a5e;text-decoration:none;">{{ loop.index }}. {{ o.title }}</a>
+          <div style="font-size:12px;color:#5b6475;margin-top:4px;">{{ o.company }}{% if o.location %} · {{ o.location }}{% endif %} · {{ o.source }}{% if o.salary %} · {{ o.salary }}{% endif %}</div>
+          <div style="font-size:12px;color:#1e6b3a;margin-top:6px;line-height:1.7;">{{ o.reasons_list[:7]|join(' &nbsp; '|safe) }}</div>
+        </td>
+        <td width="70" align="center" style="border-left:1px solid #e2e6ec;padding:8px;">
+          <div style="font-size:20px;font-weight:bold;color:{% if o.score >= 75 %}#1e6b3a{% elif o.score >= 60 %}#8a6d00{% else %}#5b6475{% endif %};direction:ltr;">{{ o.score }}%</div>
+          <div style="font-size:11px;color:#5b6475;">{{ o.category }}</div>
+        </td>
+      </tr>
+    </table>
+  </td></tr>
+  {% else %}
+  <tr><td style="padding:6px 24px;color:#5b6475;font-size:14px;">امروز فرصت جدیدِ مناسبی پیدا نشد. اگر زیاد تکرار شد، منابع یا حداقل امتیاز را در پروفایل تنظیم کنید.</td></tr>
+  {% endfor %}
+  {% if rep['items']|length > rep.top_n %}
+  <tr><td style="padding:6px 24px;font-size:13px;color:#5b6475;">+ {{ rep['items']|length - rep.top_n }} فرصت دیگر در فایل Excel پیوست.</td></tr>
+  {% endif %}
+
+  {% if rep.followups %}
+  <tr><td style="padding:16px 24px 4px;font-size:15px;font-weight:bold;">یادآوری پیگیری</td></tr>
+  <tr><td style="padding:0 24px;font-size:13px;line-height:1.9;">
+    {% for o in rep.followups %}
+    <div>• <span dir="ltr">{{ o.title }} — {{ o.company }}</span> ({{ rep.status_fa.get(o.status, o.status) }}، آخرین تغییر {{ (o.updated_at or '')[:10] }})</div>
+    {% endfor %}
+  </td></tr>
+  {% endif %}
+
+  <tr><td style="padding:16px 24px 4px;font-size:15px;font-weight:bold;">وضعیت پایپ‌لاین</td></tr>
+  <tr><td style="padding:0 24px 8px;font-size:13px;line-height:1.9;">
+    {% for s in rep.statuses %}{% if rep.pipeline.get(s) %}<span style="display:inline-block;background:#f5f7fa;border-radius:6px;padding:2px 8px;margin:2px;">{{ rep.status_fa[s] }}: {{ rep.pipeline[s] }}</span>{% endif %}{% endfor %}
+  </td></tr>
+
+  <tr><td style="padding:16px 24px 22px;font-size:12px;color:#5b6475;border-top:1px solid #eef0f3;">
+    {% if rep.sheet_url %}<a href="{{ rep.sheet_url }}" style="color:#123a5e;">باز کردن Google Sheet</a> · {% endif %}
+    فایل Excel کامل پیوست این ایمیل است. وضعیت‌ها را در داشبورد رادار به‌روز کنید.
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>

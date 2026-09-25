@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}{{ o.title }} — رادار فرصت{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('index') }}">→ بازگشت به فهرست</a></p>
+<article class="panel detail">
+  <div class="detail-head">
+    <div class="score big {{ o.score|score_class }}"><b>{{ o.score }}</b><small>%</small></div>
+    <div>
+      <h2 dir="auto">{{ o.title }}</h2>
+      <div class="meta" dir="auto">
+        {% if o.company %}<span>{{ o.company }}</span>{% endif %}
+        {% if o.location %}<span>{{ o.location }}</span>{% endif %}
+        {% if o.job_type %}<span>{{ o.job_type }}</span>{% endif %}
+        {% if o.salary %}<span>{{ o.salary }}</span>{% endif %}
+        <span class="tag">{{ o.category }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="reasons" dir="ltr">
+    {% for r in o.reasons_list %}<span class="chip {{ 'neg' if r.startswith('✗') else 'warn' if r.startswith('⚠') }}">{{ r }}</span>{% endfor %}
+  </div>
+
+  <dl class="facts">
+    <dt>منبع</dt><dd>{{ o.source }}</dd>
+    <dt>انتشار</dt><dd dir="ltr">{{ o.posted_at|fmt_dt }}</dd>
+    <dt>پیدا شد</dt><dd dir="ltr">{{ o.found_at|fmt_dt }}</dd>
+    <dt>آخرین تغییر</dt><dd dir="ltr">{{ o.updated_at|fmt_dt }}</dd>
+  </dl>
+
+  <div class="row gap">
+    {% if o.url %}<a class="btn primary" href="{{ o.url }}" target="_blank" rel="noopener">باز کردن آگهی ↗</a>{% endif %}
+    <form method="post" action="{{ url_for('set_status', oid=o.id) }}" class="row">
+      <input type="hidden" name="next" value="{{ url_for('detail', oid=o.id) }}">
+      <select name="status" class="status s-{{ o.status|lower }}" onchange="this.form.submit()">
+        {% for s in STATUSES %}<option value="{{ s }}" {{ 'selected' if o.status == s }}>{{ STATUS_FA[s] }}</option>{% endfor %}
+      </select>
+    </form>
+  </div>
+
+  <form method="post" action="{{ url_for('set_notes', oid=o.id) }}" class="notes-form">
+    <label>یادداشت (با چه کسی صحبت کردی، قدم بعدی، مبلغ پیشنهادی…)</label>
+    <textarea name="notes" rows="4">{{ o.notes }}</textarea>
+    <button class="btn">ذخیره‌ی یادداشت</button>
+  </form>
+
+  <h3>متن آگهی</h3>
+  <div class="description" dir="auto">{{ o.description or '—' }}</div>
+
+  <form method="post" action="{{ url_for('delete_opp', oid=o.id) }}" onsubmit="return confirm('این فرصت حذف شود؟')">
+    <button class="btn danger small">حذف</button>
+  </form>
+</article>
+{% endblock %}

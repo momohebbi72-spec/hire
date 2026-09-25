@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}پروفایل — رادار فرصت{% endblock %}
+{% block content %}
+<div class="grid2 wide-left">
+  <section class="panel">
+    <h2>پروفایل مهارتی (YAML)</h2>
+    <p class="muted">مهارت‌ها با وزن ۱ تا ۱۰، عنوان‌های هدف، موقعیت‌ها و کلمات حذفی. بعد از تغییر، «ذخیره و امتیازدهی مجدد» را بزنید.</p>
+    <form method="post" class="form">
+      <textarea name="yaml" rows="34" class="mono" dir="ltr" spellcheck="false">{{ text }}</textarea>
+      <div class="row gap">
+        <button class="btn primary" name="rescore" value="1">ذخیره و امتیازدهی مجدد</button>
+        <button class="btn">فقط ذخیره</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>خلاصه</h2>
+    <dl class="facts">
+      <dt>حداقل امتیاز مناسب</dt><dd>{{ profile.min_score }}</dd>
+      <dt>تعداد در ایمیل</dt><dd>{{ profile.report_top_n }}</dd>
+      <dt>حداکثر عمر آگهی</dt><dd>{{ profile.max_age_days }} روز</dd>
+      <dt>Remote</dt><dd>{{ 'بله' if profile.wants_remote else 'خیر' }}</dd>
+    </dl>
+    <h3>مهارت‌ها</h3>
+    <div class="reasons" dir="ltr">{% for s in profile.skills|sort(attribute='weight', reverse=true) %}<span class="chip">{{ s.label }} · {{ s.weight }}</span>{% endfor %}</div>
+    <h3>عنوان‌های هدف</h3>
+    <div class="reasons" dir="ltr">{% for r in profile.target_roles %}<span class="chip">{{ r.label }}</span>{% endfor %}</div>
+    <h3>موقعیت‌ها</h3>
+    <div class="reasons" dir="ltr">{% for p in profile.places %}<span class="chip">{{ p.label }}</span>{% endfor %}</div>
+    <h3>نوع همکاری</h3>
+    <div class="reasons" dir="ltr">{% for w in profile.work_types %}<span class="chip">{{ w.label }}</span>{% endfor %}</div>
+    <h3>فرمول امتیاز</h3>
+    <ul class="muted small">
+      <li>عنوان شغل با نقش هدف: ۳۵ (یا مهارت در عنوان: ۲۲)</li>
+      <li>مهارت‌های پیدا شده در آگهی: تا ۴۰ (جمع وزن‌ها ÷ skill_target)</li>
+      <li>Remote: ۱۰ · کشور/منطقه‌ی دلخواه: ۵ تا ۱۰</li>
+      <li>نوع همکاری دلخواه: ۱۰</li>
+      <li>منفی: کلمات حذفی = ۰ · منطقه‌ی نامطلوب −۲۰ · آگهی قدیمی‌تر از ۱۴ روز −۵</li>
+    </ul>
+  </section>
+</div>
+{% endblock %}

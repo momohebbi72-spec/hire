@@ -1,0 +1,37 @@
+# ─────────────────────────────────────────────────────────────
+#  منابع پیش‌فرض. در اولین اجرا وارد دیتابیس می‌شوند و بعد از آن
+#  از صفحه‌ی «منابع» در داشبورد مدیریت می‌شوند.
+#  منبع جدیدی که اینجا اضافه کنید، در اجرای بعدی خودکار اضافه می‌شود.
+#
+#  type ها: remoteok, remotive, jobicy, himalayas, arbeitnow, rss,
+#           freelancer, greenhouse, lever, ashby, telegram
+# ─────────────────────────────────────────────────────────────
+sources:
+  # ── Job boards (Remote) ──
+  - {name: "RemoteOK — SEO & Marketing", type: remoteok, target: "seo,marketing"}
+  - {name: "Remotive — SEO", type: remotive, target: "seo"}
+  - {name: "Remotive — Marketing", type: remotive, target: "category:marketing"}
+  - {name: "Jobicy — SEO", type: jobicy, target: "seo"}
+  - {name: "Jobicy — Marketing", type: jobicy, target: "industry:marketing"}
+  - {name: "Himalayas — SEO", type: himalayas, target: "seo"}
+  - {name: "Himalayas — Digital Marketing", type: himalayas, target: "digital marketing"}
+  - {name: "We Work Remotely — Sales & Marketing", type: rss, target: "https://weworkremotely.com/categories/remote-sales-and-marketing-jobs.rss"}
+  - {name: "Arbeitnow (Europe)", type: arbeitnow, target: "", enabled: false}
+
+  # ── Freelance projects ──
+  - {name: "Freelancer — SEO", type: freelancer, target: "seo"}
+  - {name: "Freelancer — WordPress", type: freelancer, target: "wordpress"}
+  - {name: "Freelancer — Google Analytics", type: freelancer, target: "google analytics"}
+  - {name: "Reddit r/forhire", type: rss, target: "https://www.reddit.com/r/forhire/search.rss?q=seo+OR+marketing+OR+wordpress&restrict_sr=1&sort=new"}
+  - {name: "Reddit r/SEOJobs", type: rss, target: "https://www.reddit.com/r/SEOJobs/new/.rss"}
+
+  # ── Company career sites (examples — slug را با شرکت‌های مدنظرتان عوض کنید) ──
+  - {name: "Greenhouse companies", type: greenhouse, target: "airbnb,gitlab", enabled: false}
+  - {name: "Lever companies", type: lever, target: "palantir", enabled: false}
+  - {name: "Ashby companies", type: ashby, target: "ramp", enabled: false}
+
+  # ── Telegram (public channels) — یوزرنیم کانال را جایگزین کنید ──
+  - {name: "Telegram — job channel", type: telegram, target: "your_channel_username", enabled: false}
+
+  # ── Google Alerts RSS — لینک فید خودتان را بگذارید ──
+  - {name: "Google Alerts — SEO consultant", type: rss, target: "https://www.google.com/alerts/feeds/REPLACE/ME", enabled: false}

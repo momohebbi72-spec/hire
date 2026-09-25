@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}افزودن دستی — رادار فرصت{% endblock %}
+{% block content %}
+<div class="grid2">
+  <section class="panel">
+    <h2>افزودن فرصت دستی</h2>
+    <p class="muted">فرصتی که از لینکدین، ایمیل، معرفی یا جای دیگر پیدا کرده‌ای. امتیاز خودکار حساب می‌شود.</p>
+    <form method="post" class="form">
+      <label>عنوان *<input name="title" required value="{{ form.get('title', '') }}" dir="auto"></label>
+      <label>شرکت / کارفرما<input name="company" value="{{ form.get('company', '') }}" dir="auto"></label>
+      <label>لینک<input name="url" type="url" value="{{ form.get('url', '') }}" dir="ltr"></label>
+      <div class="grid2 tight">
+        <label>موقعیت<input name="location" placeholder="Remote / Canada" value="{{ form.get('location', '') }}" dir="auto"></label>
+        <label>نوع همکاری<input name="job_type" placeholder="Freelance / Full-time" value="{{ form.get('job_type', '') }}" dir="auto"></label>
+        <label>حقوق / بودجه<input name="salary" value="{{ form.get('salary', '') }}" dir="auto"></label>
+        <label>منبع<input name="source" placeholder="LinkedIn / Referral" value="{{ form.get('source', '') }}" dir="auto"></label>
+      </div>
+      <label>توضیحات آگهی<textarea name="description" rows="6" dir="auto">{{ form.get('description', '') }}</textarea></label>
+      <label>وضعیت
+        <select name="status">{% for s in STATUSES %}<option value="{{ s }}">{{ STATUS_FA[s] }}</option>{% endfor %}</select>
+      </label>
+      <label>یادداشت<textarea name="notes" rows="2" dir="auto">{{ form.get('notes', '') }}</textarea></label>
+      <button class="btn primary">افزودن</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>ورود گروهی از CSV</h2>
+    <p class="muted">ستون‌ها (ردیف اول): <code dir="ltr">title, company, url, location, type, salary, description, source, notes</code> — فقط <code>title</code> اجباری است.</p>
+    <form method="post" action="{{ url_for('import_csv') }}" enctype="multipart/form-data" class="form">
+      <input type="file" name="file" accept=".csv,text/csv" required>
+      <button class="btn">وارد کردن</button>
+    </form>
+  </section>
+</div>
+{% endblock %}
