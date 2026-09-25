@@ -38,6 +38,9 @@ def main(argv=None) -> int:
     em.add_argument("--out", default="data/reports")
     em.add_argument("--excel-url", default="")
     sub.add_parser("mark-reported", help="mark current unreported matches as reported (after mailing)")
+    fx = sub.add_parser("export-feed", help="write chunk JSON files for the artifact dashboard")
+    fx.add_argument("--out", default="data/feed")
+    fx.add_argument("--since", default="", help="ISO time; only items found after it")
     imp = sub.add_parser("import-json", help="import opportunities from a JSON list (e.g. collected by an assistant)")
     imp.add_argument("path")
     imp.add_argument("--source", default="Web search")
@@ -135,6 +138,13 @@ def main(argv=None) -> int:
         export_xlsx(out / "opportunity_report.xlsx", {"Top matches": rep["items"]})
         print(json.dumps({"matches": len(rep["items"]), "iran": len(rep["iran_items"]), "scanned": rep["scanned"],
                           "html": str(out / "email.html"), "xlsx": str(out / "opportunity_report.xlsx")}))
+        return 0
+    if args.cmd == "export-feed":
+        from pathlib import Path
+
+        from .feed import export
+
+        print(json.dumps(export(Path(args.out), args.since), ensure_ascii=False))
         return 0
     if args.cmd == "rescore":
         from .scanner import rescore_all
