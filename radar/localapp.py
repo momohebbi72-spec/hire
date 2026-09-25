@@ -107,7 +107,12 @@ def kv_doc(path: str):
         if request.method == "GET":
             if path == "config/meta":
                 last = con.execute("SELECT finished_at, started_at, fetched FROM scans ORDER BY id DESC LIMIT 1").fetchone()
-                data = {"lastRun": (last[0] or last[1]) if last else None, "newItems": last[2] if last else 0}
+                rows = con.execute("SELECT id, name, type, enabled, last_run, last_count, last_new, last_error FROM sources "
+                                   "WHERE last_run IS NOT NULL AND enabled = 1 ORDER BY name").fetchall()
+                data = {"lastRun": (last[0] or last[1]) if last else None, "newItems": last[2] if last else 0, "local": True,
+                        "running": _job_running(),
+                        "sources": [{"id": r[0], "name": r[1], "type": r[2], "on": bool(r[3]), "at": r[4], "n": r[5] or 0,
+                                     "new": r[6] or 0, "err": r[7] or ""} for r in rows]}
                 return jsonify({"exists": bool(last), "data": data})
             data = _kv_get(con, path)
             return jsonify({"exists": data is not None, "data": data})
@@ -125,6 +130,12 @@ def kv_doc(path: str):
 
         apply_sources(data)
     return jsonify({"ok": True})
+
+
+def _job_running() -> bool:
+    from .web import _job
+
+    return bool(_job.get("running"))
 
 
 @bp.post("/api/scan")

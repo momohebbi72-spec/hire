@@ -20,7 +20,7 @@ from urllib.parse import quote, quote_plus, unquote, urljoin, urlparse
 import requests
 
 from ..http import get_text, pause, post_json
-from ..textutil import first_line, normalize, strip_html, to_iso
+from ..textutil import fa_date, first_line, normalize, strip_html, to_iso
 from .base import Item, SourceConfig, register
 
 _NAV_WORDS = re.compile(
@@ -88,11 +88,51 @@ def harvest(page: str, base_url: str, pattern: Optional[str] = None, limit: int 
         key = url.rstrip("/")
         prev = found.get(key)
         if prev is None or len(text) > len(prev.title):
+            # «(۳ روز پیش)» usually sits right after the title link on Iranian boards
+            near = " ".join(parser._recent[link["index"]: link["index"] + 4])
             found[key] = Item(title=first_line(text, 160), url=url, description=strip_html(ctx)[:600],
-                              external_id=key)
+                              posted_at=fa_date(near) or (prev.posted_at if prev else None), external_id=key)
         if len(found) >= limit:
             break
     return list(found.values())
+
+
+_SEO_TITLE = re.compile(r"(?<![\u0620-\u064a\u066e-\u06d3\u06fa-\u06ff])سئو|seo|جئو|(?<![a-z])geo(?![a-z])|موتور جستجو", re.I)
+_REMOTE_HINT = re.compile(r"دورکار|دور کار|ریموت|remote|غیرحضوری", re.I)
+
+
+def enrich(items: List[Item], max_fetch: int = 12) -> None:
+    """Open the detail page of SEO/GEO postings that lack a date or a remote hint.
+
+    Listing cards on Iranian boards are short; the detail page holds the publish
+    date («۳ روز پیش» / ۱۴۰۵/۰۷/۰۱) and the work type (دورکاری / تمام‌وقت).
+    """
+    done = 0
+    for it in items:
+        if done >= max_fetch:
+            break
+        if not _SEO_TITLE.search(normalize(it.title)):
+            continue
+        if it.posted_at and _REMOTE_HINT.search(it.title + " " + it.description):
+            continue
+        try:
+            text = strip_html(get_text(it.url))
+        except requests.RequestException:
+            continue
+        done += 1
+        text = re.sub(r"[ \t]+", " ", text)
+        pos = text.find(it.title[:25])
+        body = text[pos: pos + 3000] if pos > -1 else text[:3000]
+        if not it.posted_at:
+            spots = [text[max(0, m.start() - 60): m.end() + 60]
+                     for m in re.finditer(r"انتشار|منتشر شده|تاریخ ثبت|ثبت آگهی|Posted", text)]
+            for spot in spots + [body[:400]]:
+                it.posted_at = fa_date(spot)
+                if it.posted_at:
+                    break
+        if len(body) > len(it.description or ""):
+            it.description = body
+        pause(1)
 
 
 def _fill(template: str, keyword: str) -> str:
@@ -136,6 +176,7 @@ def _preset_fetch(key: str):
                 if key in ("ponisha", "karlancer", "parscoders", "lancerify"):
                     it.job_type = "Freelance"
                     it.company = it.company or label
+            enrich(found)
             items += found
             pause(2)
         return items[: limit * 2]
@@ -168,17 +209,23 @@ def jobvision(src: SourceConfig, limit: int) -> List[Item]:
                 province = (loc.get("province") or {}).get("titleFa", "") if isinstance(loc, dict) else ""
                 city = (loc.get("city") or {}).get("titleFa", "") if isinstance(loc, dict) else ""
                 activation = p.get("activationTime") or {}
+                flags = " ".join(str(v) for k, v in p.items() if "remote" in k.lower() and v)
+                work = p.get("workType") if isinstance(p.get("workType"), dict) else {}
                 items.append(Item(
                     title=p.get("title", ""), company=company.get("nameFa") or company.get("nameEn") or "",
                     url=f"https://jobvision.ir/jobs/{p.get('id')}", location=" - ".join(x for x in (province, city) if x) or "Iran",
                     posted_at=to_iso(activation.get("date") if isinstance(activation, dict) else activation),
-                    job_type=str((p.get("workType") or {}).get("titleFa", "")) if isinstance(p.get("workType"), dict) else "",
+                    job_type=str(work.get("titleFa", "")), tags=["Remote"] if flags and flags not in ("False", "0") else [],
+                    description=" ".join(x for x in (str(work.get("titleFa", "")), "دورکاری" if flags and flags not in ("False", "0") else "",
+                                                       strip_html(str(p.get("description") or ""))[:1500]) if x),
                     salary=str((p.get("salary") or {}).get("titleFa", "")) if isinstance(p.get("salary"), dict) else "",
                     external_id=str(p.get("id")),
                 ))
         else:  # fallback: harvest the public listing page
             url = f"https://jobvision.ir/jobs/keyword/{quote(kw)}"
-            for it in harvest(get_text(url), url, r"^/jobs/\d+", limit):
+            found = harvest(get_text(url), url, r"^/jobs/\d+", limit)
+            enrich(found)
+            for it in found:
                 it.location = "Iran"
                 items.append(it)
         pause(2)
@@ -193,6 +240,7 @@ def webpage(src: SourceConfig, limit: int) -> List[Item]:
     url, _, pattern = (src.target or "").partition("|")
     url = url.strip()
     items = harvest(get_text(url), url, pattern.strip() or None, limit)
+    enrich(items)
     host = urlparse(url).netloc.replace("www.", "")
     for it in items:
         it.company = it.company or host

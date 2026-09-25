@@ -429,7 +429,7 @@ details.panel summary{cursor:pointer;font-weight:800}
   var WHEN_FA = { d1: "امروز و دیروز", d3: "۳ روز اخیر", week: "این هفته", unknown: "تاریخ نامشخص" };
 
   var DEFAULT_RULES = {
-    days: 7, hybridReview: true, undatedReview: true, seniorOnly: false,
+    days: 7, hybridReview: true, undatedReview: true, seniorOnly: false, iranFoundAsDate: true,
     role_terms: ["سئو", "سئوکار", "seo", "search engine optimi", "بهینه سازی موتور جستجو", "!GEO", "جئو", "generative engine", "!AEO", "answer engine", "ai search", "ai visibility", "llm optimi", "llm seo", "ai seo", "سئو هوش مصنوعی", "نتایج هوش مصنوعی", "جستجوی هوش مصنوعی", "chatgpt seo"],
     exclude_title: ["دیجیتال مارکتینگ", "digital marketing", "بازاریابی دیجیتال", "مارکتینگ", "marketing manager", "social media", "سوشال مدیا", "اینستاگرام", "ادمین", "تولید محتوا", "محتوانویس", "content writer", "copywriter", "کپی رایتر", "sem ", "google ads", "گوگل ادز", "ppc", "کارشناس فروش", "sales", "برنامه نویس", "developer"],
     junior_terms: ["کارآموز", "کارورز", "intern", "internship", "junior", "جونیور", "تازه کار", "entry level", "entry-level", "trainee", "بدون سابقه"],
@@ -465,6 +465,7 @@ details.panel summary{cursor:pointer;font-weight:800}
     sites: [], custom: [], linkedinOn: true,
     foreign: { remoteok: false, remotive: false, jobicy: false, himalayas: false, wwr: false, freelancer: false, reddit: false, wellfound: false, indeed: false }
   };
+  var IRAN_SCRAPERS = ["jobinja", "jobvision", "eestekhdam", "karbord", "kardix", "divar", "ponisha", "karlancer", "parscoders", "lancerify", "webpage"];
   var DEFAULT_FIELDS = { hidden: [], custom: [] };
   var BUILTIN_FACETS = [["work", "نوع همکاری"], ["role", "نقش"], ["lvl", "سطح"], ["when", "زمان انتشار"], ["src", "منبع / کانال / کشور"], ["st", "وضعیت من"]];
   var DEFAULT_REPORT = { includeReview: true, onlyNew: true };
@@ -546,7 +547,7 @@ details.panel summary{cursor:pointer;font-weight:800}
   function has(ps, s) { for (var i = 0; i < ps.length; i++) if (ps[i].test(s)) return true; return false; }
   var GEO_RX = /(?<![a-z])(geo|aeo)(?![a-z])|جئو|generative|answer engine|هوش مصنوعی|ai search|ai visibility|llm/i;
   function compile(R) {
-    return { days: Number(R.days) || 7, hybridReview: R.hybridReview !== false, undatedReview: R.undatedReview !== false, seniorOnly: !!R.seniorOnly,
+    return { days: Number(R.days) || 7, iranFound: R.iranFoundAsDate !== false, hybridReview: R.hybridReview !== false, undatedReview: R.undatedReview !== false, seniorOnly: !!R.seniorOnly,
       role: pats(R.role_terms), excl: pats(R.exclude_title), junior: pats(R.junior_terms), remote: pats(R.remote_terms),
       project: pats(R.project_terms), pt: pats(R.parttime_terms), onsite: pats(R.onsite_terms), hybrid: pats(R.hybrid_terms),
       senior: pats(R.senior_terms), hosts: (R.project_hosts || []).map(function (h) { return String(h).toLowerCase(); }) };
@@ -568,6 +569,7 @@ details.panel summary{cursor:pointer;font-weight:800}
     else if (has(C.onsite, head) || o.rh === "On-site") r.work = "onsite";
     r.lvl = has(C.senior, t) ? "senior" : "any";
     var d = toDate(o.posted), now = Date.now();
+    if (!d && C.iranFound && IRAN_SCRAPERS.indexOf(o.st) > -1) { d = toDate(o.found); r.approx = !!d; }
     if (d) { r.age = Math.max(0, Math.floor((now - d) / 864e5)); r.fresh = r.age <= C.days ? "week" : "old"; }
     else { var f = toDate(o.found); if (f && (now - f) / 864e5 > C.days) r.fresh = "old"; }
     function out(tier, why) { r.tier = tier; r.why = why; return r; }
@@ -709,7 +711,8 @@ details.panel summary{cursor:pointer;font-weight:800}
     $("sideFoot").innerHTML =
       '<div class="row"><span>آخرین اسکن</span><b>' + (last ? faTime.format(last) : "—") + "</b></div>" +
       '<div class="row"><span>اسکن بعدی</span><b>' + (next ? faTime.format(next) : "هر ۴۸ ساعت") + "</b></div>" +
-      '<button type="button" class="btn sm" id="scanBtn"' + (caps.mcp ? "" : " hidden") + ">" + ic("refresh") + "<span>اسکن الان</span></button>";
+      (m.running ? '<div class="row" style="color:var(--accent);font-weight:700;margin-top:6px"><span>در حال اسکن…</span></div>' : "") +
+      '<button type="button" class="btn sm" id="scanBtn"' + (caps.mcp ? "" : " hidden") + (m.running ? " disabled" : "") + ">" + ic("refresh") + "<span>اسکن الان</span></button>";
   }
   function renderTop() {
     var v = VIEWS.filter(function (x) { return x[0] === S.view; })[0] || VIEWS[0];
@@ -848,6 +851,13 @@ details.panel summary{cursor:pointer;font-weight:800}
     if (S.q) applied.unshift('<button type="button" class="achip" data-clearq="1">«' + esc(S.q) + "»" + ic("x") + "</button>");
     if (applied.length) applied.push('<button type="button" class="achip clear" data-clearall="1">پاک کردن همه</button>');
     var intro = "";
+    if (view === "iran") {
+      var ir = ((S.meta || {}).sources || []).filter(isIranSrc), bad = ir.filter(function (r) { return r.err; });
+      if (bad.length) intro = '<div class="banner warn"><div class="bi">' + ic("alert") + "</div><div><b>" + n(bad.length) + " سایت ایرانی در آخرین اسکن جواب نداد</b><p>" +
+        esc(bad.slice(0, 3).map(function (r) { return r.name; }).join("، ")) + ". معمولا به‌خاطر روشن بودن VPN است؛ VPN را خاموش کن و «اسکن الان» را بزن. جزئیات در تنظیمات، بخش منابع.</p></div></div>";
+      else if (!ir.length && !(S.meta || {}).local) intro = '<div class="banner info"><div class="bi">' + ic("info") + "</div><div><b>جابینجا، جاب‌ویژن و ای‌استخدام از سرور ابری باز نمی‌شوند</b><p>" +
+        "این سایت‌ها اتصال از خارج ایران را می‌بندند. در این نسخه آگهی‌های پونیشا و کارلنسر (از کانال‌هایشان) اینجا می‌آیند و نتایج جستجوی گوگل در جابینجا و بقیه، چون تاریخ ندارند، در «قابل بررسی». برای آگهی مستقیم و تاریخ‌دار این سایت‌ها، نسخه‌ی مک را با VPN خاموش اجرا کن.</p></div></div>";
+    }
     if (view === "review") intro = '<div class="banner warn"><div class="bi">' + ic("alert") + '</div><div><b>این‌ها احتمالا خوب‌اند، ولی مطمئن نیستم.</b><p>زیر هر آگهی نوشته چرا اینجاست. اگر به دردت خورد «ذخیره» کن، اگر نه «بی‌ربط» بزن تا دیگر نبینی.</p></div></div>';
     else if (view === "social" && !pool("social").some(function (o) { return /instagram/i.test(o.url); }))
       intro = '<div class="banner info"><div class="bi">' + ic("info") + '</div><div><b>درباره‌ی اینستاگرام</b><p>اینستاگرام بدون ورود به حساب آگهی نشان نمی‌دهد؛ هشتگ‌هایت در تنظیمات ذخیره‌اند و با جستجوی وب بررسی می‌شوند. پست‌های تلگرامی که لینکشان به پونیشا، کارلنسر یا ای‌استخدام است، در صفحه‌ی «سایت‌های ایرانی» آمده‌اند تا تکراری نشوند.</p></div></div>';
@@ -872,6 +882,7 @@ details.panel summary{cursor:pointer;font-weight:800}
     var c = cl(o), st = statusOf(o.id), saved = st === "Saved";
     var tags = [];
     if (c.work !== "unknown") tags.push('<span class="tag ' + (c.work === "project" ? "p" : c.work === "hybrid" ? "w" : "m") + '">' + ic(c.work === "project" ? "brief" : "pin") + WORK_FA[c.work] + "</span>");
+    if (c.approx) tags.push('<span class="tag" data-tip="سایت تاریخ نداده؛ روز اولی که رادار دیدش حساب شده">' + ic("clock") + "تاریخ تقریبی</span>");
     if (c.role === "geo") tags.push('<span class="tag g">' + ic("spark") + "GEO / AI Search</span>");
     if (c.lvl === "senior") tags.push('<span class="tag s">ارشد / مدیر</span>');
     if (o.salary) tags.push('<span class="tag money" dir="auto">' + ic("money") + esc(String(o.salary).slice(0, 60)) + "</span>");
@@ -938,6 +949,18 @@ details.panel summary{cursor:pointer;font-weight:800}
     return '<label class="src">' + avatar({ company: name }) + '<span class="tx"><b>' + esc(name) + '</b><small dir="ltr">' + esc(domain) + "</small>" + (kind ? "<small> · " + kind + "</small>" : "") + "</span>" +
       '<input type="checkbox" data-src="' + group + '" data-key="' + key + '"' + (on ? " checked" : "") + '><span class="tr"></span></label>';
   }
+  function srcStatusHtml(filterFn) {
+    var rows = ((S.meta || {}).sources || []).filter(filterFn || function () { return true; });
+    if (!rows.length) return "";
+    return '<div class="hb" style="gap:6px">' + rows.map(function (r) {
+      var when = toDate(r.at);
+      return '<div style="display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--card2)">' +
+        '<span style="min-width:0"><b style="font-weight:700" dir="auto">' + esc(r.name) + '</b>' + (r.err ? '<br><span style="color:var(--bad);font-size:12px" dir="auto">' + esc(r.err) + "</span>" : "") + "</span>" +
+        '<span style="font-size:12px;color:var(--muted)">' + (when ? faTime.format(when) : "") + "</span>" +
+        '<span class="tag ' + (r.err ? "w" : r.n ? "m" : "") + '">' + (r.err ? "خطا" : n(r.n) + " آگهی") + "</span></div>";
+    }).join("") + "</div>";
+  }
+  function isIranSrc(r) { return IRAN_SCRAPERS.indexOf(r.type) > -1 || /^(iranestekhdam|karpishe|jobteam|custom-)/.test(r.id || ""); }
   function settingsHtml() {
     var tabs = [["rules", "فیلتر هوشمند", "filter"], ["sources", "منابع", "layers"], ["fields", "فیلدهای فیلتر", "settings"], ["texts", "متن‌ها و رزومه", "file"], ["report", "گزارش ایمیلی", "mail"]];
     var head = '<div class="tabs" role="tablist">' + tabs.map(function (t) { return '<button type="button" role="tab" data-tab="' + t[0] + '" class="' + (S.setTab === t[0] ? "on" : "") + '" aria-selected="' + (S.setTab === t[0]) + '">' + ic(t[2]) + t[1] + "</button>"; }).join("") + "</div>";
@@ -955,6 +978,7 @@ details.panel summary{cursor:pointer;font-weight:800}
         '<section class="panel"><div class="ph"><h2>رفتار با موارد نامطمئن</h2></div>' +
           sw("rHybrid", R.hybridReview !== false, "آگهی‌های هیبرید را در «قابل بررسی» نشان بده", "خاموش باشد، هیبریدها کامل حذف می‌شوند.") +
           sw("rUndated", R.undatedReview !== false, "آگهی‌های بدون تاریخ را در «قابل بررسی» نشان بده", "نتایج جستجوی وب معمولا تاریخ ندارند.") +
+          sw("rIranFound", R.iranFoundAsDate !== false, "آگهی بدون تاریخِ سایت‌های ایرانی را با روز اولی که دیده شد حساب کن", "جابینجا و بقیه همیشه تاریخ نمی‌دهند؛ خاموش باشد این آگهی‌ها به «قابل بررسی» می‌روند.") +
           sw("rSenior", !!R.seniorOnly, "فقط سطح ارشد، مدیر، سرپرست یا متخصص", "آگهی‌هایی که سطح بالاتری در عنوانشان ندارند حذف می‌شوند.") +
         "</section>" +
         '<details class="panel"><summary>کلمات تشخیص نوع همکاری (پیشرفته)</summary>' +
@@ -971,7 +995,9 @@ details.panel summary{cursor:pointer;font-weight:800}
         "</div>";
     } else if (S.setTab === "sources") {
       var X = S.sources;
+      var st = srcStatusHtml();
       body = '<div class="set">' +
+        (st ? '<section class="panel"><div class="ph"><h2>وضعیت آخرین اسکن هر منبع</h2><span class="grow"></span><span class="sub">' + ((S.meta || {}).local ? "روی مک" : "اسکن ابری") + "</span></div>" + st + "</section>" : "") +
         '<section class="panel"><div class="ph"><h2>سایت‌های ایرانی</h2><span class="grow"></span><span class="sub">روی مک مستقیم؛ در اسکن ابری با جستجوی وب</span></div>' +
           '<div class="srcgrid">' + IRAN_SITES.map(function (s) { var v = (X.iran || {})[s[0]]; return srcToggle("iran", s[0], s[1], s[2], s[3], v == null ? DEFAULT_SOURCES.iran[s[0]] : v); }).join("") + "</div></section>" +
         '<div class="two">' +
@@ -1197,7 +1223,7 @@ details.panel summary{cursor:pointer;font-weight:800}
     commitAllTags();
     var R = clone(S.rules);
     ["role_terms", "exclude_title", "junior_terms", "remote_terms", "project_terms", "parttime_terms", "onsite_terms", "hybrid_terms", "senior_terms", "project_hosts"].forEach(function (k) { if (tagState[k]) R[k] = tagState[k].slice(); });
-    R.hybridReview = $("rHybrid").checked; R.undatedReview = $("rUndated").checked; R.seniorOnly = $("rSenior").checked;
+    R.hybridReview = $("rHybrid").checked; R.undatedReview = $("rUndated").checked; R.seniorOnly = $("rSenior").checked; R.iranFoundAsDate = $("rIranFound").checked;
     return R;
   }
   function readCustomSites() {

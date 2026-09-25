@@ -74,3 +74,35 @@ def test_custom_site_goes_to_iran_page(tmp_path, monkeypatch):
     assert channel_of("websearch", "https://www.karboom.io/job/1") == "iran"
     apply_sources({"custom": []})
     assert "custom-kb" not in {s.id for s in cs.load_sources()}
+
+
+JOBINJA_CARD = """
+<ul><li class="c-jobListView__item"><div><h2 class="c-jobListView__title">
+<a class="c-jobListView__titleLink" href="https://jobinja.ir/companies/acme/jobs/AbC1/استخدام-کارشناس-سئو">استخدام کارشناس سئو (دورکاری)</a>
+<span class="c-jobListView__passedDays">(۲ روز پیش)</span></h2>
+<ul><li><span>شرکت نمونه</span></li><li><span>تهران ، تهران</span></li></ul></div></li>
+<li class="c-jobListView__item"><div><h2><a href="https://jobinja.ir/companies/beta/jobs/XyZ9/استخدام-متخصص-سئو">استخدام متخصص سئو</a>
+<span>(امروز)</span></h2></div></li></ul>
+"""
+
+
+def test_harvest_reads_passed_days(monkeypatch):
+    from radar.sources import iran
+
+    monkeypatch.setattr(iran, "get_text", lambda url, **kw: "<h1>استخدام متخصص سئو</h1><p>نوع همکاری: دورکاری</p>")
+    monkeypatch.setattr(iran, "pause", lambda *a: None)
+    items = iran.harvest(JOBINJA_CARD, "https://jobinja.ir/jobs", r"^/companies/[^/]+/jobs/[A-Za-z0-9]+")
+    assert [i.title for i in items] == ["استخدام کارشناس سئو (دورکاری)", "استخدام متخصص سئو"]
+    assert items[0].posted_at and items[1].posted_at
+    iran.enrich(items)
+    assert "دورکاری" in items[1].description
+    c = Classifier()
+    assert c.classify(items[1].title, items[1].description, items[1].url, items[1].posted_at)["tier"] == "match"
+
+
+def test_undated_iran_scrape_uses_found_date():
+    c = Classifier()
+    r = c.classify("استخدام کارشناس سئو (دورکاری)", "", "https://jobinja.ir/x", "", source_type="jobinja", found=_ago(1))
+    assert r["tier"] == "match" and r["approx"]
+    r = c.classify("استخدام کارشناس سئو (دورکاری)", "", "https://jobinja.ir/x", "", source_type="websearch", found=_ago(1))
+    assert r["tier"] == "review"

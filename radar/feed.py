@@ -39,7 +39,7 @@ def item(row, clf: Optional[Classifier] = None) -> Dict:
     clf = clf or Classifier()
     reasons = json.loads(row["reasons"] or "[]")
     tier = clf.classify(row["title"], row["description"] or "", row["url"] or "", row["posted_at"] or "",
-                        row["remote_type"] or "", row["opp_type"] or "")
+                        row["remote_type"] or "", row["opp_type"] or "", row["source_type"] or "", row["found_at"] or "")
     host = urlparse(row["url"] or "").netloc.lower().replace("www.", "")
     return {
         "id": row["uid"][:16], "title": row["title"], "company": row["company"] or "", "location": row["location"] or "",
@@ -48,6 +48,7 @@ def item(row, clf: Optional[Classifier] = None) -> Dict:
         "ch": channel_of(row["source_type"] or "", row["url"] or ""),
         "tier": tier["tier"], "why": tier["why"], "role": tier["role"], "mode": tier["mode"],
         "pt": tier["parttime"], "lvl": tier["level"], "fresh": tier["fresh"], "age": tier.get("age_days"),
+        "approx": tier.get("approx", False), "st": row["source_type"] or "",
         "salary": row["salary"] or "", "found": (row["found_at"] or "")[:19], "posted": (row["posted_at"] or "")[:19],
         "desc": re.sub(r"\s+", " ", row["description"] or "")[:420], "email": _email(row["description"] or ""),
     }
@@ -63,6 +64,11 @@ def export(out: Path, since: str = "", min_score: int = 0, chunk: int = 150, day
     with dbm.get_db() as con:
         rows = con.execute("SELECT * FROM opportunities WHERE found_at > ? ORDER BY found_at", (since,)).fetchall()
         stats = dbm.stats(con, 55)
+        from .config_store import load_sources
+
+        dbm.sync_sources(con, load_sources())  # the status list follows the current source settings
+        src_rows = con.execute("SELECT id, name, type, enabled, last_run, last_count, last_new, last_error FROM sources "
+                               "WHERE last_run IS NOT NULL AND enabled = 1 ORDER BY name").fetchall()
     items = [item(r, clf) for r in rows]
     items = [i for i in items if i["tier"] != "drop" and i["score"] >= min_score]
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M")
@@ -75,6 +81,8 @@ def export(out: Path, since: str = "", min_score: int = 0, chunk: int = 150, day
     meta = {"lastRun": datetime.now(timezone.utc).isoformat(timespec="seconds"), "scannedToday": stats["scanned_today"],
             "newItems": len(items), "match": count(tier="match"), "review": count(tier="review"),
             "iran": count(ch="iran"), "linkedin": count(ch="linkedin"), "social": count(ch="social"),
-            "intl": count(ch="intl"), "days": days}
+            "intl": count(ch="intl"), "days": days,
+            "sources": [{"id": r[0], "name": r[1], "type": r[2], "on": bool(r[3]), "at": r[4], "n": r[5] or 0,
+                         "new": r[6] or 0, "err": r[7] or ""} for r in src_rows]}
     (out / "meta.json").write_text(json.dumps(meta, ensure_ascii=False), encoding="utf-8")
     return {"files": files, "meta": str(out / "meta.json"), **meta}

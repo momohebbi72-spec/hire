@@ -13,6 +13,7 @@ from .textutil import normalize, parse_iso
 
 DEFAULT_RULES: Dict = {
     "days": 7,
+    "iranFoundAsDate": True,  # undated postings scraped from Iranian boards: use the day they were first seen
     "role_terms": ["سئو", "سئوکار", "seo", "search engine optimi", "بهینه سازی موتور جستجو", "!GEO", "جئو",
                    "generative engine", "!AEO", "answer engine", "ai search", "ai visibility", "llm optimi",
                    "llm seo", "ai seo", "سئو هوش مصنوعی", "نتایج هوش مصنوعی", "جستجوی هوش مصنوعی", "chatgpt seo"],
@@ -57,6 +58,11 @@ def _has(pats, text: str) -> bool:
     return any(p.search(text) for p in pats)
 
 
+# connectors that read an Iranian board directly (newest first) — see iranFoundAsDate
+IRAN_SCRAPERS = ("jobinja", "jobvision", "eestekhdam", "karbord", "kardix", "divar", "ponisha", "karlancer",
+                 "parscoders", "lancerify", "webpage")
+
+
 class Classifier:
     def __init__(self, rules: Optional[Dict] = None):
         r = dict(DEFAULT_RULES)
@@ -75,7 +81,7 @@ class Classifier:
         self.hosts = [h.lower() for h in r["project_hosts"]]
 
     def classify(self, title: str, body: str, url: str = "", posted: str = "", remote_hint: str = "",
-                 type_hint: str = "") -> Dict:
+                 type_hint: str = "", source_type: str = "", found: str = "") -> Dict:
         t = normalize(title or "")
         b = normalize(body or "")
         u = (url or "").lower()
@@ -104,6 +110,9 @@ class Classifier:
         facets["level"] = "senior" if _has(self.senior, t) else "any"
 
         dt = parse_iso(posted)
+        if not dt and source_type in IRAN_SCRAPERS and self.rules.get("iranFoundAsDate", True) is not False:
+            dt = parse_iso(found)
+            facets["approx"] = bool(dt)
         if dt:
             age = datetime.now(timezone.utc) - dt
             facets["fresh"] = "week" if age <= timedelta(days=self.days) else "old"
