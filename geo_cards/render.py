@@ -1,6 +1,7 @@
 """HTML → PNG (Playwright, or the Chrome already on your Mac) and story slides → silent MP4."""
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
 import tempfile
@@ -60,11 +61,26 @@ def render_pngs(jobs: list, renderer: str = "auto", log=print) -> None:
     _render_chrome(jobs, log)
 
 
+def _launch(pw):
+    """Your own Chrome first (no browser download needed), then Playwright's bundled one."""
+    attempts = []
+    if env("CHROME_PATH"):
+        attempts.append({"executable_path": env("CHROME_PATH")})
+    attempts += [{"channel": "chrome"}, {}, {"channel": "msedge"}]
+    last_error = None
+    for kwargs in attempts:
+        try:
+            return pw.chromium.launch(**kwargs)
+        except Exception as exc:
+            last_error = exc
+    raise RuntimeError(f"Playwright مرورگری پیدا نکرد: {last_error}")
+
+
 def _render_playwright(jobs: list) -> None:
     from playwright.sync_api import sync_playwright
 
     with sync_playwright() as pw:
-        browser = pw.chromium.launch()
+        browser = _launch(pw)
         try:
             for page_html, png, (width, height) in jobs:
                 page = browser.new_page(viewport={"width": width, "height": height}, device_scale_factor=1)
@@ -74,6 +90,22 @@ def _render_playwright(jobs: list) -> None:
                 page.close()
         finally:
             browser.close()
+
+
+# Headless Chrome paints a viewport shorter than --window-size, so the bottom of the slide
+# would be cut. Render a taller window and crop back to the slide size.
+_EXTRA_HEIGHT = 240
+
+
+def _crop(png: Path, width: int, height: int) -> bool:
+    try:
+        from PIL import Image
+    except ImportError:
+        return False
+    with Image.open(png) as image:
+        cropped = image.crop((0, 0, width, height))
+    cropped.save(png)
+    return True
 
 
 def _render_chrome(jobs: list, log) -> None:
@@ -86,11 +118,15 @@ def _render_chrome(jobs: list, log) -> None:
                 png.unlink()
             cmd = [chrome, "--headless=new", "--disable-gpu", "--hide-scrollbars", "--no-first-run",
                    "--no-default-browser-check", "--mute-audio", f"--user-data-dir={profile}",
-                   "--force-device-scale-factor=1", f"--window-size={width},{height}",
+                   "--force-device-scale-factor=1", f"--window-size={width},{height + _EXTRA_HEIGHT}",
                    "--virtual-time-budget=5000", f"--screenshot={png}", _html_path(png).resolve().as_uri()]
+            if hasattr(os, "geteuid") and os.geteuid() == 0:
+                cmd.insert(1, "--no-sandbox")  # Chrome refuses to start as root (servers, containers)
             proc = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
             if proc.returncode != 0 or not png.exists():
                 raise RuntimeError(f"ساخت {png.name} نشد: {(proc.stderr or '')[-300:]}")
+            if not _crop(png, width, height):
+                log("⚠ Pillow نصب نیست؛ تصویر برش نخورد: pip install Pillow")
             size = _png_size(png)
             if size and size != (width, height):
                 log(f"⚠ اندازه‌ی {png.name} {size[0]}×{size[1]} شد، نه {width}×{height}")

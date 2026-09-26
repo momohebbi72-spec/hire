@@ -34,18 +34,22 @@ html,body{width:${w}px;height:${h}px;background:var(--bg);overflow:hidden}
 body{font-family:'$family','Vazir',Tahoma,sans-serif;color:var(--text);-webkit-font-smoothing:antialiased}
 .slide{position:relative;width:${w}px;height:${h}px;padding:${pt}px 88px ${pb}px;display:flex;flex-direction:column;gap:28px;overflow:hidden}
 .glow{position:absolute;width:900px;height:900px;border-radius:50%;background:radial-gradient(circle,var(--accent) 0%,transparent 65%);opacity:.16;top:-430px;left:-380px}
-.mark{position:absolute;left:-20px;bottom:-200px;font-size:760px;font-weight:900;line-height:1;opacity:.045}
 .top{display:flex;justify-content:space-between;align-items:center;position:relative}
 .badge{background:var(--accent);color:var(--accent-text);border-radius:999px;padding:10px 28px;font-size:30px;font-weight:800}
 .page{color:var(--muted);font-size:28px;font-weight:700}
 .main{flex:1;display:flex;flex-direction:column;justify-content:center;gap:32px;position:relative;min-height:0}
 .kicker{color:var(--accent);font-size:40px;font-weight:800}
+.prompt{background:var(--surface);border:2px solid rgba(255,255,255,.1);border-radius:44px;padding:40px 44px 34px;display:flex;flex-direction:column;gap:18px;box-shadow:0 40px 90px rgba(0,0,0,.35)}
+.prompt-head{display:flex;align-items:center;gap:14px;color:var(--muted);font-size:30px;font-weight:700}
+.spark{color:var(--accent);flex:0 0 auto}
+.send{align-self:flex-end;width:76px;height:76px;border-radius:50%;background:var(--accent);color:var(--accent-text);display:flex;align-items:center;justify-content:center}
 .question{font-weight:900;line-height:1.4}
 .sub{color:var(--muted);font-size:40px;line-height:1.7;font-weight:500}
 .title{font-size:60px;font-weight:900;line-height:1.35}
 .note{color:var(--muted);font-size:30px;line-height:1.6}
 .list{display:flex;flex-direction:column;gap:20px}
 .row{display:flex;align-items:center;gap:26px;background:var(--surface);border-radius:26px;padding:20px 28px}
+.row.first{box-shadow:inset 0 0 0 3px var(--accent)}
 .rank{flex:0 0 64px;height:64px;border-radius:50%;background:var(--accent);color:var(--accent-text);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900}
 .info{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px}
 .name{font-size:38px;line-height:1.35;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -61,6 +65,8 @@ body{font-family:'$family','Vazir',Tahoma,sans-serif;color:var(--text);-webkit-f
 .cta .big{font-size:50px;font-weight:900;line-height:1.5}
 .cta .small{font-size:38px;color:var(--muted);line-height:1.6}
 .empty{font-size:44px;line-height:1.7;color:var(--muted)}
+.follow{color:var(--muted);font-size:34px;line-height:1.6}
+.follow b{color:var(--text);direction:ltr;unicode-bidi:isolate}
 .swipe{color:var(--accent);font-weight:800;font-size:34px;position:relative}
 .logo{height:72px;align-self:flex-start}
 .foot{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;border-top:2px solid rgba(255,255,255,.1);padding-top:24px;color:var(--muted);font-size:25px;line-height:1.6;position:relative}
@@ -129,15 +135,22 @@ def _name_html(name: str, masked: bool) -> str:
 
 
 def _question_size(text: str, size: str) -> int:
-    base = 92 if size == "feed" else 100
+    base = 80 if size == "feed" else 88
     length = len(text)
     if length > 70:
-        return base - 30
+        return base - 26
     if length > 50:
-        return base - 18
+        return base - 16
     if length > 35:
-        return base - 8
+        return base - 6
     return base
+
+
+_SPARK = ("<svg class='spark' viewBox='0 0 24 24' width='34' height='34' aria-hidden='true'>"
+          "<path fill='currentColor' d='M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4z'/></svg>")
+_SEND = ("<svg viewBox='0 0 24 24' width='38' height='38' aria-hidden='true'><path fill='none' "
+         "stroke='currentColor' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round' "
+         "d='M12 19V5M5 12l7-7 7 7'/></svg>")
 
 
 def _logo_html(path_value: str) -> str:
@@ -158,9 +171,11 @@ def _hook(data: dict, size: str) -> str:
     labels = " و ".join(html.escape(result["label"]) for result in data["results"])
     return ("<div class='main'>"
             "<div class='kicker'>از هوش مصنوعی پرسیدیم</div>"
+            f"<div class='prompt'><div class='prompt-head'>{_SPARK}<bdi>{labels}</bdi></div>"
             f"<div class='question' style='font-size:{_question_size(data['question'], size)}px'>"
-            f"«{html.escape(data['question'])}»</div>"
-            f"<div class='sub'>{runs} بار از {labels} پرسیدیم. ببینید اسم چه کسانی آمد.</div>"
+            f"{html.escape(data['question'])}</div>"
+            f"<div class='send'>{_SEND}</div></div>"
+            f"<div class='sub'>{runs} بار پرسیدیم. ببینید اسم چه کسانی آمد.</div>"
             "</div><div class='swipe'>ورق بزنید ←</div>")
 
 
@@ -170,7 +185,7 @@ def _results(result: dict, config: dict, masked: bool) -> str:
     rows = []
     for index, entity in enumerate(result["entities"][:top_n], 1):
         width = max(4, round(100 * entity["count"] / runs)) if runs else 0
-        rows.append("<div class='row'>"
+        rows.append(f"<div class='{'row first' if index == 1 else 'row'}'>"
                     f"<div class='rank'>{fa(index)}</div>"
                     f"<div class='info'><div class='name'>{_name_html(entity['name'], masked)}</div>"
                     f"<div class='bar'><span style='width:{width}%'></span></div></div>"
@@ -202,20 +217,22 @@ def _tips(category: dict) -> str:
     tips = (category.get("tips") or [])[:3]
     items = "".join(f"<li>{html.escape(tip)}</li>" for tip in tips)
     return ("<div class='main'>"
-            f"<div class='title'>اسم شما نیامد؟ از این {fa(len(tips))} کار شروع کنید</div>"
+            f"<div class='title'>اسم شما نیامد؟ این {fa(len(tips))} کار را بکنید</div>"
             f"<ol class='tips'>{items}</ol></div>")
 
 
 def _cta(brand: dict) -> str:
     keyword = html.escape(brand.get("dm_keyword") or "تست")
     link_text = html.escape(brand.get("cta_link_text") or "تست رایگان: لینک در بیو")
+    handle = html.escape(brand.get("handle") or "")
+    follow = f"<div class='follow'>برای سؤال بعدی دنبال کنید <b>{handle}</b></div>" if handle else ""
     return ("<div class='main'>"
             "<div class='title'>اسم شما آمد؟</div>"
             "<div class='cta'>"
             f"<div class='big'>{link_text}</div>"
             f"<div class='small'>یا در دایرکت بنویسید «{keyword}»</div></div>"
-            "<div class='sub'>فردا یک حوزه‌ی دیگر را می‌پرسیم. حوزه‌ی خودتان را کامنت کنید.</div>"
-            f"{_logo_html(brand.get('logo') or '')}</div>")
+            "<div class='sub'>حوزه‌ی خودتان را کامنت کنید تا فردا بپرسیم.</div>"
+            f"{follow}{_logo_html(brand.get('logo') or '')}</div>")
 
 
 def _page(body: str, size: str, config: dict) -> str:
@@ -235,7 +252,7 @@ def build_slides(data: dict, config: dict, size: str = "feed", mask=None) -> lis
     """[(file name, html)] for one post, in publishing order."""
     brand = config.get("brand") or {}
     masked = bool(data.get("mask_names")) if mask is None else mask
-    series = f"{brand.get('series_title') or 'سؤال روز'} · #{fa(data.get('number') or '')}"
+    series = f"{brand.get('series_title') or 'سؤال روز'} {fa(data.get('number') or '')}".strip()
     parts = [("hook", _hook(data, size))]
     for index, result in enumerate(data["results"], 1):
         parts.append((f"results-{index}", _results(result, config, masked)))
@@ -249,10 +266,9 @@ def build_slides(data: dict, config: dict, size: str = "feed", mask=None) -> lis
     total = len(parts)
     slides = []
     for index, (name, inner) in enumerate(parts, 1):
-        mark = "<div class='mark'>؟</div>" if name == "hook" else ""
-        body = ("<div class='glow'></div>" + mark
+        body = ("<div class='glow'></div>"
                 + f"<div class='top'><div class='badge'>{html.escape(series)}</div>"
-                  f"<div class='page'>{fa(index)} / {fa(total)}</div></div>"
+                  f"<div class='page'>{fa(index)} از {fa(total)}</div></div>"
                 + inner
                 + f"<div class='foot'><div>{method}</div><div class='handle'>{handle}</div></div>")
         slides.append((f"{index:02d}-{name}", _page(body, size, config)))

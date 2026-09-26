@@ -1,5 +1,6 @@
 openai>=1.66
 requests>=2.28
 PyYAML>=6.0
-# اختیاری، برای ساخت تصویر بدون کروم:
-# playwright>=1.45
+Pillow>=9.0
+# ساخت تصویر با همان Google Chrome روی مک؛ مرورگر جدا دانلود نمی‌شود
+playwright>=1.45
