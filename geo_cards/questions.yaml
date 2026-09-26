@@ -1,0 +1,73 @@
+# ۶۰ سؤال سری «سؤال روز» به ترتیب انتشار؛ هر ۷ سؤال پشت سر هم یک هفته‌ی متعادل است.
+# category: medical (اسم‌ها تار) | business | education | local
+# برای تار کردن یا نکردن یک سؤال خاص: mask: true یا mask: false
+
+questions:
+  - {id: 1, category: medical, city: تهران, text: "ایمپلنت دندان در تهران کجا بروم؟"}
+  - {id: 2, category: business, city: "", text: "بهترین نرم‌افزار حسابداری ایرانی کدام است؟"}
+  - {id: 3, category: education, city: "", text: "بهترین موسسه‌ی مهاجرت به کانادا کدام است؟"}
+  - {id: 4, category: medical, city: تهران, text: "برای لمینت دندان در تهران پیش کدام دکتر بروم؟"}
+  - {id: 5, category: business, city: "", text: "بهترین هاست ایرانی کدام است؟"}
+  - {id: 6, category: local, city: گرگان, text: "بهترین کافه‌های گرگان کدام‌اند؟"}
+  - {id: 7, category: education, city: تهران, text: "بهترین آموزشگاه آیلتس در تهران کدام است؟"}
+
+  - {id: 8, category: medical, city: تهران, text: "کاشت مو در تهران کجا خوب است؟"}
+  - {id: 9, category: business, city: "", text: "بهترین سایت خرید مانتو کدام است؟"}
+  - {id: 10, category: medical, city: مشهد, text: "متخصص پوست و موی خوب در مشهد کیست؟"}
+  - {id: 11, category: education, city: "", text: "بهترین دوره‌ی آنلاین برنامه‌نویسی به زبان فارسی کدام است؟"}
+  - {id: 12, category: business, city: "", text: "لوازم آرایش اصل را از کدام سایت بخرم؟"}
+  - {id: 13, category: local, city: رامسر, text: "بهترین هتل‌های رامسر کدام‌اند؟"}
+  - {id: 14, category: medical, city: اصفهان, text: "بهترین کلینیک لیزر موهای زائد در اصفهان کدام است؟"}
+
+  - {id: 15, category: medical, city: شیراز, text: "دکتر ارتودنسی خوب در شیراز کیست؟"}
+  - {id: 16, category: business, city: "", text: "بهترین سی‌آر‌ام ایرانی کدام است؟"}
+  - {id: 17, category: education, city: "", text: "بهترین مشاور کنکور کیست؟"}
+  - {id: 18, category: medical, city: تهران, text: "بهترین مرکز درمان ناباروری در تهران کجاست؟"}
+  - {id: 19, category: business, city: "", text: "کتاب را از کدام سایت بخرم؟"}
+  - {id: 20, category: local, city: اصفهان, text: "بهترین رستوران‌های سنتی اصفهان کدام‌اند؟"}
+  - {id: 21, category: education, city: "", text: "برای تحصیل در آلمان با کدام موسسه اقدام کنم؟"}
+
+  - {id: 22, category: medical, city: کرج, text: "دندانپزشک کودکان خوب در کرج کیست؟"}
+  - {id: 23, category: business, city: "", text: "بهترین فروشگاه اینترنتی عینک کدام است؟"}
+  - {id: 24, category: medical, city: تهران, text: "بهترین جراح بینی در تهران کیست؟"}
+  - {id: 25, category: education, city: مشهد, text: "بهترین آموزشگاه زبان انگلیسی در مشهد کدام است؟"}
+  - {id: 26, category: business, city: "", text: "گوشی موبایل اصل را از کدام سایت بخرم؟"}
+  - {id: 27, category: local, city: کاشان, text: "بهترین اقامتگاه بوم‌گردی کاشان کدام است؟"}
+  - {id: 28, category: medical, city: تبریز, text: "تزریق بوتاکس و فیلر در تبریز کجا خوب است؟"}
+
+  - {id: 29, category: medical, city: تهران, text: "برای لیزیک چشم در تهران پیش چه کسی بروم؟"}
+  - {id: 30, category: business, city: "", text: "لوازم خانگی را از کدام سایت آنلاین بخرم؟"}
+  - {id: 31, category: education, city: "", text: "بهترین دوره‌ی دیجیتال مارکتینگ در ایران کدام است؟"}
+  - {id: 32, category: medical, city: مشهد, text: "کامپوزیت دندان در مشهد کجا خوب است؟"}
+  - {id: 33, category: business, city: "", text: "بهترین فروشگاه‌ساز ایرانی کدام است؟"}
+  - {id: 34, category: local, city: تبریز, text: "بهترین شیرینی‌فروشی‌های تبریز کدام‌اند؟"}
+  - {id: 35, category: education, city: "", text: "بهترین اپلیکیشن آموزش زبان برای ایرانی‌ها کدام است؟"}
+
+  - {id: 36, category: medical, city: تهران, text: "بهترین متخصص تغذیه برای کاهش وزن در تهران کیست؟"}
+  - {id: 37, category: business, city: "", text: "بهترین درگاه پرداخت برای سایت کدام است؟"}
+  - {id: 38, category: medical, city: اصفهان, text: "فیزیوتراپی خوب در اصفهان کجاست؟"}
+  - {id: 39, category: education, city: شیراز, text: "بهترین مدرسه‌ی غیرانتفاعی شیراز کدام است؟"}
+  - {id: 40, category: business, city: "", text: "بهترین سامانه‌ی پیامک ایرانی کدام است؟"}
+  - {id: 41, category: local, city: کیش, text: "بهترین هتل‌های کیش کدام‌اند؟"}
+  - {id: 42, category: medical, city: شیراز, text: "بهترین کلینیک زیبایی شیراز کدام است؟"}
+
+  - {id: 43, category: medical, city: رشت, text: "دندانپزشک خوب در رشت کیست؟"}
+  - {id: 44, category: business, city: "", text: "لباس ورزشی را از کدام سایت بخرم؟"}
+  - {id: 45, category: education, city: تهران, text: "ویزای توریستی را از کدام آژانس در تهران بگیرم؟"}
+  - {id: 46, category: medical, city: کرج, text: "متخصص زنان و زایمان خوب در کرج کیست؟"}
+  - {id: 47, category: business, city: "", text: "بهترین برند مبلمان ایرانی کدام است؟"}
+  - {id: 48, category: local, city: شیراز, text: "بهترین کافه‌های شیراز کدام‌اند؟"}
+  - {id: 49, category: education, city: "", text: "بهترین دوره‌ی طراحی سایت با وردپرس کدام است؟"}
+
+  - {id: 50, category: medical, city: "", text: "بهترین روانشناس آنلاین فارسی‌زبان کیست؟"}
+  - {id: 51, category: business, city: "", text: "قهوه‌ی تازه را از کدام سایت آنلاین بخرم؟"}
+  - {id: 52, category: medical, city: تهران, text: "کاشت ابرو و میکروبلیدینگ در تهران کجا خوب است؟"}
+  - {id: 53, category: education, city: اصفهان, text: "بهترین آموزشگاه حسابداری اصفهان کدام است؟"}
+  - {id: 54, category: business, city: "", text: "بهترین نرم‌افزار انبارداری ایرانی کدام است؟"}
+  - {id: 55, category: local, city: کرج, text: "بهترین باشگاه بدنسازی کرج کدام است؟"}
+  - {id: 56, category: medical, city: گرگان, text: "بهترین کلینیک دندانپزشکی گرگان کدام است؟"}
+
+  - {id: 57, category: business, city: "", text: "بهترین سایت رزرو هتل داخلی کدام است؟"}
+  - {id: 58, category: local, city: مشهد, text: "بهترین تالار عروسی مشهد کدام است؟"}
+  - {id: 59, category: business, city: "", text: "بلیت هواپیما را از کدام سایت بخرم؟"}
+  - {id: 60, category: local, city: تهران, text: "بهترین آتلیه‌ی عکاسی عروس در تهران کدام است؟"}

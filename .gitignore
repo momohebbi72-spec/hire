@@ -8,3 +8,7 @@ dist/
 config/google-service-account.json
 .DS_Store
 .pytest_cache/
+
+# GEO cards
+geo_cards/output/
+geo_cards/.env

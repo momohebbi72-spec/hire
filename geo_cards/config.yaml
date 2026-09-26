@@ -1,0 +1,83 @@
+# تنظیمات ساخت پست «سؤال روز»
+
+brand:
+  handle: "@mohebi_seo"
+  series_title: "سؤال روز"
+  cta_link_text: "تست رایگان: لینک در بیو"
+  dm_keyword: "تست"
+  tool_url: "https://www.linyk.ir/go/"
+  logo: ""                  # مسیر یک فایل PNG یا SVG، مثلا assets/logo.png
+
+theme:                      # رنگ‌های لینیک؛ هر کدام را عوض کنی، همه‌ی اسلایدها عوض می‌شوند
+  bg: "#0B1020"
+  surface: "#151C36"
+  text: "#F5F7FF"
+  muted: "#9AA3C7"
+  accent: "#FF5A36"
+  accent_text: "#FFFFFF"
+  font_family: "Vazirmatn"
+
+runs: 10                    # هر سؤال چند بار پرسیده شود
+top_n: 5                    # چند اسم روی اسلاید نتیجه بیاید
+parallel: 4                 # چند درخواست هم‌زمان
+renderer: auto              # auto | playwright | chrome
+reel_seconds_per_slide: 3
+extract_model: gpt-4.1-mini            # مدلی که اسم‌ها را از جواب بیرون می‌کشد
+extract_model_gemini: gemini-2.5-flash
+
+engines:
+  openai:
+    enabled: true
+    label: ChatGPT
+    model: gpt-5-mini
+    web_search: true
+    fallback_without_search: false     # true: اگر جستجوی وب نبود، بدون جستجو بپرس (روی پست نوشته می‌شود)
+  gemini:
+    enabled: false
+    label: Gemini
+    model: gemini-2.5-flash
+    web_search: true
+  perplexity:
+    enabled: false
+    label: Perplexity
+    model: sonar
+
+hashtags: [هوش_مصنوعی, جئو, چت_جی_پی_تی, سئو]
+
+categories:
+  medical:
+    label: پزشکی و زیبایی
+    mask_names: true        # اسم‌ها روی پست عمومی تار می‌شوند
+    entity_word: پزشک
+    hashtags: [پزشکی, دندانپزشکی, کلینیک_زیبایی]
+    tips:
+      - پروفایل کامل در پذیرش۲۴ و دکترتو و نوبت، با تخصص دقیق و آدرس
+      - نظر واقعی و تازه‌ی بیماران در همین سامانه‌ها
+      - صفحه‌ی معرفی روی سایت خودتان با سوابق، مدارک و خدمات
+  business:
+    label: کسب‌وکار آنلاین
+    mask_names: false
+    entity_word: برند
+    hashtags: [فروشگاه_اینترنتی, کسب_و_کار_آنلاین, دیجیتال_مارکتینگ]
+    tips:
+      - حضور در مقاله‌های مقایسه‌ای و «بهترین‌ها» در سایت‌های معتبر
+      - صفحه‌ی مقایسه با رقبا و پرسش‌های متداول روی سایت خودتان
+      - نظر واقعی مشتری در سایت‌های مستقل و شبکه‌های اجتماعی
+  education:
+    label: آموزش و مهاجرت
+    mask_names: false
+    entity_word: موسسه
+    hashtags: [مهاجرت, آموزش, آموزش_زبان]
+    tips:
+      - نتیجه‌ی واقعی شاگردها و متقاضیان با عدد و جزئیات
+      - حضور در مقاله‌ها و لیست‌های «بهترین موسسه‌ها»
+      - صفحه‌ی مجوزها، سوابق و معرفی تیم روی سایت
+  local:
+    label: محلی و گردشگری
+    mask_names: false
+    entity_word: مکان
+    hashtags: [گردشگری, کافه_گردی, سفر]
+    tips:
+      - پروفایل کامل در نقشه‌ها (گوگل، بلد، نشان) با عکس و ساعت کاری
+      - نظر تازه‌ی مشتری‌ها در همین نقشه‌ها
+      - حضور در مقاله‌های «بهترین‌های شهر» و راهنماهای سفر
