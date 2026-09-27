@@ -4,7 +4,7 @@ name: User
 min_score: 45
 report_top_n: 15
 max_age_days: 7
-per_source_limit: 60
+per_source_limit: 150
 skill_target: 25
 
 skills:

@@ -31,9 +31,6 @@ def _channel(value: str) -> str:
     return value.strip("/")
 
 
-@register("telegram", "کانال عمومی تلگرام", group="feed", keyword_mode="filter", needs_target=True,
-          target_label="کانال‌ها",
-          help="یوزرنیم یا لینک کانال عمومی (t.me/xxx) — چندتا با ویرگول. کلمات کلیدی برای فیلتر پیام‌ها.")
 def _clean_title(line: str) -> str:
     return _EMOJI.sub("", line).strip(" :-–|")[:200]
 
@@ -77,6 +74,9 @@ def parse_post(channel: str, post_id: str, raw_html: str, text: str, posted) -> 
                  salary=budget.group(1).strip() if budget else "", external_id=post_id, **base)]
 
 
+@register("telegram", "کانال عمومی تلگرام", group="feed", keyword_mode="filter", needs_target=True,
+          target_label="کانال‌ها",
+          help="یوزرنیم یا لینک کانال عمومی (t.me/xxx) — چندتا با ویرگول. کلمات کلیدی برای فیلتر پیام‌ها.")
 def telegram(src: SourceConfig, limit: int, days: int = 7, max_pages: int = 12) -> List[Item]:
     """Reads the public web preview t.me/s/<channel> (no bot, no login), paging back
     until posts are older than `days`.

@@ -106,3 +106,10 @@ def test_undated_iran_scrape_uses_found_date():
     assert r["tier"] == "match" and r["approx"]
     r = c.classify("استخدام کارشناس سئو (دورکاری)", "", "https://jobinja.ir/x", "", source_type="websearch", found=_ago(1))
     assert r["tier"] == "review"
+
+
+def test_telegram_connector_registered():
+    from radar.sources import FETCHERS
+    from radar.sources.telegram import telegram
+
+    assert FETCHERS["telegram"].fetch is telegram

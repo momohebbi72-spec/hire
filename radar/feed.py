@@ -38,8 +38,10 @@ def _email(text: str) -> str:
 def item(row, clf: Optional[Classifier] = None) -> Dict:
     clf = clf or Classifier()
     reasons = json.loads(row["reasons"] or "[]")
+    # results imported from a web search are not a fresh listing, whatever site they point to
+    st = "websearch" if (row["source_id"] or "") in ("assistant", "google-fa", "import") else (row["source_type"] or "")
     tier = clf.classify(row["title"], row["description"] or "", row["url"] or "", row["posted_at"] or "",
-                        row["remote_type"] or "", row["opp_type"] or "", row["source_type"] or "", row["found_at"] or "")
+                        row["remote_type"] or "", row["opp_type"] or "", st, row["found_at"] or "")
     host = urlparse(row["url"] or "").netloc.lower().replace("www.", "")
     return {
         "id": row["uid"][:16], "title": row["title"], "company": row["company"] or "", "location": row["location"] or "",
@@ -48,7 +50,7 @@ def item(row, clf: Optional[Classifier] = None) -> Dict:
         "ch": channel_of(row["source_type"] or "", row["url"] or ""),
         "tier": tier["tier"], "why": tier["why"], "role": tier["role"], "mode": tier["mode"],
         "pt": tier["parttime"], "lvl": tier["level"], "fresh": tier["fresh"], "age": tier.get("age_days"),
-        "approx": tier.get("approx", False), "st": row["source_type"] or "",
+        "approx": tier.get("approx", False), "st": st,
         "salary": row["salary"] or "", "found": (row["found_at"] or "")[:19], "posted": (row["posted_at"] or "")[:19],
         "desc": re.sub(r"\s+", " ", row["description"] or "")[:420], "email": _email(row["description"] or ""),
     }
