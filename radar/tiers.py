@@ -18,7 +18,7 @@ DEFAULT_RULES: Dict = {
                    "generative engine", "!AEO", "answer engine", "ai search", "ai visibility", "llm optimi",
                    "llm seo", "ai seo", "سئو هوش مصنوعی", "نتایج هوش مصنوعی", "جستجوی هوش مصنوعی", "chatgpt seo"],
     "exclude_title": ["دیجیتال مارکتینگ", "digital marketing", "بازاریابی دیجیتال", "مارکتینگ", "marketing manager",
-                      "social media", "سوشال مدیا", "اینستاگرام", "ادمین", "تولید محتوا", "محتوانویس", "content writer",
+                      "social media", "سوشال مدیا", "اینستاگرام", "ادمین", "تولید محتوا", "محتوانویس", "مقاله", "نویسنده", "content writer",
                       "copywriter", "کپی رایتر", "sem ", "google ads", "گوگل ادز", "ppc", "کارشناس فروش", "sales", "برنامه نویس", "developer"],
     "junior_terms": ["کارآموز", "کارورز", "intern", "internship", "junior", "جونیور", "تازه کار", "entry level",
                      "entry-level", "trainee", "بدون سابقه"],
